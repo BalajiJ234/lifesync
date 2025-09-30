@@ -1,0 +1,51 @@
+{
+  "name": "LifeSync - Personal Life Management",
+  "short_name": "LifeSync",
+  "description": "Manage your expenses, todos, notes, and split bills with friends",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3b82f6",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "categories": ["productivity", "finance", "utilities"],
+  "shortcuts": [
+    {
+      "name": "Add Note",
+      "short_name": "Note",
+      "description": "Quickly add a new note",
+      "url": "/notes",
+      "icons": [
+        {
+          "src": "/icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Add Expense",
+      "short_name": "Expense",
+      "description": "Track a new expense",
+      "url": "/expenses",
+      "icons": [
+        {
+          "src": "/icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
+}
