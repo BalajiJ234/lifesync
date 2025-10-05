@@ -14,8 +14,10 @@ import {
   BarChart3,
   Share2,
   Users,
-  X
+  X,
+  Upload
 } from 'lucide-react'
+import BulkImport from '@/components/BulkImport'
 import { useSettings } from '@/contexts/SettingsContext'
 import { formatAmount, convertCurrency, SUPPORTED_CURRENCIES } from '@/utils/currency'
 import { useDataStorage } from '@/hooks/useLocalStorage'
@@ -82,6 +84,9 @@ export default function ExpensesPage() {
   const [shareModalExpense, setShareModalExpense] = useState<Expense | null>(null)
   const [selectedFriends, setSelectedFriends] = useState<string[]>([])
   const [isClient, setIsClient] = useState(false)
+  const [showQuickAddFriend, setShowQuickAddFriend] = useState(false)
+  const [quickFriendForm, setQuickFriendForm] = useState({ name: '', email: '' })
+  const [showBulkImport, setShowBulkImport] = useState(false)
 
   // Client-side only rendering
   useEffect(() => {
@@ -239,6 +244,38 @@ export default function ExpensesPage() {
     setShareModalExpense(expense)
     // Pre-populate selected friends if expense is already shared
     setSelectedFriends(expense.isShared && expense.sharedWith ? expense.sharedWith : [])
+  }
+
+  const addQuickFriend = () => {
+    if (quickFriendForm.name.trim()) {
+      const defaultAvatars = ['👤', '👨', '👩', '🧑', '👱', '👶', '🧓', '👴', '👵', '🤵', '👰']
+      const newFriend = {
+        id: Date.now().toString(),
+        name: quickFriendForm.name.trim(),
+        email: quickFriendForm.email.trim(),
+        avatar: defaultAvatars[friends.length % defaultAvatars.length],
+        isCustomAvatar: false,
+        createdAt: new Date()
+      }
+      
+      // Update friends list (assuming we have access to setFriends)
+      const updatedFriends = [...friends, newFriend]
+      // We need to use localStorage directly since we don't have setFriends
+      localStorage.setItem('friends', JSON.stringify(updatedFriends))
+      
+      // Reset form and close
+      setQuickFriendForm({ name: '', email: '' })
+      setShowQuickAddFriend(false)
+      
+      // Trigger a page refresh to reload friends data
+      window.location.reload()
+    }
+  }
+
+  const handleBulkImport = (data: unknown[]) => {
+    const importedExpenses = data as Expense[]
+    setExpenses([...importedExpenses, ...expenses])
+    setShowBulkImport(false)
   }
   
   const startEdit = (expense: Expense) => {
@@ -431,14 +468,23 @@ export default function ExpensesPage() {
 
       {/* Add Expense Button */}
       {!showAddForm && (
-        <div className="text-center">
-          <button
-            onClick={() => setShowAddForm(true)}
-            className="inline-flex items-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <Plus size={20} />
-            <span>Add Expense</span>
-          </button>
+        <div className="text-center space-y-4">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button
+              onClick={() => setShowAddForm(true)}
+              className="inline-flex items-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <Plus size={20} />
+              <span>Add Expense</span>
+            </button>
+            <button
+              onClick={() => setShowBulkImport(true)}
+              className="inline-flex items-center space-x-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+            >
+              <Upload size={20} />
+              <span>Bulk Import</span>
+            </button>
+          </div>
         </div>
       )}
 
@@ -763,10 +809,21 @@ export default function ExpensesPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Select friends to share with:
                 </label>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm text-gray-600">{friends.length} friends available</span>
+                  <button
+                    onClick={() => setShowQuickAddFriend(true)}
+                    className="flex items-center gap-1 px-3 py-1 text-sm bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg transition-colors"
+                  >
+                    <Plus size={14} />
+                    Add Friend
+                  </button>
+                </div>
+                
                 {friends.length === 0 ? (
                   <div className="text-center py-4 text-gray-500">
                     <p>No friends added yet.</p>
-                    <p className="text-sm">Add friends in the Bill Split section first.</p>
+                    <p className="text-sm">Click &quot;Add Friend&quot; above to add your first friend.</p>
                   </div>
                 ) : (
                   <div className="space-y-2">
@@ -797,6 +854,47 @@ export default function ExpensesPage() {
                         </div>
                       </label>
                     ))}
+                  </div>
+                )}
+
+                {/* Quick Add Friend Form */}
+                {showQuickAddFriend && (
+                  <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="flex items-center justify-between mb-3">
+                      <h5 className="font-medium text-gray-900">Add New Friend</h5>
+                      <button
+                        onClick={() => {
+                          setShowQuickAddFriend(false)
+                          setQuickFriendForm({ name: '', email: '' })
+                        }}
+                        className="text-gray-400 hover:text-gray-600"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 mb-3">
+                      <input
+                        type="text"
+                        value={quickFriendForm.name}
+                        onChange={(e) => setQuickFriendForm({ ...quickFriendForm, name: e.target.value })}
+                        placeholder="Friend's name"
+                        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                      />
+                      <input
+                        type="email"
+                        value={quickFriendForm.email}
+                        onChange={(e) => setQuickFriendForm({ ...quickFriendForm, email: e.target.value })}
+                        placeholder="Email (optional)"
+                        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                      />
+                    </div>
+                    <button
+                      onClick={addQuickFriend}
+                      disabled={!quickFriendForm.name.trim()}
+                      className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
+                    >
+                      Add Friend
+                    </button>
                   </div>
                 )}
               </div>
@@ -835,6 +933,15 @@ export default function ExpensesPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Bulk Import Modal */}
+      {showBulkImport && (
+        <BulkImport
+          feature="expenses"
+          onImport={handleBulkImport}
+          onClose={() => setShowBulkImport(false)}
+        />
       )}
     </div>
   )
