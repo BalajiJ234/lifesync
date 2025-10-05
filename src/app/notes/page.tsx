@@ -1,14 +1,18 @@
 'use client'
 
 import { useState } from 'react'
-import { Plus, X, Edit3, Save } from 'lucide-react'
+import { Plus, X, Edit3, Save, Upload } from 'lucide-react'
 import { useDataStorage } from '@/hooks/useLocalStorage'
+import BulkImport from '@/components/BulkImport'
 
 interface Note {
   id: string
+  title?: string
   content: string
-  color: string
+  category?: string
+  color?: string
   createdAt: Date
+  updatedAt?: Date
 }
 
 const noteColors = [
@@ -25,6 +29,7 @@ export default function NotesPage() {
   const [newNote, setNewNote] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editContent, setEditContent] = useState('')
+  const [showBulkImport, setShowBulkImport] = useState(false)
 
   const addNote = () => {
     if (newNote.trim()) {
@@ -79,6 +84,12 @@ export default function NotesPage() {
     }
   }
 
+  const handleBulkImport = (data: unknown[]) => {
+    const importedNotes = data as Note[]
+    setNotes([...importedNotes, ...notes])
+    setShowBulkImport(false)
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -102,14 +113,23 @@ export default function NotesPage() {
             <p className="text-sm text-gray-500">
               Tip: Use Ctrl+Enter to quickly add a note
             </p>
-            <button
-              onClick={addNote}
-              disabled={!newNote.trim()}
-              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-            >
-              <Plus size={20} />
-              <span>Add Note</span>
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={addNote}
+                disabled={!newNote.trim()}
+                className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+              >
+                <Plus size={20} />
+                <span>Add Note</span>
+              </button>
+              <button
+                onClick={() => setShowBulkImport(true)}
+                className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              >
+                <Upload size={20} />
+                <span>Bulk Import</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -198,6 +218,15 @@ export default function NotesPage() {
             </div>
           ))}
         </div>
+      )}
+
+      {/* Bulk Import Modal */}
+      {showBulkImport && (
+        <BulkImport
+          feature="notes"
+          onImport={handleBulkImport}
+          onClose={() => setShowBulkImport(false)}
+        />
       )}
     </div>
   )
