@@ -157,11 +157,18 @@ export default function ExpensesPage() {
       // Update existing split bill
       const existingSplitBill = bills.find(b => b.id === expense.splitBillId)
       if (existingSplitBill) {
+        // Recalculate split amounts for updated participants
+        let updatedCustomAmounts: Record<string, number> = {}
+        const perPerson = expense.amount / selectedFriends.length
+        selectedFriends.forEach(id => {
+          updatedCustomAmounts[id] = perPerson
+        })
+
         // Update the existing split bill with new participants
         const updatedBill: SplitBill = {
           ...existingSplitBill,
           participants: selectedFriends,
-          customAmounts: {}, // Reset custom amounts when participants change
+          customAmounts: updatedCustomAmounts, // Recalculated amounts
           description: `${expense.description} (Shared Expense)`, // Update description in case expense changed
           totalAmount: expense.amount, // Update amount in case expense changed
           currency: expense.currency,
@@ -181,6 +188,13 @@ export default function ExpensesPage() {
       }
     }
 
+    // Calculate split amounts for equal sharing
+    let customAmounts: Record<string, number> = {}
+    const perPerson = expense.amount / selectedFriends.length
+    selectedFriends.forEach(id => {
+      customAmounts[id] = perPerson
+    })
+
     // Create a new split bill from the expense (only if not already shared)
     const splitBill: SplitBill = {
       id: Date.now().toString(),
@@ -190,7 +204,7 @@ export default function ExpensesPage() {
       paidBy: 'self', // Current user paid the expense
       participants: selectedFriends,
       splitType: 'equal',
-      customAmounts: {},
+      customAmounts,
       date: expense.date,
       settled: false,
       createdAt: new Date(),
