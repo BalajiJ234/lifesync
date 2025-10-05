@@ -6,11 +6,9 @@ import {
   DollarSign, 
   Edit3, 
   Trash2, 
-  Filter,
   Search,
   Calendar,
   TrendingUp,
-  TrendingDown,
   Receipt,
   PieChart,
   BarChart3

@@ -5,13 +5,11 @@ import {
   Plus, 
   Users, 
   DollarSign, 
-  Edit3, 
   Trash2, 
   UserPlus,
   Calculator,
   Check,
   X,
-  AlertCircle,
   Send,
   Clock,
   CheckCircle
@@ -100,7 +98,7 @@ export default function SplitsPage() {
   const addBill = () => {
     if (billForm.description.trim() && billForm.totalAmount && billForm.paidBy && billForm.participants.length > 0) {
       const totalAmount = parseFloat(billForm.totalAmount)
-      let customAmounts = {}
+      let customAmounts: Record<string, number> = {}
       
       if (billForm.splitType === 'equal') {
         const perPerson = totalAmount / billForm.participants.length
@@ -197,8 +195,8 @@ export default function SplitsPage() {
     
     // Convert to settlements (who owes whom)
     const settlements: Settlement[] = []
-    const positiveBalances = Object.entries(balances).filter(([_, amount]) => amount > 0)
-    const negativeBalances = Object.entries(balances).filter(([_, amount]) => amount < 0)
+    const positiveBalances = Object.entries(balances).filter(([, amount]) => amount > 0)
+    const negativeBalances = Object.entries(balances).filter(([, amount]) => amount < 0)
     
     positiveBalances.forEach(([creditorId, creditAmount]) => {
       negativeBalances.forEach(([debtorId, debtAmount]) => {
@@ -562,7 +560,7 @@ export default function SplitsPage() {
                             <div className="mt-2 text-sm text-gray-600">
                               <p>Paid by {paidByFriend?.avatar} {paidByFriend?.name} on {new Date(bill.date).toLocaleDateString()}</p>
                               <p>Split between: {bill.participants.map(id => getFriendById(id)?.name).join(', ')}</p>
-                              {bill.notes && <p className="italic">"{bill.notes}"</p>}
+                              {bill.notes && <p className="italic">&quot;{bill.notes}&quot;</p>}
                             </div>
                             
                             <div className="mt-3 space-y-1">

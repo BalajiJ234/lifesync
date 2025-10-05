@@ -16,13 +16,20 @@ import {
 } from 'lucide-react'
 
 // Mock data hooks (in real app, these would be from context/store)
+interface ActivityItem {
+  type: string
+  desc: string
+  time: string
+  amount?: string
+}
+
 const useAppData = () => {
   const [data, setData] = useState({
     notes: 0,
     expenses: { thisMonth: 0, count: 0 },
     todos: { active: 0, completed: 0 },
     splits: { pending: 0, friends: 0 },
-    recentActivity: [] as any[]
+    recentActivity: [] as ActivityItem[]
   })
 
   useEffect(() => {

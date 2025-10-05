@@ -9,7 +9,6 @@ import {
   Save, 
   Calendar,
   Flag,
-  Filter,
   Search,
   Clock
 } from 'lucide-react'
