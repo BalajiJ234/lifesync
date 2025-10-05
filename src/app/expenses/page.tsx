@@ -152,7 +152,36 @@ export default function ExpensesPage() {
     const expense = expenses.find(e => e.id === expenseId)
     if (!expense || selectedFriends.length === 0) return
 
-    // Create a new split bill from the expense
+    // Check if expense is already shared
+    if (expense.isShared && expense.splitBillId) {
+      // Update existing split bill
+      const existingSplitBill = bills.find(b => b.id === expense.splitBillId)
+      if (existingSplitBill) {
+        // Update the existing split bill with new participants
+        const updatedBill: SplitBill = {
+          ...existingSplitBill,
+          participants: selectedFriends,
+          customAmounts: {}, // Reset custom amounts when participants change
+          description: `${expense.description} (Shared Expense)`, // Update description in case expense changed
+          totalAmount: expense.amount, // Update amount in case expense changed
+          currency: expense.currency,
+          notes: expense.notes
+        }
+        
+        // Update the bills array
+        setBills(bills.map(b => b.id === expense.splitBillId ? updatedBill : b))
+        
+        // Update the expense with new shared info
+        setExpenses(expenses.map(e => 
+          e.id === expenseId 
+            ? { ...e, sharedWith: selectedFriends }
+            : e
+        ))
+        return
+      }
+    }
+
+    // Create a new split bill from the expense (only if not already shared)
     const splitBill: SplitBill = {
       id: Date.now().toString(),
       description: `${expense.description} (Shared Expense)`,
@@ -184,7 +213,8 @@ export default function ExpensesPage() {
 
   const openShareModal = (expense: Expense) => {
     setShareModalExpense(expense)
-    setSelectedFriends([])
+    // Pre-populate selected friends if expense is already shared
+    setSelectedFriends(expense.isShared && expense.sharedWith ? expense.sharedWith : [])
   }
   
   const startEdit = (expense: Expense) => {
@@ -682,7 +712,14 @@ export default function ExpensesPage() {
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[80vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Share Expense</h3>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    {shareModalExpense.isShared ? 'Update Shared Expense' : 'Share Expense'}
+                  </h3>
+                  {shareModalExpense.isShared && (
+                    <p className="text-sm text-green-600">This expense is already shared - updating participants</p>
+                  )}
+                </div>
                 <button
                   onClick={() => setShareModalExpense(null)}
                   className="text-gray-400 hover:text-gray-600"
@@ -756,7 +793,7 @@ export default function ExpensesPage() {
                   disabled={selectedFriends.length === 0}
                   className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                  Share Expense
+                  {shareModalExpense.isShared ? 'Update Share' : 'Share Expense'}
                 </button>
               </div>
             </div>
