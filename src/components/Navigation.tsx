@@ -7,7 +7,8 @@ import {
   StickyNote, 
   DollarSign, 
   CheckSquare, 
-  Users 
+  Users,
+  Settings
 } from 'lucide-react'
 
 const navItems = [
@@ -16,6 +17,7 @@ const navItems = [
   { href: '/expenses', label: 'Expenses', icon: DollarSign },
   { href: '/todos', label: 'Todos', icon: CheckSquare },
   { href: '/splits', label: 'Splits', icon: Users },
+  { href: '/settings', label: 'Settings', icon: Settings },
 ]
 
 export default function Navigation() {
@@ -65,7 +67,7 @@ export default function Navigation() {
 
         {/* Mobile menu */}
         <div className="md:hidden border-t pt-4 pb-3">
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-3 gap-2">
             {navItems.map((item) => {
               const Icon = item.icon
               const isActive = pathname === item.href

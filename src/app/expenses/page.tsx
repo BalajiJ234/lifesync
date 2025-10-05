@@ -13,6 +13,8 @@ import {
   PieChart,
   BarChart3
 } from 'lucide-react'
+import { useSettings } from '@/contexts/SettingsContext'
+import { formatAmount, convertCurrency, SUPPORTED_CURRENCIES } from '@/utils/currency'
 
 interface Expense {
   id: string
@@ -21,6 +23,7 @@ interface Expense {
   category: string
   date: string
   notes?: string
+  currency: string
   createdAt: Date
 }
 
@@ -38,9 +41,11 @@ const expenseCategories = [
 ]
 
 export default function ExpensesPage() {
+  const { settings } = useSettings()
   const [expenses, setExpenses] = useState<Expense[]>([])
   const [showAddForm, setShowAddForm] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
+
   
   // Form states
   const [formData, setFormData] = useState({
@@ -48,7 +53,8 @@ export default function ExpensesPage() {
     description: '',
     category: 'Food & Dining',
     date: new Date().toISOString().split('T')[0],
-    notes: ''
+    notes: '',
+    currency: settings.defaultCurrency.code
   })
   
   // Filter states
@@ -65,6 +71,7 @@ export default function ExpensesPage() {
         category: formData.category,
         date: formData.date,
         notes: formData.notes.trim() || undefined,
+        currency: formData.currency,
         createdAt: new Date()
       }
       
@@ -84,7 +91,8 @@ export default function ExpensesPage() {
               description: formData.description.trim(),
               category: formData.category,
               date: formData.date,
-              notes: formData.notes.trim() || undefined
+              notes: formData.notes.trim() || undefined,
+              currency: formData.currency
             }
           : expense
       ))
@@ -103,7 +111,8 @@ export default function ExpensesPage() {
       description: expense.description,
       category: expense.category,
       date: expense.date,
-      notes: expense.notes || ''
+      notes: expense.notes || '',
+      currency: expense.currency
     })
     setEditingId(expense.id)
     setShowAddForm(true)
@@ -115,7 +124,8 @@ export default function ExpensesPage() {
       description: '',
       category: 'Food & Dining',
       date: new Date().toISOString().split('T')[0],
-      notes: ''
+      notes: '',
+      currency: settings.defaultCurrency.code
     })
   }
   
@@ -212,7 +222,14 @@ export default function ExpensesPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">This Month</p>
-              <p className="text-2xl font-bold text-gray-900">${stats.thisMonth.toFixed(2)}</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {formatAmount(
+                  filteredExpenses
+                    .filter(e => new Date(e.date).getMonth() === new Date().getMonth())
+                    .reduce((sum, e) => sum + convertCurrency(e.amount, e.currency, settings.defaultCurrency.code), 0),
+                  settings.defaultCurrency
+                )}
+              </p>
             </div>
             <div className="p-3 bg-blue-100 rounded-full">
               <DollarSign className="h-6 w-6 text-blue-600" />
@@ -224,7 +241,19 @@ export default function ExpensesPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">This Week</p>
-              <p className="text-2xl font-bold text-gray-900">${stats.thisWeek.toFixed(2)}</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {formatAmount(
+                  filteredExpenses
+                    .filter(e => {
+                      const expenseDate = new Date(e.date)
+                      const weekStart = new Date()
+                      weekStart.setDate(weekStart.getDate() - weekStart.getDay())
+                      return expenseDate >= weekStart
+                    })
+                    .reduce((sum, e) => sum + convertCurrency(e.amount, e.currency, settings.defaultCurrency.code), 0),
+                  settings.defaultCurrency
+                )}
+              </p>
             </div>
             <div className="p-3 bg-green-100 rounded-full">
               <TrendingUp className="h-6 w-6 text-green-600" />
@@ -236,7 +265,14 @@ export default function ExpensesPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Avg/Day (30d)</p>
-              <p className="text-2xl font-bold text-gray-900">${stats.avgPerDay.toFixed(2)}</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {formatAmount(
+                  filteredExpenses.length > 0 ? 
+                    filteredExpenses.reduce((sum, e) => sum + convertCurrency(e.amount, e.currency, settings.defaultCurrency.code), 0) / 30
+                    : 0,
+                  settings.defaultCurrency
+                )}
+              </p>
             </div>
             <div className="p-3 bg-purple-100 rounded-full">
               <BarChart3 className="h-6 w-6 text-purple-600" />
@@ -277,7 +313,7 @@ export default function ExpensesPage() {
             {editingId ? 'Edit Expense' : 'Add New Expense'}
           </h3>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Amount *
@@ -290,6 +326,23 @@ export default function ExpensesPage() {
                 placeholder="0.00"
                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Currency
+              </label>
+              <select
+                value={formData.currency}
+                onChange={(e) => setFormData({...formData, currency: e.target.value})}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              >
+                {SUPPORTED_CURRENCIES.map(currency => (
+                  <option key={currency.code} value={currency.code}>
+                    {currency.flag} {currency.code} ({currency.symbol})
+                  </option>
+                ))}
+              </select>
             </div>
             
             <div>
@@ -415,7 +468,10 @@ export default function ExpensesPage() {
             Showing {filteredExpenses.length} of {expenses.length} expenses
             {filteredExpenses.length > 0 && (
               <span className="ml-2 font-medium">
-                Total: ${filteredExpenses.reduce((sum, e) => sum + e.amount, 0).toFixed(2)}
+                Total: {formatAmount(
+                  filteredExpenses.reduce((sum, e) => sum + convertCurrency(e.amount, e.currency, settings.defaultCurrency.code), 0),
+                  settings.defaultCurrency
+                )}
               </span>
             )}
           </div>
@@ -459,7 +515,19 @@ export default function ExpensesPage() {
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
                         <h3 className="font-semibold text-gray-900">{expense.description}</h3>
-                        <span className="text-xl font-bold text-gray-900">${expense.amount.toFixed(2)}</span>
+                        <div className="text-right">
+                          <span className="text-xl font-bold text-gray-900">
+                            {formatAmount(expense.amount, SUPPORTED_CURRENCIES.find(c => c.code === expense.currency) || settings.defaultCurrency)}
+                          </span>
+                          {expense.currency !== settings.defaultCurrency.code && (
+                            <div className="text-sm text-gray-500">
+                              ≈ {formatAmount(
+                                convertCurrency(expense.amount, expense.currency, settings.defaultCurrency.code),
+                                settings.defaultCurrency
+                              )}
+                            </div>
+                          )}
+                        </div>
                       </div>
                       
                       <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
