@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { 
   Plus, 
   Users, 
@@ -12,7 +12,9 @@ import {
   X,
   Send,
   Clock,
-  CheckCircle
+  CheckCircle,
+  Percent,
+  Equal
 } from 'lucide-react'
 import { useDataStorage } from '@/hooks/useLocalStorage'
 
@@ -28,10 +30,12 @@ interface SplitBill {
   id: string
   description: string
   totalAmount: number
-  paidBy: string // friend id
+  currency?: string
+  paidBy: string // friend id or 'self' for logged in person
   participants: string[] // friend ids
-  splitType: 'equal' | 'custom'
+  splitType: 'equal' | 'percentage' | 'custom'
   customAmounts?: Record<string, number>
+  percentages?: Record<string, number>
   date: string
   settled: boolean
   createdAt: Date
@@ -54,6 +58,41 @@ export default function SplitsPage() {
   const [showAddFriend, setShowAddFriend] = useState(false)
   const [showAddBill, setShowAddBill] = useState(false)
   const [activeTab, setActiveTab] = useState<'bills' | 'friends' | 'balances'>('bills')
+  const [shareMode, setShareMode] = useState<'equal' | 'percentage'>('equal')
+  const [percentages, setPercentages] = useState<Record<string, number>>({})
+  const [isClient, setIsClient] = useState(false)
+  
+  // Client-side only rendering to prevent hydration errors
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+  
+  // Data migration effect to handle existing records
+  useEffect(() => {
+    if (isClient && bills.length > 0) {
+      // Migrate existing bills to include new fields
+      const migratedBills = bills.map(bill => ({
+        ...bill,
+        splitType: bill.splitType || 'equal',
+        customAmounts: bill.customAmounts || {},
+        percentages: bill.percentages || {},
+        currency: bill.currency || undefined,
+        paidBy: bill.paidBy === 'me' ? 'self' : bill.paidBy // Migrate old 'me' to 'self'
+      }))
+      
+      // Check if migration is needed
+      const needsMigration = bills.some(bill => 
+        !bill.splitType || 
+        !bill.customAmounts || 
+        !bill.percentages || 
+        bill.paidBy === 'me'
+      )
+      
+      if (needsMigration) {
+        setBills(migratedBills)
+      }
+    }
+  }, [isClient, bills.length]) // Only run when client is ready and bills exist
   
   // Friend form
   const [friendForm, setFriendForm] = useState({
@@ -65,10 +104,11 @@ export default function SplitsPage() {
   const [billForm, setBillForm] = useState({
     description: '',
     totalAmount: '',
-    paidBy: '',
+    paidBy: 'self', // Default to logged-in person
     participants: [] as string[],
-    splitType: 'equal' as 'equal' | 'custom',
+    splitType: 'equal' as 'equal' | 'percentage' | 'custom',
     customAmounts: {} as Record<string, number>,
+    percentages: {} as Record<string, number>,
     date: new Date().toISOString().split('T')[0],
     notes: ''
   })
@@ -106,6 +146,11 @@ export default function SplitsPage() {
         billForm.participants.forEach(id => {
           customAmounts[id] = perPerson
         })
+      } else if (billForm.splitType === 'percentage') {
+        billForm.participants.forEach(id => {
+          const percentage = billForm.percentages[id] || 0
+          customAmounts[id] = (totalAmount * percentage) / 100
+        })
       } else {
         customAmounts = billForm.customAmounts
       }
@@ -118,6 +163,7 @@ export default function SplitsPage() {
         participants: billForm.participants,
         splitType: billForm.splitType,
         customAmounts,
+        percentages: billForm.splitType === 'percentage' ? billForm.percentages : undefined,
         date: billForm.date,
         settled: false,
         notes: billForm.notes.trim() || undefined,
@@ -134,13 +180,15 @@ export default function SplitsPage() {
     setBillForm({
       description: '',
       totalAmount: '',
-      paidBy: '',
+      paidBy: 'self',
       participants: [],
       splitType: 'equal',
       customAmounts: {},
+      percentages: {},
       date: new Date().toISOString().split('T')[0],
       notes: ''
     })
+    setPercentages({})
   }
 
   const toggleParticipant = (friendId: string) => {
@@ -157,6 +205,16 @@ export default function SplitsPage() {
       customAmounts: {
         ...billForm.customAmounts,
         [friendId]: amount
+      }
+    })
+  }
+
+  const updatePercentage = (friendId: string, percentage: number) => {
+    setBillForm({
+      ...billForm,
+      percentages: {
+        ...billForm.percentages,
+        [friendId]: percentage
       }
     })
   }
@@ -384,7 +442,7 @@ export default function SplitsPage() {
                           onChange={(e) => setBillForm({...billForm, paidBy: e.target.value})}
                           className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                         >
-                          <option value="">Select who paid</option>
+                          <option value="self">🙋‍♂️ Me (You)</option>
                           {friends.map(friend => (
                             <option key={friend.id} value={friend.id}>
                               {friend.avatar} {friend.name}
@@ -437,7 +495,7 @@ export default function SplitsPage() {
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Split Type
                       </label>
-                      <div className="flex space-x-4">
+                      <div className="flex flex-wrap gap-4">
                         <label className="flex items-center">
                           <input
                             type="radio"
@@ -446,7 +504,19 @@ export default function SplitsPage() {
                             onChange={(e) => setBillForm({...billForm, splitType: e.target.value as 'equal'})}
                             className="text-blue-600 focus:ring-blue-500"
                           />
-                          <span className="ml-2">Split Equally</span>
+                          <Equal className="w-4 h-4 ml-2 mr-1" />
+                          <span>Split Equally</span>
+                        </label>
+                        <label className="flex items-center">
+                          <input
+                            type="radio"
+                            value="percentage"
+                            checked={billForm.splitType === 'percentage'}
+                            onChange={(e) => setBillForm({...billForm, splitType: e.target.value as 'percentage'})}
+                            className="text-blue-600 focus:ring-blue-500"
+                          />
+                          <Percent className="w-4 h-4 ml-2 mr-1" />
+                          <span>By Percentage</span>
                         </label>
                         <label className="flex items-center">
                           <input
@@ -456,10 +526,54 @@ export default function SplitsPage() {
                             onChange={(e) => setBillForm({...billForm, splitType: e.target.value as 'custom'})}
                             className="text-blue-600 focus:ring-blue-500"
                           />
-                          <span className="ml-2">Custom Amounts</span>
+                          <DollarSign className="w-4 h-4 ml-2 mr-1" />
+                          <span>Custom Amounts</span>
                         </label>
                       </div>
                     </div>
+
+                    {billForm.splitType === 'percentage' && billForm.participants.length > 0 && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Percentage Split
+                        </label>
+                        <div className="space-y-2">
+                          {billForm.participants.map(participantId => {
+                            const friend = getFriendById(participantId)
+                            const percentage = billForm.percentages[participantId] || 0
+                            const amount = parseFloat(billForm.totalAmount) * percentage / 100
+                            return (
+                              <div key={participantId} className="flex items-center space-x-3">
+                                <span className="text-lg">{friend?.avatar}</span>
+                                <span className="w-24 font-medium">{friend?.name}</span>
+                                <div className="flex items-center space-x-2">
+                                  <input
+                                    type="number"
+                                    step="1"
+                                    min="0"
+                                    max="100"
+                                    value={percentage || ''}
+                                    onChange={(e) => updatePercentage(participantId, parseFloat(e.target.value) || 0)}
+                                    placeholder="0"
+                                    className="w-16 p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                                  />
+                                  <span className="text-gray-500">%</span>
+                                  <span className="text-sm text-gray-600 w-20">
+                                    (${amount.toFixed(2)})
+                                  </span>
+                                </div>
+                              </div>
+                            )
+                          })}
+                          <div className="text-sm text-gray-600 mt-2">
+                            Total: {Object.values(billForm.percentages).reduce((sum, p) => sum + p, 0)}% 
+                            {Object.values(billForm.percentages).reduce((sum, p) => sum + p, 0) !== 100 && (
+                              <span className="text-red-500 ml-2">⚠ Should total 100%</span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
 
                     {billForm.splitType === 'custom' && billForm.participants.length > 0 && (
                       <div>
@@ -559,7 +673,7 @@ export default function SplitsPage() {
                             </div>
                             
                             <div className="mt-2 text-sm text-gray-600">
-                              <p>Paid by {paidByFriend?.avatar} {paidByFriend?.name} on {new Date(bill.date).toLocaleDateString()}</p>
+                              <p>Paid by {bill.paidBy === 'self' ? '🙋‍♂️ You' : `${paidByFriend?.avatar} ${paidByFriend?.name}`} on {isClient && bill.date ? new Date(bill.date).toLocaleDateString() : 'Recent'}</p>
                               <p>Split between: {bill.participants.map(id => getFriendById(id)?.name).join(', ')}</p>
                               {bill.notes && <p className="italic">&quot;{bill.notes}&quot;</p>}
                             </div>
@@ -696,7 +810,7 @@ export default function SplitsPage() {
                               <p className="text-sm text-gray-600">{friend.email}</p>
                             )}
                             <p className="text-xs text-gray-500">
-                              Added {friend.createdAt.toLocaleDateString()}
+                              Added {isClient && friend.createdAt ? new Date(friend.createdAt).toLocaleDateString() : 'Recently'}
                             </p>
                           </div>
                         </div>

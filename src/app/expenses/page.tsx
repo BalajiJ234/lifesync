@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { 
   Plus, 
   DollarSign, 
@@ -11,11 +11,38 @@ import {
   TrendingUp,
   Receipt,
   PieChart,
-  BarChart3
+  BarChart3,
+  Share2,
+  Users,
+  X
 } from 'lucide-react'
 import { useSettings } from '@/contexts/SettingsContext'
 import { formatAmount, convertCurrency, SUPPORTED_CURRENCIES } from '@/utils/currency'
 import { useDataStorage } from '@/hooks/useLocalStorage'
+
+// Import Friend interface from splits
+interface Friend {
+  id: string
+  name: string
+  email: string
+  avatar: string
+  createdAt: Date
+}
+
+interface SplitBill {
+  id: string
+  description: string
+  totalAmount: number
+  paidBy: string // friend id
+  participants: string[] // friend ids
+  splitType: 'equal' | 'custom'
+  customAmounts?: Record<string, number>
+  date: string
+  settled: boolean
+  createdAt: Date
+  notes?: string
+  currency: string
+}
 
 interface Expense {
   id: string
@@ -26,6 +53,9 @@ interface Expense {
   notes?: string
   currency: string
   createdAt: Date
+  isShared?: boolean
+  sharedWith?: string[] // Array of friend IDs
+  splitBillId?: string // Reference to the created split bill
 }
 
 const expenseCategories = [
@@ -38,15 +68,27 @@ const expenseCategories = [
   { name: 'Education', icon: '📚', color: 'bg-indigo-100 text-indigo-800' },
   { name: 'Travel', icon: '✈️', color: 'bg-green-100 text-green-800' },
   { name: 'Personal Care', icon: '💄', color: 'bg-rose-100 text-rose-800' },
-  { name: 'Other', icon: '📦', color: 'bg-gray-100 text-gray-800' }
+  { name: 'Rental', icon: '🏠', color: 'bg-cyan-100 text-cyan-800' },
+  { name: 'Others', icon: '📦', color: 'bg-gray-100 text-gray-800' }
 ]
 
 export default function ExpensesPage() {
   const { settings } = useSettings()
   const [expenses, setExpenses] = useDataStorage<Expense[]>('expenses', [])
+  const [friends, setFriends] = useDataStorage<Friend[]>('friends', [])
+  const [bills, setBills] = useDataStorage<SplitBill[]>('bills', [])
   const [showAddForm, setShowAddForm] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [showShareModal, setShowShareModal] = useState(false)
+  const [shareExpenseId, setShareExpenseId] = useState<string | null>(null)
+  const [shareModalExpense, setShareModalExpense] = useState<Expense | null>(null)
+  const [selectedFriends, setSelectedFriends] = useState<string[]>([])
+  const [isClient, setIsClient] = useState(false)
 
+  // Client-side only rendering
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
   
   // Form states
   const [formData, setFormData] = useState({
@@ -104,6 +146,45 @@ export default function ExpensesPage() {
   
   const deleteExpense = (id: string) => {
     setExpenses(expenses.filter(expense => expense.id !== id))
+  }
+
+  const shareExpense = (expenseId: string, selectedFriends: string[]) => {
+    const expense = expenses.find(e => e.id === expenseId)
+    if (!expense || selectedFriends.length === 0) return
+
+    // Create a new split bill from the expense
+    const splitBill: SplitBill = {
+      id: Date.now().toString(),
+      description: `${expense.description} (Shared Expense)`,
+      totalAmount: expense.amount,
+      currency: expense.currency,
+      paidBy: 'self', // Current user paid the expense
+      participants: selectedFriends,
+      splitType: 'equal',
+      customAmounts: {},
+      date: expense.date,
+      settled: false,
+      createdAt: new Date(),
+      notes: expense.notes
+    }
+
+    // Add the split bill
+    setBills([splitBill, ...bills])
+
+    // Update the expense to mark it as shared
+    setExpenses(expenses.map(e => 
+      e.id === expenseId 
+        ? { ...e, isShared: true, sharedWith: selectedFriends, splitBillId: splitBill.id }
+        : e
+    ))
+
+    setShowShareModal(false)
+    setShareExpenseId(null)
+  }
+
+  const openShareModal = (expense: Expense) => {
+    setShareModalExpense(expense)
+    setSelectedFriends([])
   }
   
   const startEdit = (expense: Expense) => {
@@ -515,7 +596,15 @@ export default function ExpensesPage() {
                     {/* Expense Details */}
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
-                        <h3 className="font-semibold text-gray-900">{expense.description}</h3>
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-semibold text-gray-900">{expense.description}</h3>
+                          {expense.isShared && (
+                            <div className="flex items-center gap-1 px-2 py-1 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded-full text-xs">
+                              <Users className="w-3 h-3" />
+                              <span>Shared</span>
+                            </div>
+                          )}
+                        </div>
                         <div className="text-right">
                           <span className="text-xl font-bold text-gray-900">
                             {formatAmount(expense.amount, SUPPORTED_CURRENCIES.find(c => c.code === expense.currency) || settings.defaultCurrency)}
@@ -538,7 +627,7 @@ export default function ExpensesPage() {
                         
                         <span className="flex items-center gap-1">
                           <Calendar size={12} />
-                          {new Date(expense.date).toLocaleDateString()}
+                          {isClient ? new Date(expense.date).toLocaleDateString() : 'Recent'}
                         </span>
                         
                         {expense.notes && (
@@ -559,14 +648,23 @@ export default function ExpensesPage() {
                   {/* Actions */}
                   <div className="flex gap-2 ml-4">
                     <button
+                      onClick={() => openShareModal(expense)}
+                      className="text-gray-400 hover:text-green-600 transition-colors"
+                      title="Share Expense"
+                    >
+                      <Share2 size={18} />
+                    </button>
+                    <button
                       onClick={() => startEdit(expense)}
                       className="text-gray-400 hover:text-blue-600 transition-colors"
+                      title="Edit Expense"
                     >
                       <Edit3 size={18} />
                     </button>
                     <button
                       onClick={() => deleteExpense(expense.id)}
                       className="text-gray-400 hover:text-red-600 transition-colors"
+                      title="Delete Expense"
                     >
                       <Trash2 size={18} />
                     </button>
@@ -575,6 +673,94 @@ export default function ExpensesPage() {
               </div>
             )
           })}
+        </div>
+      )}
+
+      {/* Share Expense Modal */}
+      {shareModalExpense && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[80vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">Share Expense</h3>
+                <button
+                  onClick={() => setShareModalExpense(null)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              
+              <div className="mb-4 p-4 bg-gray-50 rounded-lg">
+                <h4 className="font-medium text-gray-900">{shareModalExpense.description}</h4>
+                <p className="text-sm text-gray-600">
+                  {formatAmount(shareModalExpense.amount, SUPPORTED_CURRENCIES.find(c => c.code === shareModalExpense.currency) || settings.defaultCurrency)}
+                </p>
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Select friends to share with:
+                </label>
+                {friends.length === 0 ? (
+                  <div className="text-center py-4 text-gray-500">
+                    <p>No friends added yet.</p>
+                    <p className="text-sm">Add friends in the Bill Split section first.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {friends.map((friend) => (
+                      <label
+                        key={friend.id}
+                        className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedFriends.includes(friend.id)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedFriends([...selectedFriends, friend.id])
+                            } else {
+                              setSelectedFriends(selectedFriends.filter(id => id !== friend.id))
+                            }
+                          }}
+                          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        />
+                        <div className="flex items-center space-x-2">
+                          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <span className="text-sm font-medium text-blue-600">
+                              {friend.name.charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                          <span className="text-sm font-medium text-gray-900">{friend.name}</span>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShareModalExpense(null)}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    shareExpense(shareModalExpense.id, selectedFriends)
+                    setShareModalExpense(null)
+                    setSelectedFriends([])
+                  }}
+                  disabled={selectedFriends.length === 0}
+                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  Share Expense
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
