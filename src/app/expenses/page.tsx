@@ -211,6 +211,21 @@ export default function ExpensesPage() {
     setShareExpenseId(null)
   }
 
+  const unshareExpense = (expenseId: string) => {
+    const expense = expenses.find(e => e.id === expenseId)
+    if (!expense || !expense.isShared || !expense.splitBillId) return
+
+    // Remove the associated split bill
+    setBills(bills.filter(b => b.id !== expense.splitBillId))
+
+    // Update the expense to mark it as unshared
+    setExpenses(expenses.map(e => 
+      e.id === expenseId 
+        ? { ...e, isShared: false, sharedWith: undefined, splitBillId: undefined }
+        : e
+    ))
+  }
+
   const openShareModal = (expense: Expense) => {
     setShareModalExpense(expense)
     // Pre-populate selected friends if expense is already shared
@@ -784,6 +799,18 @@ export default function ExpensesPage() {
                 >
                   Cancel
                 </button>
+                {shareModalExpense.isShared && (
+                  <button
+                    onClick={() => {
+                      unshareExpense(shareModalExpense.id)
+                      setShareModalExpense(null)
+                      setSelectedFriends([])
+                    }}
+                    className="px-4 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors"
+                  >
+                    Unshare
+                  </button>
+                )}
                 <button
                   onClick={() => {
                     shareExpense(shareModalExpense.id, selectedFriends)
