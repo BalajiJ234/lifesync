@@ -14,15 +14,18 @@ import {
   Clock,
   CheckCircle,
   Percent,
-  Equal
+  Equal,
+  Upload
 } from 'lucide-react'
 import { useDataStorage } from '@/hooks/useLocalStorage'
+import BulkImport from '@/components/BulkImport'
 
 interface Friend {
   id: string
   name: string
   email: string
   avatar: string
+  isCustomAvatar: boolean
   createdAt: Date
 }
 
@@ -58,6 +61,7 @@ export default function SplitsPage() {
   const [showAddFriend, setShowAddFriend] = useState(false)
   const [showAddBill, setShowAddBill] = useState(false)
   const [activeTab, setActiveTab] = useState<'bills' | 'friends' | 'balances'>('bills')
+  const [showBulkImport, setShowBulkImport] = useState(false)
   // Removed unused shareMode and percentages state variables
   const [isClient, setIsClient] = useState(false)
   
@@ -91,13 +95,16 @@ export default function SplitsPage() {
         setBills(migratedBills)
       }
     }
-  }, [isClient]) // Only run when client is ready
+  }, [isClient, bills, setBills]) // Only run when client is ready
   
   // Friend form
   const [friendForm, setFriendForm] = useState({
     name: '',
-    email: ''
+    email: '',
+    selectedAvatar: defaultAvatars[0],
+    customAvatar: null as string | null
   })
+  const [showAvatarSelector, setShowAvatarSelector] = useState(false)
   
   // Bill form  
   const [billForm, setBillForm] = useState({
@@ -118,12 +125,26 @@ export default function SplitsPage() {
         id: Date.now().toString(),
         name: friendForm.name.trim(),
         email: friendForm.email.trim(),
-        avatar: defaultAvatars[friends.length % defaultAvatars.length],
+        avatar: friendForm.customAvatar || friendForm.selectedAvatar,
+        isCustomAvatar: !!friendForm.customAvatar,
         createdAt: new Date()
       }
       setFriends([...friends, friend])
-      setFriendForm({ name: '', email: '' })
+      setFriendForm({ name: '', email: '', selectedAvatar: defaultAvatars[0], customAvatar: null })
       setShowAddFriend(false)
+      setShowAvatarSelector(false)
+    }
+  }
+
+  const handleAvatarUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        const result = e.target?.result as string
+        setFriendForm({ ...friendForm, customAvatar: result })
+      }
+      reader.readAsDataURL(file)
     }
   }
 
@@ -133,6 +154,12 @@ export default function SplitsPage() {
     setBills(bills.filter(bill => 
       bill.paidBy !== id && !bill.participants.includes(id)
     ))
+  }
+
+  const handleBulkImport = (data: unknown[]) => {
+    const importedFriends = data as Friend[]
+    setFriends([...friends, ...importedFriends])
+    setShowBulkImport(false)
   }
 
   const addBill = () => {
@@ -723,13 +750,22 @@ export default function SplitsPage() {
             <div className="space-y-6">
               <div className="flex justify-between items-center">
                 <h2 className="text-lg font-semibold">Friends</h2>
-                <button
-                  onClick={() => setShowAddFriend(true)}
-                  className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  <UserPlus size={20} />
-                  <span>Add Friend</span>
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setShowAddFriend(true)}
+                    className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    <UserPlus size={20} />
+                    <span>Add Friend</span>
+                  </button>
+                  <button
+                    onClick={() => setShowBulkImport(true)}
+                    className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                  >
+                    <Upload size={20} />
+                    <span>Bulk Import</span>
+                  </button>
+                </div>
               </div>
 
               {/* Add Friend Form */}
@@ -764,6 +800,83 @@ export default function SplitsPage() {
                       />
                     </div>
                   </div>
+
+                  {/* Avatar Selection */}
+                  <div className="mt-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Choose Avatar
+                    </label>
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center border-2 border-gray-200">
+                          {friendForm.customAvatar ? (
+                            <img 
+                              src={friendForm.customAvatar} 
+                              alt="Custom avatar" 
+                              className="w-10 h-10 rounded-full object-cover"
+                            />
+                          ) : (
+                            <span className="text-xl">{friendForm.selectedAvatar}</span>
+                          )}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setShowAvatarSelector(!showAvatarSelector)}
+                          className="px-3 py-1 text-sm bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors"
+                        >
+                          Change
+                        </button>
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleAvatarUpload}
+                          className="hidden"
+                          id="avatar-upload"
+                        />
+                        <label
+                          htmlFor="avatar-upload"
+                          className="px-3 py-1 text-sm bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg cursor-pointer transition-colors"
+                        >
+                          Upload Custom
+                        </label>
+                        {friendForm.customAvatar && (
+                          <button
+                            type="button"
+                            onClick={() => setFriendForm({ ...friendForm, customAvatar: null })}
+                            className="px-3 py-1 text-sm bg-red-100 hover:bg-red-200 text-red-700 rounded-lg transition-colors"
+                          >
+                            Remove
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Avatar Selector */}
+                    {showAvatarSelector && (
+                      <div className="mt-3 p-3 bg-white border rounded-lg">
+                        <div className="grid grid-cols-8 gap-2">
+                          {defaultAvatars.map((avatar, index) => (
+                            <button
+                              key={index}
+                              type="button"
+                              onClick={() => {
+                                setFriendForm({ ...friendForm, selectedAvatar: avatar, customAvatar: null })
+                                setShowAvatarSelector(false)
+                              }}
+                              className={`w-10 h-10 rounded-full flex items-center justify-center text-xl hover:bg-gray-100 transition-colors ${
+                                friendForm.selectedAvatar === avatar && !friendForm.customAvatar ? 'bg-blue-100 ring-2 ring-blue-500' : ''
+                              }`}
+                            >
+                              {avatar}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                   
                   <div className="flex gap-3 mt-4">
                     <button
@@ -778,7 +891,8 @@ export default function SplitsPage() {
                     <button
                       onClick={() => {
                         setShowAddFriend(false)
-                        setFriendForm({ name: '', email: '' })
+                        setShowAvatarSelector(false)
+                        setFriendForm({ name: '', email: '', selectedAvatar: defaultAvatars[0], customAvatar: null })
                       }}
                       className="px-6 py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
                     >
@@ -879,6 +993,15 @@ export default function SplitsPage() {
           )}
         </div>
       </div>
+
+      {/* Bulk Import Modal */}
+      {showBulkImport && (
+        <BulkImport
+          feature="friends"
+          onImport={handleBulkImport}
+          onClose={() => setShowBulkImport(false)}
+        />
+      )}
     </div>
   )
 }
