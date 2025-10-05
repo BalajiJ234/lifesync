@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useDataStorage } from '@/hooks/useLocalStorage'
 import { 
   StickyNote, 
   DollarSign, 
@@ -15,7 +16,7 @@ import {
   Activity 
 } from 'lucide-react'
 
-// Mock data hooks (in real app, these would be from context/store)
+// Data interfaces
 interface ActivityItem {
   type: string
   desc: string
@@ -23,43 +24,144 @@ interface ActivityItem {
   amount?: string
 }
 
+interface Note {
+  id: string
+  title: string
+  content: string
+  createdAt: Date
+}
+
+interface Todo {
+  id: string
+  text: string
+  completed: boolean
+  createdAt: Date
+}
+
+interface Expense {
+  id: string
+  description: string
+  amount: number
+  currency: string
+  date: string
+  createdAt: Date
+}
+
+interface Friend {
+  id: string
+  name: string
+}
+
+interface SplitBill {
+  id: string
+  totalAmount: number
+  settled: boolean
+  participants: string[]
+  createdAt: Date
+}
+
 const useAppData = () => {
-  const [data, setData] = useState({
-    notes: 0,
-    expenses: { thisMonth: 0, count: 0 },
-    todos: { active: 0, completed: 0 },
-    splits: { pending: 0, friends: 0 },
-    recentActivity: [] as ActivityItem[]
-  })
+  // Load real data from localStorage
+  const [notes] = useDataStorage<Note[]>('notes', [])
+  const [todos] = useDataStorage<Todo[]>('todos', [])
+  const [expenses] = useDataStorage<Expense[]>('expenses', [])
+  const [friends] = useDataStorage<Friend[]>('friends', [])
+  const [bills] = useDataStorage<SplitBill[]>('bills', [])
+  const [isClient, setIsClient] = useState(false)
 
   useEffect(() => {
-    // Simulate loading data from localStorage or context
-    const mockData = {
-      notes: Math.floor(Math.random() * 12) + 3, // 3-15 notes
-      expenses: { 
-        thisMonth: Math.floor(Math.random() * 800) + 200, // $200-1000
-        count: Math.floor(Math.random() * 25) + 10 // 10-35 expenses
-      },
-      todos: { 
-        active: Math.floor(Math.random() * 8) + 2, // 2-10 active
-        completed: Math.floor(Math.random() * 15) + 5 // 5-20 completed
-      },
-      splits: { 
-        pending: Math.floor(Math.random() * 150) + 50, // $50-200 pending
-        friends: Math.floor(Math.random() * 8) + 3 // 3-11 friends
-      },
-      recentActivity: [
-        { type: 'expense', desc: 'Added coffee expense', time: '2 hours ago', amount: '$4.50' },
-        { type: 'todo', desc: 'Completed "Buy groceries"', time: '5 hours ago' },
-        { type: 'note', desc: 'Created meeting notes', time: '1 day ago' },
-        { type: 'split', desc: 'Split dinner bill with friends', time: '2 days ago', amount: '$85.00' },
-        { type: 'expense', desc: 'Added gas expense', time: '3 days ago', amount: '$45.20' }
-      ]
-    }
-    setData(mockData)
+    setIsClient(true)
   }, [])
 
-  return data
+  // Calculate real statistics
+  const currentMonth = new Date().getMonth()
+  const currentYear = new Date().getFullYear()
+  
+  const thisMonthExpenses = expenses.filter(expense => {
+    const expenseDate = new Date(expense.date)
+    return expenseDate.getMonth() === currentMonth && expenseDate.getFullYear() === currentYear
+  })
+  
+  const thisMonthTotal = thisMonthExpenses.reduce((sum, expense) => sum + expense.amount, 0)
+  const activeTodos = todos.filter(todo => !todo.completed)
+  const completedTodos = todos.filter(todo => todo.completed)
+  const pendingBills = bills.filter(bill => !bill.settled)
+  const pendingAmount = pendingBills.reduce((sum, bill) => sum + bill.totalAmount, 0)
+
+  // Generate recent activity from real data
+  const generateRecentActivity = (): ActivityItem[] => {
+    const activities: ActivityItem[] = []
+    
+    // Add recent expenses
+    expenses.slice(0, 2).forEach(expense => {
+      activities.push({
+        type: 'expense',
+        desc: `Added ${expense.description}`,
+        time: formatTimeAgo(expense.createdAt),
+        amount: `$${expense.amount.toFixed(2)}`
+      })
+    })
+    
+    // Add recent todos
+    todos.slice(0, 2).forEach(todo => {
+      activities.push({
+        type: 'todo',
+        desc: todo.completed ? `Completed "${todo.text}"` : `Added "${todo.text}"`,
+        time: formatTimeAgo(todo.createdAt)
+      })
+    })
+    
+    // Add recent notes
+    notes.slice(0, 1).forEach(note => {
+      activities.push({
+        type: 'note',
+        desc: `Created "${note.title}"`,
+        time: formatTimeAgo(note.createdAt)
+      })
+    })
+    
+    // Add recent splits
+    bills.slice(0, 1).forEach(bill => {
+      activities.push({
+        type: 'split',
+        desc: `Split bill: ${bill.id}`,
+        time: formatTimeAgo(bill.createdAt),
+        amount: `$${bill.totalAmount.toFixed(2)}`
+      })
+    })
+    
+    return activities.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime()).slice(0, 5)
+  }
+
+  const formatTimeAgo = (date: Date | string) => {
+    if (!isClient) return 'Recently'
+    const now = new Date()
+    const past = new Date(date)
+    const diffMs = now.getTime() - past.getTime()
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
+    const diffDays = Math.floor(diffHours / 24)
+    
+    if (diffDays > 0) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`
+    if (diffHours > 0) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`
+    return 'Just now'
+  }
+
+  return {
+    notes: isClient ? notes.length : 0,
+    expenses: { 
+      thisMonth: isClient ? thisMonthTotal : 0,
+      count: isClient ? expenses.length : 0
+    },
+    todos: { 
+      active: isClient ? activeTodos.length : 0,
+      completed: isClient ? completedTodos.length : 0
+    },
+    splits: { 
+      pending: isClient ? pendingAmount : 0,
+      friends: isClient ? friends.length : 0
+    },
+    recentActivity: isClient ? generateRecentActivity() : []
+  }
 }
 
 export default function Home() {
