@@ -12,6 +12,7 @@ import {
   Search,
   Clock
 } from 'lucide-react'
+import { useDataStorage } from '@/hooks/useLocalStorage'
 
 interface Todo {
   id: string
@@ -39,7 +40,7 @@ const categories = [
 ]
 
 export default function TodosPage() {
-  const [todos, setTodos] = useState<Todo[]>([])
+  const [todos, setTodos] = useDataStorage<Todo[]>('todos', [])
   const [newTodo, setNewTodo] = useState('')
   const [newPriority, setNewPriority] = useState<'low' | 'medium' | 'high'>('medium')
   const [newCategory, setNewCategory] = useState('Personal')

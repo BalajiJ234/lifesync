@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import { useSettings } from '@/contexts/SettingsContext'
 import { formatAmount, convertCurrency, SUPPORTED_CURRENCIES } from '@/utils/currency'
+import { useDataStorage } from '@/hooks/useLocalStorage'
 
 interface Expense {
   id: string
@@ -42,7 +43,7 @@ const expenseCategories = [
 
 export default function ExpensesPage() {
   const { settings } = useSettings()
-  const [expenses, setExpenses] = useState<Expense[]>([])
+  const [expenses, setExpenses] = useDataStorage<Expense[]>('expenses', [])
   const [showAddForm, setShowAddForm] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
 

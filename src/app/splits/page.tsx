@@ -14,6 +14,7 @@ import {
   Clock,
   CheckCircle
 } from 'lucide-react'
+import { useDataStorage } from '@/hooks/useLocalStorage'
 
 interface Friend {
   id: string
@@ -48,8 +49,8 @@ const defaultAvatars = [
 ]
 
 export default function SplitsPage() {
-  const [friends, setFriends] = useState<Friend[]>([])
-  const [bills, setBills] = useState<SplitBill[]>([])
+  const [friends, setFriends] = useDataStorage<Friend[]>('friends', [])
+  const [bills, setBills] = useDataStorage<SplitBill[]>('bills', [])
   const [showAddFriend, setShowAddFriend] = useState(false)
   const [showAddBill, setShowAddBill] = useState(false)
   const [activeTab, setActiveTab] = useState<'bills' | 'friends' | 'balances'>('bills')

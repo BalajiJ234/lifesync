@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Plus, X, Edit3, Save } from 'lucide-react'
+import { useDataStorage } from '@/hooks/useLocalStorage'
 
 interface Note {
   id: string
@@ -20,7 +21,7 @@ const noteColors = [
 ]
 
 export default function NotesPage() {
-  const [notes, setNotes] = useState<Note[]>([])
+  const [notes, setNotes] = useDataStorage<Note[]>('notes', [])
   const [newNote, setNewNote] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editContent, setEditContent] = useState('')
