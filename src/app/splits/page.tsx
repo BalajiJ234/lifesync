@@ -302,7 +302,7 @@ export default function SplitsPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Total Bills</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.totalBills}</p>
+              <p className="text-2xl font-bold text-gray-900">{isClient ? stats.totalBills : '0'}</p>
             </div>
             <div className="p-3 bg-blue-100 rounded-full">
               <Calculator className="h-6 w-6 text-blue-600" />
@@ -314,7 +314,7 @@ export default function SplitsPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Active Bills</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.activeBills}</p>
+              <p className="text-2xl font-bold text-gray-900">{isClient ? stats.activeBills : '0'}</p>
             </div>
             <div className="p-3 bg-orange-100 rounded-full">
               <Clock className="h-6 w-6 text-orange-600" />
@@ -326,7 +326,7 @@ export default function SplitsPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Total Amount</p>
-              <p className="text-2xl font-bold text-gray-900">${stats.totalAmount.toFixed(2)}</p>
+              <p className="text-2xl font-bold text-gray-900">${isClient ? stats.totalAmount.toFixed(2) : '0.00'}</p>
             </div>
             <div className="p-3 bg-green-100 rounded-full">
               <DollarSign className="h-6 w-6 text-green-600" />
@@ -338,7 +338,7 @@ export default function SplitsPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Friends</p>
-              <p className="text-2xl font-bold text-gray-900">{friends.length}</p>
+              <p className="text-2xl font-bold text-gray-900">{isClient ? friends.length : '0'}</p>
             </div>
             <div className="p-3 bg-purple-100 rounded-full">
               <Users className="h-6 w-6 text-purple-600" />
@@ -375,7 +375,7 @@ export default function SplitsPage() {
                 <h2 className="text-lg font-semibold">Split Bills</h2>
                 <button
                   onClick={() => setShowAddBill(true)}
-                  disabled={friends.length === 0}
+                  disabled={!isClient || friends.length === 0}
                   className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
                 >
                   <Plus size={20} />
@@ -383,7 +383,7 @@ export default function SplitsPage() {
                 </button>
               </div>
 
-              {friends.length === 0 && (
+              {isClient && friends.length === 0 && (
                 <div className="text-center py-8">
                   <Users className="h-12 w-12 text-gray-300 mx-auto mb-4" />
                   <h3 className="text-lg font-medium text-gray-900 mb-2">Add friends first</h3>
@@ -398,7 +398,7 @@ export default function SplitsPage() {
               )}
 
               {/* Add Bill Form */}
-              {showAddBill && friends.length > 0 && (
+              {showAddBill && isClient && friends.length > 0 && (
                 <div className="bg-gray-50 p-6 rounded-lg border">
                   <h3 className="text-lg font-semibold mb-4">Split a New Bill</h3>
                   
@@ -640,11 +640,11 @@ export default function SplitsPage() {
               )}
 
               {/* Bills List */}
-              {bills.length === 0 ? (
+              {!isClient || bills.length === 0 ? (
                 <div className="text-center py-8">
                   <Calculator className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No bills yet</h3>
-                  <p className="text-gray-600">Split your first bill to get started!</p>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">{!isClient ? 'Loading...' : 'No bills yet'}</h3>
+                  <p className="text-gray-600">{!isClient ? 'Please wait' : 'Split your first bill to get started!'}</p>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -791,11 +791,11 @@ export default function SplitsPage() {
               )}
 
               {/* Friends List */}
-              {friends.length === 0 ? (
+              {!isClient || friends.length === 0 ? (
                 <div className="text-center py-8">
                   <Users className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No friends added yet</h3>
-                  <p className="text-gray-600">Add friends to start splitting bills together!</p>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">{!isClient ? 'Loading...' : 'No friends added yet'}</h3>
+                  <p className="text-gray-600">{!isClient ? 'Please wait' : 'Add friends to start splitting bills together!'}</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
