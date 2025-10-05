@@ -75,12 +75,10 @@ const expenseCategories = [
 export default function ExpensesPage() {
   const { settings } = useSettings()
   const [expenses, setExpenses] = useDataStorage<Expense[]>('expenses', [])
-  const [friends, setFriends] = useDataStorage<Friend[]>('friends', [])
+  const [friends] = useDataStorage<Friend[]>('friends', [])
   const [bills, setBills] = useDataStorage<SplitBill[]>('bills', [])
   const [showAddForm, setShowAddForm] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
-  const [showShareModal, setShowShareModal] = useState(false)
-  const [shareExpenseId, setShareExpenseId] = useState<string | null>(null)
   const [shareModalExpense, setShareModalExpense] = useState<Expense | null>(null)
   const [selectedFriends, setSelectedFriends] = useState<string[]>([])
   const [isClient, setIsClient] = useState(false)
@@ -158,7 +156,7 @@ export default function ExpensesPage() {
       const existingSplitBill = bills.find(b => b.id === expense.splitBillId)
       if (existingSplitBill) {
         // Recalculate split amounts for updated participants
-        let updatedCustomAmounts: Record<string, number> = {}
+        const updatedCustomAmounts: Record<string, number> = {}
         const perPerson = expense.amount / selectedFriends.length
         selectedFriends.forEach(id => {
           updatedCustomAmounts[id] = perPerson
@@ -189,7 +187,7 @@ export default function ExpensesPage() {
     }
 
     // Calculate split amounts for equal sharing
-    let customAmounts: Record<string, number> = {}
+    const customAmounts: Record<string, number> = {}
     const perPerson = expense.amount / selectedFriends.length
     selectedFriends.forEach(id => {
       customAmounts[id] = perPerson
@@ -220,9 +218,6 @@ export default function ExpensesPage() {
         ? { ...e, isShared: true, sharedWith: selectedFriends, splitBillId: splitBill.id }
         : e
     ))
-
-    setShowShareModal(false)
-    setShareExpenseId(null)
   }
 
   const unshareExpense = (expenseId: string) => {

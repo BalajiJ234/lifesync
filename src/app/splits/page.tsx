@@ -58,8 +58,7 @@ export default function SplitsPage() {
   const [showAddFriend, setShowAddFriend] = useState(false)
   const [showAddBill, setShowAddBill] = useState(false)
   const [activeTab, setActiveTab] = useState<'bills' | 'friends' | 'balances'>('bills')
-  const [shareMode, setShareMode] = useState<'equal' | 'percentage'>('equal')
-  const [percentages, setPercentages] = useState<Record<string, number>>({})
+  // Removed unused shareMode and percentages state variables
   const [isClient, setIsClient] = useState(false)
   
   // Client-side only rendering to prevent hydration errors
@@ -92,7 +91,7 @@ export default function SplitsPage() {
         setBills(migratedBills)
       }
     }
-  }, [isClient, bills.length]) // Only run when client is ready and bills exist
+  }, [isClient]) // Only run when client is ready
   
   // Friend form
   const [friendForm, setFriendForm] = useState({
@@ -188,7 +187,6 @@ export default function SplitsPage() {
       date: new Date().toISOString().split('T')[0],
       notes: ''
     })
-    setPercentages({})
   }
 
   const toggleParticipant = (friendId: string) => {
