@@ -28,7 +28,7 @@ export const SUPPORTED_CURRENCIES: Currency[] = [
   { code: 'RUB', name: 'Russian Ruble', symbol: '₽', flag: '🇷🇺', decimalPlaces: 2 },
   { code: 'BRL', name: 'Brazilian Real', symbol: 'R$', flag: '🇧🇷', decimalPlaces: 2 },
   { code: 'MXN', name: 'Mexican Peso', symbol: '$', flag: '🇲🇽', decimalPlaces: 2 },
-  { code: 'AED', name: 'UAE Dirham', symbol: '₫', flag: '🇦🇪', decimalPlaces: 2 },
+  { code: 'AED', name: 'UAE Dirham', symbol: 'د.إ', flag: '🇦🇪', decimalPlaces: 2 },
   { code: 'SAR', name: 'Saudi Riyal', symbol: '﷼', flag: '🇸🇦', decimalPlaces: 2 },
   { code: 'QAR', name: 'Qatari Riyal', symbol: '﷼', flag: '🇶🇦', decimalPlaces: 2 },
   { code: 'TRY', name: 'Turkish Lira', symbol: '₺', flag: '🇹🇷', decimalPlaces: 2 },
