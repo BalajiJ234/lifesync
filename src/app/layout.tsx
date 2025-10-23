@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navigation from "@/components/Navigation";
@@ -18,6 +18,9 @@ export const metadata: Metadata = {
   title: "LifeSync - Personal Life Management",
   description: "Manage your expenses, todos, notes, and split bills with friends",
   manifest: "/manifest.json",
+};
+
+export const viewport: Viewport = {
   themeColor: "#3b82f6",
 };
 
@@ -37,6 +40,24 @@ export default function RootLayout({
             {children}
           </main>
         </SettingsProvider>
+        
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js')
+                    .then(function(registration) {
+                      console.log('SW registered: ', registration);
+                    })
+                    .catch(function(registrationError) {
+                      console.log('SW registration failed: ', registrationError);
+                    });
+                });
+              }
+            `,
+          }}
+        />
       </body>
     </html>
   );

@@ -1,12 +1,15 @@
 {
   "name": "LifeSync - Personal Life Management",
   "short_name": "LifeSync",
-  "description": "Manage your expenses, todos, notes, and split bills with friends",
+  "description": "Manage your expenses, todos, notes, and split bills with friends using AI-powered features",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#3b82f6",
   "orientation": "portrait-primary",
+  "categories": ["productivity", "finance", "lifestyle"],
+  "lang": "en",
+  "dir": "ltr",
   "icons": [
     {
       "src": "/icon-192x192.png",
@@ -21,31 +24,42 @@
       "purpose": "maskable any"
     }
   ],
-  "categories": ["productivity", "finance", "utilities"],
   "shortcuts": [
-    {
-      "name": "Add Note",
-      "short_name": "Note",
-      "description": "Quickly add a new note",
-      "url": "/notes",
-      "icons": [
-        {
-          "src": "/icon-192x192.png",
-          "sizes": "192x192"
-        }
-      ]
-    },
     {
       "name": "Add Expense",
       "short_name": "Expense",
-      "description": "Track a new expense",
-      "url": "/expenses",
-      "icons": [
-        {
-          "src": "/icon-192x192.png",
-          "sizes": "192x192"
-        }
-      ]
+      "description": "Quickly add a new expense with AI categorization",
+      "url": "/expenses?action=add",
+      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Add Todo",
+      "short_name": "Todo", 
+      "description": "Create a new todo with natural language",
+      "url": "/todos?action=add",
+      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Split Bill",
+      "short_name": "Split",
+      "description": "Split a bill with smart suggestions",
+      "url": "/splits?action=add",
+      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "AI Assistant",
+      "short_name": "AI",
+      "description": "Get AI-powered insights and suggestions",
+      "url": "/?ai=true",
+      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
     }
-  ]
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "scope": "/",
+  "id": "lifesync-pwa",
+  "display_override": ["window-controls-overlay", "standalone"],
+  "edge_side_panel": {
+    "preferred_width": 400
+  }
 }
