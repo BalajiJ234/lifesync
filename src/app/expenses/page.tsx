@@ -18,6 +18,7 @@ import {
   Upload
 } from 'lucide-react'
 import BulkImport from '@/components/BulkImport'
+import { CategorySuggestion } from '@/components/ai/AIIntegration'
 import { useSettings } from '@/contexts/SettingsContext'
 import { formatAmount, convertCurrency, SUPPORTED_CURRENCIES } from '@/utils/currency'
 import { useDataStorage } from '@/hooks/useLocalStorage'
@@ -542,6 +543,13 @@ export default function ExpensesPage() {
                   </option>
                 ))}
               </select>
+              
+              {/* AI Category Suggestion */}
+              <CategorySuggestion
+                description={formData.description}
+                amount={parseFloat(formData.amount) || 0}
+                onCategorySelect={(category) => setFormData({...formData, category})}
+              />
             </div>
             
             <div>

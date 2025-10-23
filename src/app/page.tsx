@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useDataStorage } from '@/hooks/useLocalStorage'
+import { AIInsights } from '@/components/ai/AIIntegration'
 import { 
   StickyNote, 
   DollarSign, 
@@ -332,6 +333,9 @@ export default function Home() {
           </div>
         </Link>
       </div>
+
+      {/* AI Insights */}
+      <AIInsights />
 
       {/* Recent Activity */}
       <div className="bg-white rounded-lg shadow-sm border">
