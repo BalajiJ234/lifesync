@@ -814,6 +814,7 @@ export default function SplitsPage() {
                               src={friendForm.customAvatar} 
                               alt="Custom avatar" 
                               className="w-10 h-10 rounded-full object-cover"
+                              loading="lazy"
                             />
                           ) : (
                             <span className="text-xl">{friendForm.selectedAvatar}</span>
