@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeSync AI Integration Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            background: #f5f5f5;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .result {
+            background: white;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            border-left: 4px solid #007bff;
+        }
+        .success {
+            border-left-color: #28a745;
+        }
+        .error {
+            border-left-color: #dc3545;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🤖 LifeSync AI Integration Test</h1>
+    
+    <div class="test-section">
+        <h2>AI Categorization Test</h2>
+        <div>
+            <input type="text" id="description" placeholder="Expense description (e.g., 'Starbucks coffee')" value="Starbucks coffee">
+            <input type="number" id="amount" placeholder="Amount (e.g., 5.50)" value="5.50" step="0.01">
+            <button onclick="testCategorization()">Test Categorization</button>
+        </div>
+        <div id="categorizationResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>AI Suggestions Test</h2>
+        <div>
+            <select id="suggestionType">
+                <option value="general">General Suggestions</option>
+                <option value="expense_analysis">Expense Analysis</option>
+                <option value="budget_optimization">Budget Optimization</option>
+                <option value="dashboard">Dashboard Insights</option>
+            </select>
+            <button onclick="testSuggestions()">Get Suggestions</button>
+        </div>
+        <div id="suggestionsResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Batch Categorization Test</h2>
+        <button onclick="runBatchTest()">Run Batch Test</button>
+        <div id="batchTestResult"></div>
+    </div>
+
+    <script>
+        async function testCategorization() {
+            const description = document.getElementById('description').value;
+            const amount = parseFloat(document.getElementById('amount').value);
+            const resultDiv = document.getElementById('categorizationResult');
+            
+            if (!description.trim() || !amount) {
+                resultDiv.innerHTML = '<div class="result error">Please enter both description and amount</div>';
+                return;
+            }
+            
+            resultDiv.innerHTML = '<div class="result">Testing categorization...</div>';
+            
+            try {
+                const response = await fetch('/api/ai/categorize', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ description, amount })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const result = await response.json();
+                
+                const html = `
+                    <div class="result success">
+                        <h3>✅ Categorization Result</h3>
+                        <p><strong>Category:</strong> ${result.category}</p>
+                        <p><strong>Confidence:</strong> ${(result.confidence * 100).toFixed(1)}%</p>
+                        <p><strong>Reasoning:</strong> ${result.reasoning}</p>
+                        ${result.suggestions && result.suggestions.length > 0 ? 
+                            `<p><strong>Suggestions:</strong> ${result.suggestions.join(', ')}</p>` : ''}
+                        <p><strong>Timestamp:</strong> ${result.timestamp}</p>
+                    </div>
+                `;
+                resultDiv.innerHTML = html;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="result error">❌ Error: ${error.message}</div>`;
+            }
+        }
+        
+        async function testSuggestions() {
+            const type = document.getElementById('suggestionType').value;
+            const resultDiv = document.getElementById('suggestionsResult');
+            
+            resultDiv.innerHTML = '<div class="result">Getting suggestions...</div>';
+            
+            try {
+                const response = await fetch('/api/ai/suggestions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ type })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const result = await response.json();
+                
+                if (result.suggestions && result.suggestions.length > 0) {
+                    let suggestionsHtml = '<div class="result success"><h3>✅ Suggestions</h3>';
+                    result.suggestions.forEach((suggestion, index) => {
+                        suggestionsHtml += `
+                            <div style="margin: 10px 0; padding: 10px; background: #e9ecef; border-radius: 4px;">
+                                <strong>${index + 1}. ${suggestion.title}</strong> 
+                                <span style="color: #6c757d;">(${suggestion.priority} priority)</span>
+                                <br>
+                                ${suggestion.message}
+                                <br>
+                                <small>Action: ${suggestion.action}</small>
+                            </div>
+                        `;
+                    });
+                    suggestionsHtml += '</div>';
+                    resultDiv.innerHTML = suggestionsHtml;
+                } else {
+                    resultDiv.innerHTML = '<div class="result">No suggestions available</div>';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="result error">❌ Error: ${error.message}</div>`;
+            }
+        }
+        
+        async function runBatchTest() {
+            const testCases = [
+                { description: 'Starbucks coffee', amount: 5.50, expected: 'Food & Dining' },
+                { description: 'Uber ride to airport', amount: 45.00, expected: 'Transportation' },
+                { description: 'Netflix subscription', amount: 15.99, expected: 'Bills & Utilities' },
+                { description: 'Amazon purchase', amount: 89.99, expected: 'Shopping' },
+                { description: 'Movie theater tickets', amount: 24.00, expected: 'Entertainment' },
+                { description: 'Doctor visit', amount: 150.00, expected: 'Healthcare' },
+                { description: 'Monthly rent payment', amount: 1200.00, expected: 'Housing' },
+                { description: 'New laptop', amount: 1500.00, expected: 'Large Purchase' }
+            ];
+            
+            const resultDiv = document.getElementById('batchTestResult');
+            resultDiv.innerHTML = '<div class="result">Running batch tests...</div>';
+            
+            let results = '<div class="result success"><h3>📊 Batch Test Results</h3>';
+            let correctCount = 0;
+            
+            for (const testCase of testCases) {
+                try {
+                    const response = await fetch('/api/ai/categorize', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            description: testCase.description,
+                            amount: testCase.amount
+                        })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                    
+                    const result = await response.json();
+                    const isCorrect = result.category === testCase.expected;
+                    if (isCorrect) correctCount++;
+                    
+                    results += `
+                        <div style="margin: 5px 0; padding: 8px; background: ${isCorrect ? '#d4edda' : '#f8d7da'}; border-radius: 4px; font-size: 14px;">
+                            ${isCorrect ? '✅' : '❌'} "${testCase.description}" → 
+                            <strong>${result.category}</strong> 
+                            (expected: ${testCase.expected})
+                            <br><small>Confidence: ${(result.confidence * 100).toFixed(1)}% | ${result.reasoning}</small>
+                        </div>
+                    `;
+                } catch (error) {
+                    results += `
+                        <div style="margin: 5px 0; padding: 8px; background: #f8d7da; border-radius: 4px; font-size: 14px;">
+                            ❌ "${testCase.description}" → Error: ${error.message}
+                        </div>
+                    `;
+                }
+            }
+            
+            const accuracy = ((correctCount / testCases.length) * 100).toFixed(1);
+            results += `
+                <div style="margin-top: 15px; padding: 10px; background: #17a2b8; color: white; border-radius: 4px;">
+                    <strong>Overall Accuracy: ${correctCount}/${testCases.length} (${accuracy}%)</strong>
+                </div>
+            </div>`;
+            
+            resultDiv.innerHTML = results;
+        }
+        
+        // Test server connection on page load
+        window.addEventListener('load', async () => {
+            try {
+                const response = await fetch('/');
+                if (response.ok) {
+                    console.log('✅ Server connection successful');
+                } else {
+                    throw new Error('Server not responding properly');
+                }
+            } catch (error) {
+                document.body.innerHTML = `
+                    <h1>❌ Server Connection Error</h1>
+                    <p>Could not connect to LifeSync server. Please make sure:</p>
+                    <ul>
+                        <li>The development server is running (<code>npm run dev</code>)</li>
+                        <li>Server is accessible at <a href="http://localhost:3000">http://localhost:3000</a></li>
+                    </ul>
+                    <p>Error: ${error.message}</p>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
