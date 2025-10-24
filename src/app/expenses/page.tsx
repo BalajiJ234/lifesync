@@ -18,10 +18,11 @@ import {
   Upload
 } from 'lucide-react'
 import BulkImport from '@/components/BulkImport'
-import { CategorySuggestion } from '@/components/ai/AIIntegration'
 import { useSettings } from '@/contexts/SettingsContext'
 import { formatAmount, convertCurrency, SUPPORTED_CURRENCIES } from '@/utils/currency'
 import { useDataStorage } from '@/hooks/useLocalStorage'
+import ResponsiveModal, { useMobileModal } from '@/components/ui/MobileModal'
+import MobileExpenseForm from '@/components/forms/MobileExpenseForm'
 
 // Import Friend interface from splits
 interface Friend {
@@ -120,8 +121,12 @@ export default function ExpensesPage() {
   const [expenses, setExpenses] = useDataStorage<Expense[]>('expenses', [])
   const [friends] = useDataStorage<Friend[]>('friends', [])
   const [bills, setBills] = useDataStorage<SplitBill[]>('bills', [])
-  const [showAddForm, setShowAddForm] = useState(false)
-  const [editingId, setEditingId] = useState<string | null>(null)
+  
+  // Mobile Modal States
+  const addModal = useMobileModal()
+  const editModal = useMobileModal()
+  const [editingExpense, setEditingExpense] = useState<Expense | null>(null)
+  
   const [shareModalExpense, setShareModalExpense] = useState<Expense | null>(null)
   const [selectedFriends, setSelectedFriends] = useState<string[]>([])
   const [isClient, setIsClient] = useState(false)
@@ -134,48 +139,51 @@ export default function ExpensesPage() {
     setIsClient(true)
   }, [])
   
-  // Form states
-  const [formData, setFormData] = useState({
-    amount: '',
-    description: '',
-    category: 'Food & Dining',
-    type: 'one-time' as 'recurring' | 'essential' | 'one-time' | 'luxury' | 'emergency',
-    recurringFrequency: 'monthly' as 'weekly' | 'monthly' | 'yearly',
-    date: new Date().toISOString().split('T')[0],
-    notes: '',
-    currency: settings.defaultCurrency.code
-  })
-  
   // Filter states
   const [searchTerm, setSearchTerm] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [dateFilter, setDateFilter] = useState('all') // all, today, this-week, this-month
   
-  const addExpense = () => {
-    if (formData.amount && formData.description) {
-      const expense: Expense = {
-        id: Date.now().toString(),
-        amount: parseFloat(formData.amount),
-        description: formData.description.trim(),
-        category: formData.category,
-        type: formData.type,
-        recurringFrequency: formData.type === 'recurring' ? formData.recurringFrequency : undefined,
-        date: formData.date,
-        notes: formData.notes.trim() || undefined,
-        currency: formData.currency,
-        createdAt: new Date()
-      }
-      
-      setExpenses([expense, ...expenses])
-      resetForm()
-      setShowAddForm(false)
+  const handleAddExpense = (formData: {
+    amount: string
+    currency: string
+    category: string
+    type: 'recurring' | 'essential' | 'one-time' | 'luxury' | 'emergency'
+    description: string
+    date: string
+    recurringFrequency: 'weekly' | 'monthly' | 'yearly'
+    notes: string
+  }) => {
+    const expense: Expense = {
+      id: Date.now().toString(),
+      amount: parseFloat(formData.amount),
+      description: formData.description.trim(),
+      category: formData.category,
+      type: formData.type,
+      recurringFrequency: formData.type === 'recurring' ? formData.recurringFrequency : undefined,
+      date: formData.date,
+      notes: formData.notes.trim() || undefined,
+      currency: formData.currency,
+      createdAt: new Date()
     }
+    
+    setExpenses([expense, ...expenses])
+    addModal.closeModal()
   }
   
-  const updateExpense = () => {
-    if (editingId && formData.amount && formData.description) {
+  const handleEditExpense = (formData: {
+    amount: string
+    currency: string
+    category: string
+    type: 'recurring' | 'essential' | 'one-time' | 'luxury' | 'emergency'
+    description: string
+    date: string
+    recurringFrequency: 'weekly' | 'monthly' | 'yearly'
+    notes: string
+  }) => {
+    if (editingExpense) {
       setExpenses(expenses.map(expense => 
-        expense.id === editingId 
+        expense.id === editingExpense.id 
           ? {
               ...expense,
               amount: parseFloat(formData.amount),
@@ -189,8 +197,8 @@ export default function ExpensesPage() {
             }
           : expense
       ))
-      resetForm()
-      setEditingId(null)
+      setEditingExpense(null)
+      editModal.closeModal()
     }
   }
   
@@ -326,38 +334,11 @@ export default function ExpensesPage() {
   }
   
   const startEdit = (expense: Expense) => {
-    setFormData({
-      amount: expense.amount.toString(),
-      description: expense.description,
-      category: expense.category,
-      type: expense.type || 'one-time',
-      recurringFrequency: expense.recurringFrequency || 'monthly',
-      date: expense.date,
-      notes: expense.notes || '',
-      currency: expense.currency
-    })
-    setEditingId(expense.id)
-    setShowAddForm(true)
+    setEditingExpense(expense)
+    editModal.openModal()
   }
   
-  const resetForm = () => {
-    setFormData({
-      amount: '',
-      description: '',
-      category: 'Food & Dining',
-      type: 'one-time',
-      recurringFrequency: 'monthly',
-      date: new Date().toISOString().split('T')[0],
-      notes: '',
-      currency: settings.defaultCurrency.code
-    })
-  }
-  
-  const cancelEdit = () => {
-    resetForm()
-    setEditingId(null)
-    setShowAddForm(false)
-  }
+  // Removed old form functions - now using mobile modals
   
   // Filter expenses
   const filteredExpenses = expenses.filter(expense => {
@@ -518,195 +499,63 @@ export default function ExpensesPage() {
       </div>
 
       {/* Add Expense Button */}
-      {!showAddForm && (
-        <div className="text-center space-y-4">
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button
-              onClick={() => setShowAddForm(true)}
-              className="inline-flex items-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              <Plus size={20} />
-              <span>Add Expense</span>
-            </button>
-            <button
-              onClick={() => setShowBulkImport(true)}
-              className="inline-flex items-center space-x-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-            >
-              <Upload size={20} />
-              <span>Bulk Import</span>
-            </button>
-          </div>
+      <div className="text-center space-y-4">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <button
+            onClick={addModal.openModal}
+            className="inline-flex items-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <Plus size={20} />
+            <span>Add Expense</span>
+          </button>
+          <button
+            onClick={() => setShowBulkImport(true)}
+            className="inline-flex items-center space-x-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+          >
+            <Upload size={20} />
+            <span>Bulk Import</span>
+          </button>
         </div>
-      )}
+      </div>
 
-      {/* Add/Edit Form */}
-      {showAddForm && (
-        <div className="bg-white p-6 rounded-lg shadow-sm border">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            {editingId ? 'Edit Expense' : 'Add New Expense'}
-          </h3>
-          
-          {/* Mobile-first responsive form layout */}
-          <div className="space-y-4">
-            {/* Row 1: Amount and Currency */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Amount *
-                </label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={formData.amount}
-                  onChange={(e) => setFormData({...formData, amount: e.target.value})}
-                  placeholder="0.00"
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Currency
-                </label>
-                <select
-                  value={formData.currency}
-                  onChange={(e) => setFormData({...formData, currency: e.target.value})}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                >
-                  {SUPPORTED_CURRENCIES.map(currency => (
-                    <option key={currency.code} value={currency.code}>
-                      {currency.flag} {currency.code} ({currency.symbol})
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
+      {/* Responsive Modals for Add/Edit Forms */}
+      <ResponsiveModal
+        isOpen={addModal.isOpen}
+        onClose={addModal.closeModal}
+        title="Add New Expense"
+        size="large"
+      >
+        <MobileExpenseForm
+          onSubmit={handleAddExpense}
+          onCancel={addModal.closeModal}
+          isEditing={false}
+        />
+      </ResponsiveModal>
 
-            {/* Row 2: Category */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Category *
-              </label>
-              <select
-                value={formData.category}
-                onChange={(e) => setFormData({...formData, category: e.target.value})}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              >
-                {expenseCategories.map(category => (
-                  <option key={category.name} value={category.name}>
-                    {category.icon} {category.name}
-                  </option>
-                ))}
-              </select>
-              
-              {/* AI Category Suggestion */}
-              <CategorySuggestion
-                description={formData.description}
-                amount={parseFloat(formData.amount) || 0}
-                onCategorySelect={(category) => setFormData({...formData, category})}
-              />
-            </div>
-
-            {/* Row 3: Expense Type */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                💎 Expense Type *
-              </label>
-              <select
-                value={formData.type}
-                onChange={(e) => setFormData({...formData, type: e.target.value as 'recurring' | 'essential' | 'one-time' | 'luxury' | 'emergency'})}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-gradient-to-r from-blue-50 to-purple-50"
-              >
-                {expenseTypes.map(type => (
-                  <option key={type.value} value={type.value}>
-                    {type.icon} {type.name}
-                  </option>
-                ))}
-              </select>
-              <p className="text-xs text-gray-500 mt-1">
-                {expenseTypes.find(t => t.value === formData.type)?.description}
-              </p>
-            </div>
-
-            {/* Row 4: Recurring Frequency - only show for recurring expenses */}
-            {formData.type === 'recurring' && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Frequency *
-                </label>
-                <select
-                  value={formData.recurringFrequency}
-                  onChange={(e) => setFormData({...formData, recurringFrequency: e.target.value as 'weekly' | 'monthly' | 'yearly'})}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="weekly">📅 Weekly</option>
-                  <option value="monthly">🗓️ Monthly</option>
-                  <option value="yearly">📆 Yearly</option>
-                </select>
-              </div>
-            )}
-            
-            {/* Row 5: Description and Date */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Description *
-                </label>
-                <input
-                  type="text"
-                  value={formData.description}
-                  onChange={(e) => setFormData({...formData, description: e.target.value})}
-                  placeholder="What did you spend on?"
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Date *
-                </label>
-                <input
-                  type="date"
-                  value={formData.date}
-                  onChange={(e) => setFormData({...formData, date: e.target.value})}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-          </div>
-          
-          <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Notes (Optional)
-            </label>
-            <textarea
-              value={formData.notes}
-              onChange={(e) => setFormData({...formData, notes: e.target.value})}
-              placeholder="Any additional details..."
-              rows={3}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-          
-          <div className="flex gap-3 mt-6">
-            <button
-              onClick={editingId ? updateExpense : addExpense}
-              disabled={!formData.amount || !formData.description}
-              className="flex items-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-            >
-              <Receipt size={20} />
-              <span>{editingId ? 'Update Expense' : 'Add Expense'}</span>
-            </button>
-            
-            <button
-              onClick={cancelEdit}
-              className="px-6 py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
+      <ResponsiveModal
+        isOpen={editModal.isOpen}
+        onClose={editModal.closeModal}
+        title="Edit Expense"
+        size="large"
+      >
+        {editingExpense && (
+          <MobileExpenseForm
+            initialData={{
+              amount: editingExpense.amount.toString(),
+              currency: editingExpense.currency,
+              category: editingExpense.category,
+              type: editingExpense.type,
+              description: editingExpense.description,
+              date: editingExpense.date,
+              recurringFrequency: editingExpense.recurringFrequency || 'monthly',
+              notes: editingExpense.notes || '',
+            }}
+            onSubmit={handleEditExpense}
+            onCancel={editModal.closeModal}
+            isEditing={true}
+          />
+        )}
+      </ResponsiveModal>
 
       {/* Filters */}
       <div className="bg-white p-4 rounded-lg shadow-sm border">
