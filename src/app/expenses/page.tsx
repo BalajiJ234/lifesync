@@ -546,38 +546,43 @@ export default function ExpensesPage() {
             {editingId ? 'Edit Expense' : 'Add New Expense'}
           </h3>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Amount *
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                value={formData.amount}
-                onChange={(e) => setFormData({...formData, amount: e.target.value})}
-                placeholder="0.00"
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
+          {/* Mobile-first responsive form layout */}
+          <div className="space-y-4">
+            {/* Row 1: Amount and Currency */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Amount *
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={formData.amount}
+                  onChange={(e) => setFormData({...formData, amount: e.target.value})}
+                  placeholder="0.00"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Currency
+                </label>
+                <select
+                  value={formData.currency}
+                  onChange={(e) => setFormData({...formData, currency: e.target.value})}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                >
+                  {SUPPORTED_CURRENCIES.map(currency => (
+                    <option key={currency.code} value={currency.code}>
+                      {currency.flag} {currency.code} ({currency.symbol})
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Currency
-              </label>
-              <select
-                value={formData.currency}
-                onChange={(e) => setFormData({...formData, currency: e.target.value})}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              >
-                {SUPPORTED_CURRENCIES.map(currency => (
-                  <option key={currency.code} value={currency.code}>
-                    {currency.flag} {currency.code} ({currency.symbol})
-                  </option>
-                ))}
-              </select>
-            </div>
-            
+
+            {/* Row 2: Category */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Category *
@@ -602,14 +607,15 @@ export default function ExpensesPage() {
               />
             </div>
 
+            {/* Row 3: Expense Type */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Expense Type *
+                💎 Expense Type *
               </label>
               <select
                 value={formData.type}
                 onChange={(e) => setFormData({...formData, type: e.target.value as 'recurring' | 'essential' | 'one-time' | 'luxury' | 'emergency'})}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-gradient-to-r from-blue-50 to-purple-50"
               >
                 {expenseTypes.map(type => (
                   <option key={type.value} value={type.value}>
@@ -622,7 +628,7 @@ export default function ExpensesPage() {
               </p>
             </div>
 
-            {/* Recurring Frequency - only show for recurring expenses */}
+            {/* Row 4: Recurring Frequency - only show for recurring expenses */}
             {formData.type === 'recurring' && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -640,29 +646,32 @@ export default function ExpensesPage() {
               </div>
             )}
             
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Description *
-              </label>
-              <input
-                type="text"
-                value={formData.description}
-                onChange={(e) => setFormData({...formData, description: e.target.value})}
-                placeholder="What did you spend on?"
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Date *
-              </label>
-              <input
-                type="date"
-                value={formData.date}
-                onChange={(e) => setFormData({...formData, date: e.target.value})}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              />
+            {/* Row 5: Description and Date */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Description *
+                </label>
+                <input
+                  type="text"
+                  value={formData.description}
+                  onChange={(e) => setFormData({...formData, description: e.target.value})}
+                  placeholder="What did you spend on?"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Date *
+                </label>
+                <input
+                  type="date"
+                  value={formData.date}
+                  onChange={(e) => setFormData({...formData, date: e.target.value})}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
             </div>
           </div>
           

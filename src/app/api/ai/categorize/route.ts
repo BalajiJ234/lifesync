@@ -42,8 +42,8 @@ function categorizeExpense(description: string, amount: number, context?: { date
   const desc = description.toLowerCase()
   
   // Food & Dining patterns
-  if (desc.match(/restaurant|food|lunch|dinner|breakfast|cafe|pizza|burger|sushi|takeout|delivery|eat|meal/)) {
-    return { category: 'Food & Dining', confidence: 0.9, reason: 'Contains food/dining keywords' }
+  if (desc.match(/restaurant|food|lunch|dinner|breakfast|cafe|pizza|burger|sushi|takeout|delivery|eat|meal|groceries|grocery|supermarket|market|carrefour|spinneys|lulu|union coop|fresh|produce|vegetables|fruits/)) {
+    return { category: 'Food & Dining', confidence: 0.9, reason: 'Contains food/dining/grocery keywords' }
   }
   
   // Transportation patterns
@@ -91,13 +91,13 @@ function calculateConfidence(description: string, category: string): number {
   
   // Category-specific confidence boosts
   const categoryPatterns: Record<string, RegExp[]> = {
-    'Food & Dining': [/restaurant|food|lunch|dinner|breakfast/],
-    'Transportation': [/gas|fuel|uber|taxi|parking/],
-    'Shopping': [/amazon|store|shop|buy|purchase/],
-    'Bills & Utilities': [/bill|utility|subscription|electric/],
-    'Entertainment': [/movie|game|bar|entertainment/],
-    'Healthcare': [/doctor|hospital|medical|pharmacy/],
-    'Housing': [/rent|mortgage|apartment|home/]
+    'Food & Dining': [/restaurant|food|lunch|dinner|breakfast|groceries|grocery|supermarket|carrefour/],
+    'Transportation': [/gas|fuel|uber|taxi|parking|metro|bus/],
+    'Shopping': [/amazon|store|shop|buy|purchase|mall|retail/],
+    'Bills & Utilities': [/bill|utility|subscription|electric|water|internet/],
+    'Entertainment': [/movie|game|bar|entertainment|cinema|concert/],
+    'Healthcare': [/doctor|hospital|medical|pharmacy|clinic/],
+    'Housing': [/rent|mortgage|apartment|home|maintenance/]
   }
   
   const patterns = categoryPatterns[category] || []
