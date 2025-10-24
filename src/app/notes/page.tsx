@@ -2,7 +2,13 @@
 
 import { useState } from 'react'
 import { Plus, X, Edit3, Save, Upload } from 'lucide-react'
-import { useDataStorage } from '@/hooks/useLocalStorage'
+import { useAppDispatch, useAppSelector } from '@/store/hooks'
+import { 
+  addNote as addNoteAction, 
+  updateNote, 
+  deleteNote, 
+  type Note as ReduxNote 
+} from '@/store/slices/notesSlice'
 import BulkImport from '@/components/BulkImport'
 
 interface Note {
@@ -25,13 +31,14 @@ const noteColors = [
 ]
 
 export default function NotesPage() {
-  const [notes, setNotes] = useDataStorage<Note[]>('notes', [])
+  const dispatch = useAppDispatch()
+  const notes = useAppSelector((state) => state.notes.notes)
   const [newNote, setNewNote] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editContent, setEditContent] = useState('')
   const [showBulkImport, setShowBulkImport] = useState(false)
 
-  const addNote = () => {
+  const handleAddNote = () => {
     if (newNote.trim()) {
       const note: Note = {
         id: Date.now().toString(),
@@ -39,13 +46,13 @@ export default function NotesPage() {
         color: noteColors[Math.floor(Math.random() * noteColors.length)],
         createdAt: new Date(),
       }
-      setNotes([note, ...notes])
+      dispatch(addNoteAction(note))
       setNewNote('')
     }
   }
 
-  const deleteNote = (id: string) => {
-    setNotes(notes.filter(note => note.id !== id))
+  const handleDeleteNote = (id: string) => {
+    dispatch(deleteNote(id))
   }
 
   const startEdit = (note: Note) => {
@@ -55,11 +62,10 @@ export default function NotesPage() {
 
   const saveEdit = () => {
     if (editingId && editContent.trim()) {
-      setNotes(notes.map(note => 
-        note.id === editingId 
-          ? { ...note, content: editContent.trim() }
-          : note
-      ))
+      dispatch(updateNote({
+        id: editingId,
+        updates: { content: editContent.trim() }
+      }))
       setEditingId(null)
       setEditContent('')
     }
@@ -115,7 +121,7 @@ export default function NotesPage() {
             </p>
             <div className="flex gap-2">
               <button
-                onClick={addNote}
+                onClick={handleAddNote}
                 disabled={!newNote.trim()}
                 className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
               >
@@ -176,7 +182,7 @@ export default function NotesPage() {
                     <Edit3 size={16} />
                   </button>
                   <button
-                    onClick={() => deleteNote(note.id)}
+                    onClick={() => handleDeleteNote(note.id)}
                     className="text-gray-400 hover:text-red-600 transition-colors"
                   >
                     <X size={16} />
