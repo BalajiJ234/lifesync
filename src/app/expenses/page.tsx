@@ -52,6 +52,7 @@ interface Expense {
   amount: number
   description: string
   category: string
+  type: 'recurring' | 'essential' | 'one-time' | 'luxury' | 'emergency' // New expense type
   date: string
   notes?: string
   currency: string
@@ -59,7 +60,46 @@ interface Expense {
   isShared?: boolean
   sharedWith?: string[] // Array of friend IDs
   splitBillId?: string // Reference to the created split bill
+  recurringFrequency?: 'weekly' | 'monthly' | 'yearly' // For recurring expenses
 }
+
+const expenseTypes = [
+  { 
+    value: 'recurring', 
+    name: 'Recurring Payment', 
+    icon: '🔄', 
+    color: 'bg-blue-100 text-blue-800',
+    description: 'Subscriptions, utilities, rent, etc.'
+  },
+  { 
+    value: 'essential', 
+    name: 'Monthly Essential', 
+    icon: '🏠', 
+    color: 'bg-orange-100 text-orange-800',
+    description: 'Groceries, fuel, necessities'
+  },
+  { 
+    value: 'one-time', 
+    name: 'One-Time Purchase', 
+    icon: '🛒', 
+    color: 'bg-green-100 text-green-800',
+    description: 'Regular shopping, entertainment, etc.'
+  },
+  { 
+    value: 'luxury', 
+    name: 'Luxury / Optional', 
+    icon: '💎', 
+    color: 'bg-purple-100 text-purple-800',
+    description: 'Non-essential, luxury items, treats'
+  },
+  { 
+    value: 'emergency', 
+    name: 'Emergency Expense', 
+    icon: '🚨', 
+    color: 'bg-red-100 text-red-800',
+    description: 'Unexpected medical, repairs, etc.'
+  }
+]
 
 const expenseCategories = [
   { name: 'Food & Dining', icon: '🍽️', color: 'bg-orange-100 text-orange-800' },
@@ -99,6 +139,8 @@ export default function ExpensesPage() {
     amount: '',
     description: '',
     category: 'Food & Dining',
+    type: 'one-time' as 'recurring' | 'essential' | 'one-time' | 'luxury' | 'emergency',
+    recurringFrequency: 'monthly' as 'weekly' | 'monthly' | 'yearly',
     date: new Date().toISOString().split('T')[0],
     notes: '',
     currency: settings.defaultCurrency.code
@@ -116,6 +158,8 @@ export default function ExpensesPage() {
         amount: parseFloat(formData.amount),
         description: formData.description.trim(),
         category: formData.category,
+        type: formData.type,
+        recurringFrequency: formData.type === 'recurring' ? formData.recurringFrequency : undefined,
         date: formData.date,
         notes: formData.notes.trim() || undefined,
         currency: formData.currency,
@@ -137,6 +181,8 @@ export default function ExpensesPage() {
               amount: parseFloat(formData.amount),
               description: formData.description.trim(),
               category: formData.category,
+              type: formData.type,
+              recurringFrequency: formData.type === 'recurring' ? formData.recurringFrequency : undefined,
               date: formData.date,
               notes: formData.notes.trim() || undefined,
               currency: formData.currency
@@ -284,6 +330,8 @@ export default function ExpensesPage() {
       amount: expense.amount.toString(),
       description: expense.description,
       category: expense.category,
+      type: expense.type || 'one-time',
+      recurringFrequency: expense.recurringFrequency || 'monthly',
       date: expense.date,
       notes: expense.notes || '',
       currency: expense.currency
@@ -297,6 +345,8 @@ export default function ExpensesPage() {
       amount: '',
       description: '',
       category: 'Food & Dining',
+      type: 'one-time',
+      recurringFrequency: 'monthly',
       date: new Date().toISOString().split('T')[0],
       notes: '',
       currency: settings.defaultCurrency.code
@@ -551,6 +601,44 @@ export default function ExpensesPage() {
                 onCategorySelect={(category) => setFormData({...formData, category})}
               />
             </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Expense Type *
+              </label>
+              <select
+                value={formData.type}
+                onChange={(e) => setFormData({...formData, type: e.target.value as 'recurring' | 'essential' | 'one-time' | 'luxury' | 'emergency'})}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              >
+                {expenseTypes.map(type => (
+                  <option key={type.value} value={type.value}>
+                    {type.icon} {type.name}
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-gray-500 mt-1">
+                {expenseTypes.find(t => t.value === formData.type)?.description}
+              </p>
+            </div>
+
+            {/* Recurring Frequency - only show for recurring expenses */}
+            {formData.type === 'recurring' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Frequency *
+                </label>
+                <select
+                  value={formData.recurringFrequency}
+                  onChange={(e) => setFormData({...formData, recurringFrequency: e.target.value as 'weekly' | 'monthly' | 'yearly'})}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="weekly">📅 Weekly</option>
+                  <option value="monthly">🗓️ Monthly</option>
+                  <option value="yearly">📆 Yearly</option>
+                </select>
+              </div>
+            )}
             
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -731,6 +819,13 @@ export default function ExpensesPage() {
                       <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
                         <span className={`px-2 py-1 rounded-full text-xs ${categoryInfo.color}`}>
                           {expense.category}
+                        </span>
+                        
+                        <span className={`px-2 py-1 rounded-full text-xs ${expenseTypes.find(t => t.value === expense.type)?.color || 'bg-gray-100 text-gray-800'}`}>
+                          {expenseTypes.find(t => t.value === expense.type)?.icon} {expenseTypes.find(t => t.value === expense.type)?.name || expense.type}
+                          {expense.type === 'recurring' && expense.recurringFrequency && (
+                            <span className="ml-1">({expense.recurringFrequency})</span>
+                          )}
                         </span>
                         
                         <span className="flex items-center gap-1">

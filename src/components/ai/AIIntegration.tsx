@@ -45,21 +45,25 @@ export function useAIIntegration() {
     }
   }
 
-  const getSuggestions = async (type: string = 'general'): Promise<Suggestion[]> => {
+  const getSuggestions = async (analysisType: string = 'general', data: Record<string, unknown> = {}): Promise<Suggestion[]> => {
     try {
       setIsProcessing(true)
       const response = await fetch('/api/ai/suggestions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type })
+        body: JSON.stringify({ 
+          data, 
+          analysisType,
+          context: 'dashboard_insights'
+        })
       })
 
       if (!response.ok) {
         throw new Error('Failed to get AI suggestions')
       }
 
-      const data = await response.json()
-      return data.suggestions || []
+      const result = await response.json()
+      return result.suggestions || []
     } catch (error) {
       console.error('AI suggestions error:', error)
       return []
