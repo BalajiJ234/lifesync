@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navigation from "@/components/Navigation";
+import NotificationBanner from "@/components/ui/NotificationBanner";
 import { SettingsProvider } from "@/contexts/SettingsContext";
 
 const geistSans = Geist({
@@ -35,6 +36,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50 min-h-screen`}
       >
         <SettingsProvider>
+          <NotificationBanner />
           <Navigation />
           <main className="container mx-auto px-4 py-8">
             {children}

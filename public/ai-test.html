@@ -85,6 +85,18 @@
         <div id="batchTestResult"></div>
     </div>
 
+    <div class="test-section">
+        <h2>🧪 Comprehensive AI Test Suite</h2>
+        <p>Run complete validation of all AI features including performance and accuracy testing.</p>
+        <button onclick="window.runAITests()" style="background: #28a745; padding: 15px 30px; font-size: 16px;">
+            🚀 Run Complete AI Test Suite
+        </button>
+        <div style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 4px; font-family: monospace; font-size: 12px;">
+            <strong>Console Output:</strong> Open browser DevTools (F12) → Console tab to see detailed test results
+        </div>
+    </div>
+
+    <script src="/ai-test-runner.js"></script>
     <script>
         async function testCategorization() {
             const description = document.getElementById('description').value;
