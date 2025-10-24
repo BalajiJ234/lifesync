@@ -20,7 +20,15 @@ import {
 import BulkImport from '@/components/BulkImport'
 import { useSettings } from '@/contexts/SettingsContext'
 import { formatAmount, convertCurrency, SUPPORTED_CURRENCIES } from '@/utils/currency'
-import { useDataStorage } from '@/hooks/useLocalStorage'
+import { useAppDispatch, useAppSelector } from '@/store/hooks'
+import { 
+  addExpense, 
+  updateExpense, 
+  deleteExpense, 
+  bulkImportExpenses,
+  type Expense as ReduxExpense
+} from '@/store/slices/expensesSlice'
+import type { RootState } from '@/store/index'
 import ResponsiveModal, { useMobileModal } from '@/components/ui/MobileModal'
 import MobileExpenseForm from '@/components/forms/MobileExpenseForm'
 
@@ -118,7 +126,11 @@ const expenseCategories = [
 
 export default function ExpensesPage() {
   const { settings } = useSettings()
-  const [expenses, setExpenses] = useDataStorage<Expense[]>('expenses', [])
+  const dispatch = useAppDispatch()
+  const expenses = useAppSelector((state: RootState) => state.expenses?.expenses || [])
+  const totalSpent = useAppSelector((state: RootState) => state.expenses?.totalSpent || 0)
+  
+  // Note: Friends and bills will be migrated when splits are migrated to Redux
   const [friends] = useDataStorage<Friend[]>('friends', [])
   const [bills, setBills] = useDataStorage<SplitBill[]>('bills', [])
   
@@ -154,20 +166,24 @@ export default function ExpensesPage() {
     recurringFrequency: 'weekly' | 'monthly' | 'yearly'
     notes: string
   }) => {
-    const expense: Expense = {
+    const expense: ReduxExpense = {
       id: Date.now().toString(),
       amount: parseFloat(formData.amount),
       description: formData.description.trim(),
       category: formData.category,
-      type: formData.type,
-      recurringFrequency: formData.type === 'recurring' ? formData.recurringFrequency : undefined,
       date: formData.date,
-      notes: formData.notes.trim() || undefined,
       currency: formData.currency,
-      createdAt: new Date()
+      createdAt: new Date().toISOString(),
+      // Map additional fields to Redux schema
+      notes: formData.notes.trim() || undefined,
+      tags: [formData.type], // Store expense type as a tag
+      isRecurring: formData.type === 'recurring',
+      recurringPeriod: formData.type === 'recurring' ? 
+        (formData.recurringFrequency === 'weekly' ? 'weekly' :
+         formData.recurringFrequency === 'monthly' ? 'monthly' : 'yearly') : undefined
     }
     
-    setExpenses([expense, ...expenses])
+    dispatch(addExpense(expense))
     addModal.closeModal()
   }
   
@@ -202,8 +218,8 @@ export default function ExpensesPage() {
     }
   }
   
-  const deleteExpense = (id: string) => {
-    setExpenses(expenses.filter(expense => expense.id !== id))
+  const handleDeleteExpense = (id: string) => {
+    dispatch(deleteExpense(id))
   }
 
   const shareExpense = (expenseId: string, selectedFriends: string[]) => {
@@ -328,8 +344,8 @@ export default function ExpensesPage() {
   }
 
   const handleBulkImport = (data: unknown[]) => {
-    const importedExpenses = data as Expense[]
-    setExpenses([...importedExpenses, ...expenses])
+    const importedExpenses = data as ReduxExpense[]
+    dispatch(bulkImportExpenses(importedExpenses))
     setShowBulkImport(false)
   }
   
@@ -341,7 +357,7 @@ export default function ExpensesPage() {
   // Removed old form functions - now using mobile modals
   
   // Filter expenses
-  const filteredExpenses = expenses.filter(expense => {
+  const filteredExpenses = (expenses as ReduxExpense[]).filter((expense: ReduxExpense) => {
     // Search filter
     if (searchTerm && !expense.description.toLowerCase().includes(searchTerm.toLowerCase()) && 
         !expense.category.toLowerCase().includes(searchTerm.toLowerCase())) {
@@ -382,12 +398,12 @@ export default function ExpensesPage() {
   
   // Calculate this month and week totals
   const today = new Date()
-  const thisMonth = expenses.filter(e => {
+  const thisMonth = (expenses as ReduxExpense[]).filter((e: ReduxExpense) => {
     const date = new Date(e.date)
     return date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear()
   }).reduce((sum, e) => sum + e.amount, 0)
   
-  const thisWeek = expenses.filter(e => {
+  const thisWeek = (expenses as ReduxExpense[]).filter((e: ReduxExpense) => {
     const date = new Date(e.date)
     const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000)
     return date >= weekAgo
@@ -397,7 +413,7 @@ export default function ExpensesPage() {
   stats.thisWeek = thisWeek
   
   // Calculate top category
-  const categoryTotals = expenses.reduce((acc, expense) => {
+  const categoryTotals = (expenses as ReduxExpense[]).reduce((acc, expense: ReduxExpense) => {
     acc[expense.category] = (acc[expense.category] || 0) + expense.amount
     return acc
   }, {} as Record<string, number>)
@@ -406,7 +422,7 @@ export default function ExpensesPage() {
   
   // Calculate average per day (last 30 days)
   const thirtyDaysAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000)
-  const last30Days = expenses.filter(e => new Date(e.date) >= thirtyDaysAgo)
+  const last30Days = (expenses as ReduxExpense[]).filter((e: ReduxExpense) => new Date(e.date) >= thirtyDaysAgo)
   stats.avgPerDay = last30Days.length > 0 ? last30Days.reduce((sum, e) => sum + e.amount, 0) / 30 : 0
   
   const getCategoryInfo = (categoryName: string) => {
@@ -632,7 +648,7 @@ export default function ExpensesPage() {
         </div>
       ) : (
         <div className="space-y-3">
-          {filteredExpenses.map((expense) => {
+          {filteredExpenses.map((expense: ReduxExpense) => {
             const categoryInfo = getCategoryInfo(expense.category)
             
             return (
@@ -723,7 +739,7 @@ export default function ExpensesPage() {
                       <Edit3 size={18} />
                     </button>
                     <button
-                      onClick={() => deleteExpense(expense.id)}
+                      onClick={() => handleDeleteExpense(expense.id)}
                       className="text-gray-400 hover:text-red-600 transition-colors"
                       title="Delete Expense"
                     >
