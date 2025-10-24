@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Navigation from "@/components/Navigation";
+import MobileNavigation from "@/components/MobileNavigation";
 import NotificationBanner from "@/components/ui/NotificationBanner";
 import { SettingsProvider } from "@/contexts/SettingsContext";
 
@@ -37,8 +37,8 @@ export default function RootLayout({
       >
         <SettingsProvider>
           <NotificationBanner />
-          <Navigation />
-          <main className="container mx-auto px-4 py-8">
+          <MobileNavigation />
+          <main className="container mx-auto px-4 py-4 md:py-8 pb-20 md:pb-8">
             {children}
           </main>
         </SettingsProvider>
