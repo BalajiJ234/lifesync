@@ -130,9 +130,9 @@ export default function ExpensesPage() {
   const expenses = useAppSelector((state: RootState) => state.expenses?.expenses || [])
   const totalSpent = useAppSelector((state: RootState) => state.expenses?.totalSpent || 0)
   
-  // Note: Friends and bills will be migrated when splits are migrated to Redux
-  const [friends] = useDataStorage<Friend[]>('friends', [])
-  const [bills, setBills] = useDataStorage<SplitBill[]>('bills', [])
+  // Load friends and bills from Redux
+  const friends = useAppSelector((state: RootState) => state.splits?.friends || [])
+  const bills = useAppSelector((state: RootState) => state.splits?.bills || [])
   
   // Mobile Modal States
   const addModal = useMobileModal()
