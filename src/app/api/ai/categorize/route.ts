@@ -41,8 +41,13 @@ export async function POST(request: NextRequest) {
 function categorizeExpense(description: string, amount: number, context?: { date?: string; location?: string }): CategoryResult {
   const desc = description.toLowerCase()
   
+  // Shopping patterns - Check furniture/home items FIRST before food
+  if (desc.match(/furniture|chair|table|sofa|bed|desk|cabinet|shelf|couch|mattress|lamp|decor|home goods|appliance|electronics|tv|computer|phone|gadget/)) {
+    return { category: 'Shopping', confidence: 0.9, reason: 'Contains furniture/electronics/home goods keywords' }
+  }
+  
   // Food & Dining patterns
-  if (desc.match(/restaurant|food|lunch|dinner|breakfast|cafe|pizza|burger|sushi|takeout|delivery|eat|meal|groceries|grocery|supermarket|market|carrefour|spinneys|lulu|union coop|fresh|produce|vegetables|fruits/)) {
+  if (desc.match(/restaurant|food|lunch|dinner|breakfast|cafe|pizza|burger|sushi|takeout|delivery|eat|meal|dining|kitchen|cook|groceries|grocery|supermarket|market|carrefour|spinneys|lulu|union coop|fresh|produce|vegetables|fruits/)) {
     return { category: 'Food & Dining', confidence: 0.9, reason: 'Contains food/dining/grocery keywords' }
   }
   
@@ -51,8 +56,8 @@ function categorizeExpense(description: string, amount: number, context?: { date
     return { category: 'Transportation', confidence: 0.85, reason: 'Contains transportation keywords' }
   }
   
-  // Shopping patterns
-  if (desc.match(/amazon|target|walmart|store|shop|buy|purchase|mall|retail|clothes|clothing/)) {
+  // General Shopping patterns (after specific checks)
+  if (desc.match(/amazon|target|walmart|store|shop|buy|purchase|mall|retail|clothes|clothing|online|order/)) {
     return { category: 'Shopping', confidence: 0.8, reason: 'Contains shopping keywords' }
   }
   
@@ -91,9 +96,9 @@ function calculateConfidence(description: string, category: string): number {
   
   // Category-specific confidence boosts
   const categoryPatterns: Record<string, RegExp[]> = {
-    'Food & Dining': [/restaurant|food|lunch|dinner|breakfast|groceries|grocery|supermarket|carrefour/],
+    'Food & Dining': [/restaurant|food|lunch|dinner|breakfast|groceries|grocery|supermarket|carrefour|dining|kitchen|cook/],
     'Transportation': [/gas|fuel|uber|taxi|parking|metro|bus/],
-    'Shopping': [/amazon|store|shop|buy|purchase|mall|retail/],
+    'Shopping': [/furniture|chair|table|sofa|bed|electronics|tv|computer|phone|amazon|store|shop|buy|purchase|mall|retail|clothes|appliance/],
     'Bills & Utilities': [/bill|utility|subscription|electric|water|internet/],
     'Entertainment': [/movie|game|bar|entertainment|cinema|concert/],
     'Healthcare': [/doctor|hospital|medical|pharmacy|clinic/],
@@ -105,6 +110,11 @@ function calculateConfidence(description: string, category: string): number {
   
   // Boost confidence based on pattern matches
   confidence += matches.length * 0.2
+  
+  // Special boost for furniture items in Shopping category
+  if (category === 'Shopping' && desc.match(/furniture|chair|table|sofa|bed|desk/)) {
+    confidence += 0.3
+  }
   
   // Cap confidence at 0.95
   return Math.min(confidence, 0.95)

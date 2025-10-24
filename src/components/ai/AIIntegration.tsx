@@ -23,22 +23,38 @@ export function useAIIntegration() {
   const categorizeExpense = async (description: string, amount: number): Promise<CategoryResult | null> => {
     if (!description.trim() || !amount) return null
 
+    // Create abort controller for request cancellation
+    const abortController = new AbortController()
+    
     try {
       setIsProcessing(true)
+      
+      // Add timeout to prevent hanging requests
+      const timeoutId = setTimeout(() => abortController.abort(), 10000) // 10 second timeout
+      
       const response = await fetch('/api/ai/categorize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ description, amount })
+        body: JSON.stringify({ description, amount }),
+        signal: abortController.signal
       })
 
+      clearTimeout(timeoutId)
+
       if (!response.ok) {
-        throw new Error('Failed to categorize expense')
+        throw new Error(`HTTP error! status: ${response.status}`)
       }
 
       const data = await response.json()
       return data.success ? data : null
     } catch (error) {
-      console.error('AI categorization error:', error)
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          console.log('AI categorization request was cancelled')
+        } else {
+          console.error('AI categorization error:', error.message)
+        }
+      }
       return null
     } finally {
       setIsProcessing(false)
@@ -88,12 +104,29 @@ interface CategorySuggestionProps {
 
 export function CategorySuggestion({ description, amount, onCategorySelect }: CategorySuggestionProps) {
   const [suggestion, setSuggestion] = useState<CategoryResult | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [lastRequest, setLastRequest] = useState<string>('')
   const { categorizeExpense, isProcessing } = useAIIntegration()
 
   const handleGetSuggestion = async () => {
-    const result = await categorizeExpense(description, amount)
-    if (result) {
-      setSuggestion(result)
+    // Prevent duplicate requests
+    const requestKey = `${description}-${amount}`
+    if (loading || lastRequest === requestKey) {
+      return
+    }
+
+    setLoading(true)
+    setLastRequest(requestKey)
+
+    try {
+      const result = await categorizeExpense(description, amount)
+      if (result) {
+        setSuggestion(result)
+      }
+    } catch (error) {
+      console.error('Error getting suggestion:', error)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -107,10 +140,10 @@ export function CategorySuggestion({ description, amount, onCategorySelect }: Ca
         <h4 className="font-medium text-blue-900">🤖 AI Category Suggestion</h4>
         <button
           onClick={handleGetSuggestion}
-          disabled={isProcessing}
-          className="text-xs px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+          disabled={loading || isProcessing}
+          className="text-xs px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isProcessing ? 'Analyzing...' : 'Get Suggestion'}
+          {loading || isProcessing ? 'Analyzing...' : 'Get Suggestion'}
         </button>
       </div>
 
