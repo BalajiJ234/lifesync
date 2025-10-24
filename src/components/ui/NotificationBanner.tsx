@@ -158,7 +158,7 @@ export default function NotificationBanner({
           <div className="flex items-center space-x-3">
             {/* Learn More button */}
             <button
-              onClick={() => window.open('http://localhost:3000/ai-test.html', '_blank')}
+              onClick={() => window.open('/ai-test.html', '_blank')}
               className={`hidden sm:inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
                 variant === 'learning'
                   ? 'bg-white/20 text-white border border-white/30 hover:bg-white/30'
@@ -201,7 +201,7 @@ export default function NotificationBanner({
         <div className="sm:hidden pb-3">
           <div className="flex space-x-2">
             <button
-              onClick={() => window.open('http://localhost:3000/ai-test.html', '_blank')}
+              onClick={() => window.open('/ai-test.html', '_blank')}
               className={`flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium rounded-md transition-colors ${
                 variant === 'learning'
                   ? 'bg-white/20 text-white border border-white/30'
