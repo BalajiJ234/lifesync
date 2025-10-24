@@ -1,7 +1,12 @@
 'use client'
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import { Currency, DEFAULT_CURRENCY, getCurrencyByCode } from '@/utils/currency'
+import { createContext, useContext, ReactNode } from 'react'
+import { Currency, DEFAULT_CURRENCY } from '@/utils/currency'
+import { useAppDispatch, useAppSelector } from '@/store/hooks'
+import { 
+  updateSetting,
+  selectSettings
+} from '@/store/slices/settingsSlice'
 
 interface UserSettings {
   defaultCurrency: Currency
@@ -28,48 +33,23 @@ const defaultSettings: UserSettings = {
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined)
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
-  const [settings, setSettings] = useState<UserSettings>(defaultSettings)
-
-  // Load settings from localStorage on mount
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const savedSettings = localStorage.getItem('lifesync-settings')
-      if (savedSettings) {
-        try {
-          const parsed = JSON.parse(savedSettings)
-          setSettings({
-            ...defaultSettings,
-            ...parsed,
-            defaultCurrency: getCurrencyByCode(parsed.defaultCurrency?.code || 'USD')
-          })
-        } catch (error) {
-          console.error('Failed to parse saved settings:', error)
-        }
-      }
-    }
-  }, [])
-
-  // Save settings to localStorage whenever they change
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('lifesync-settings', JSON.stringify(settings))
-    }
-  }, [settings])
+  const dispatch = useAppDispatch()
+  const settings = useAppSelector(selectSettings)
 
   const updateCurrency = (currency: Currency) => {
-    setSettings(prev => ({ ...prev, defaultCurrency: currency }))
+    dispatch(updateSetting({ key: 'defaultCurrency', value: currency }))
   }
 
   const updateTheme = (theme: 'light' | 'dark' | 'system') => {
-    setSettings(prev => ({ ...prev, theme }))
+    dispatch(updateSetting({ key: 'theme', value: theme }))
   }
 
   const updateNotifications = (notifications: boolean) => {
-    setSettings(prev => ({ ...prev, notifications }))
+    dispatch(updateSetting({ key: 'notifications', value: notifications }))
   }
 
   const updateLanguage = (language: string) => {
-    setSettings(prev => ({ ...prev, language }))
+    dispatch(updateSetting({ key: 'language', value: language }))
   }
 
   return (
