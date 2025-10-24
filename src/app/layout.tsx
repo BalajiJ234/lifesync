@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import MobileNavigation from "@/components/MobileNavigation";
 import NotificationBanner from "@/components/ui/NotificationBanner";
-import { SettingsProvider } from "@/contexts/SettingsContext";
+import ReduxProvider from "@/store/ReduxProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,13 +35,13 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50 min-h-screen`}
       >
-        <SettingsProvider>
+        <ReduxProvider>
           <NotificationBanner />
           <MobileNavigation />
           <main className="container mx-auto px-4 py-4 md:py-8 pb-20 md:pb-8">
             {children}
           </main>
-        </SettingsProvider>
+        </ReduxProvider>
         
         <script
           dangerouslySetInnerHTML={{
