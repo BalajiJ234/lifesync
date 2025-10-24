@@ -17,8 +17,20 @@ import {
   Equal,
   Upload
 } from 'lucide-react'
-import { useDataStorage } from '@/hooks/useLocalStorage'
 import BulkImport from '@/components/BulkImport'
+import { useAppDispatch, useAppSelector } from '@/store/hooks'
+import { 
+  addFriend, 
+  updateFriend, 
+  deleteFriend, 
+  addSplitBill, 
+  updateSplitBill, 
+  deleteSplitBill,
+  selectFriends,
+  selectSplitBills,
+  type Friend as ReduxFriend,
+  type SplitBill as ReduxSplitBill 
+} from '@/store/slices/splitsSlice'
 
 interface Friend {
   id: string
@@ -40,8 +52,9 @@ interface SplitBill {
   customAmounts?: Record<string, number>
   percentages?: Record<string, number>
   date: string
-  settled: boolean
+  status: 'pending' | 'settled' | 'cancelled'
   createdAt: Date
+  updatedAt: Date
   notes?: string
 }
 
@@ -56,8 +69,9 @@ const defaultAvatars = [
 ]
 
 export default function SplitsPage() {
-  const [friends, setFriends] = useDataStorage<Friend[]>('friends', [])
-  const [bills, setBills] = useDataStorage<SplitBill[]>('bills', [])
+  const dispatch = useAppDispatch()
+  const friends = useAppSelector(selectFriends)
+  const bills = useAppSelector(selectSplitBills)
   const [showAddFriend, setShowAddFriend] = useState(false)
   const [showAddBill, setShowAddBill] = useState(false)
   const [activeTab, setActiveTab] = useState<'bills' | 'friends' | 'balances'>('bills')
@@ -73,16 +87,6 @@ export default function SplitsPage() {
   // Data migration effect to handle existing records
   useEffect(() => {
     if (isClient && bills.length > 0) {
-      // Migrate existing bills to include new fields
-      const migratedBills = bills.map(bill => ({
-        ...bill,
-        splitType: bill.splitType || 'equal',
-        customAmounts: bill.customAmounts || {},
-        percentages: bill.percentages || {},
-        currency: bill.currency || undefined,
-        paidBy: bill.paidBy === 'me' ? 'self' : bill.paidBy // Migrate old 'me' to 'self'
-      }))
-      
       // Check if migration is needed
       const needsMigration = bills.some(bill => 
         !bill.splitType || 
@@ -92,10 +96,24 @@ export default function SplitsPage() {
       )
       
       if (needsMigration) {
-        setBills(migratedBills)
+        // Migrate existing bills to include new fields
+        bills.forEach(bill => {
+          if (!bill.splitType || !bill.customAmounts || !bill.percentages || bill.paidBy === 'me') {
+            dispatch(updateSplitBill({
+              id: bill.id,
+              updates: {
+                splitType: bill.splitType || 'equal',
+                customAmounts: bill.customAmounts || {},
+                percentages: bill.percentages || {},
+                currency: bill.currency || undefined,
+                paidBy: bill.paidBy === 'me' ? 'self' : bill.paidBy // Migrate old 'me' to 'self'
+              }
+            }))
+          }
+        })
       }
     }
-  }, [isClient, bills, setBills]) // Only run when client is ready
+  }, [isClient, bills, dispatch]) // Only run when client is ready
   
   // Friend form
   const [friendForm, setFriendForm] = useState({
@@ -129,7 +147,7 @@ export default function SplitsPage() {
         isCustomAvatar: !!friendForm.customAvatar,
         createdAt: new Date()
       }
-      setFriends([...friends, friend])
+      dispatch(addFriend(friend))
       setFriendForm({ name: '', email: '', selectedAvatar: defaultAvatars[0], customAvatar: null })
       setShowAddFriend(false)
       setShowAvatarSelector(false)
@@ -149,16 +167,20 @@ export default function SplitsPage() {
   }
 
   const deleteFriend = (id: string) => {
-    setFriends(friends.filter(f => f.id !== id))
-    // Remove from any bills
-    setBills(bills.filter(bill => 
-      bill.paidBy !== id && !bill.participants.includes(id)
-    ))
+    dispatch(deleteFriend(id))
+    // Remove from any bills that reference this friend
+    bills.forEach(bill => {
+      if (bill.paidBy === id || bill.participants.includes(id)) {
+        dispatch(deleteSplitBill(bill.id))
+      }
+    })
   }
 
   const handleBulkImport = (data: unknown[]) => {
     const importedFriends = data as Friend[]
-    setFriends([...friends, ...importedFriends])
+    importedFriends.forEach(friend => {
+      dispatch(addFriend(friend))
+    })
     setShowBulkImport(false)
   }
 
@@ -191,12 +213,13 @@ export default function SplitsPage() {
         customAmounts,
         percentages: billForm.splitType === 'percentage' ? billForm.percentages : undefined,
         date: billForm.date,
-        settled: false,
+        status: 'pending',
+        updatedAt: new Date(),
         notes: billForm.notes.trim() || undefined,
         createdAt: new Date()
       }
       
-      setBills([bill, ...bills])
+      dispatch(addSplitBill(bill))
       resetBillForm()
       setShowAddBill(false)
     }
@@ -245,13 +268,17 @@ export default function SplitsPage() {
   }
 
   const toggleBillSettled = (billId: string) => {
-    setBills(bills.map(bill => 
-      bill.id === billId ? { ...bill, settled: !bill.settled } : bill
-    ))
+    const bill = bills.find(b => b.id === billId)
+    if (bill) {
+      dispatch(updateSplitBill({
+        id: billId,
+        updates: { status: bill.status === 'settled' ? 'pending' : 'settled' }
+      }))
+    }
   }
 
   const deleteBill = (billId: string) => {
-    setBills(bills.filter(bill => bill.id !== billId))
+    dispatch(deleteSplitBill(billId))
   }
 
   // Calculate balances
@@ -265,7 +292,7 @@ export default function SplitsPage() {
     
     // Calculate net balances from all bills
     bills.forEach(bill => {
-      if (bill.settled) return
+      if (bill.status === 'settled') return
       
       // Person who paid gets positive balance
       balances[bill.paidBy] += bill.totalAmount
@@ -306,7 +333,7 @@ export default function SplitsPage() {
 
   const stats = {
     totalBills: bills.length,
-    activeBills: bills.filter(b => !b.settled).length,
+    activeBills: bills.filter(b => b.status !== 'settled').length,
     totalAmount: bills.reduce((sum, bill) => sum + bill.totalAmount, 0),
     yourShare: 0 // Would calculate based on current user
   }
@@ -678,18 +705,18 @@ export default function SplitsPage() {
                     return (
                       <div
                         key={bill.id}
-                        className={`bg-white border rounded-lg p-4 ${bill.settled ? 'opacity-75' : ''}`}
+                        className={`bg-white border rounded-lg p-4 ${bill.status === 'settled' ? 'opacity-75' : ''}`}
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex-1">
                             <div className="flex items-center space-x-3">
-                              <h3 className={`font-semibold ${bill.settled ? 'line-through text-gray-500' : 'text-gray-900'}`}>
+                              <h3 className={`font-semibold ${bill.status === 'settled' ? 'line-through text-gray-500' : 'text-gray-900'}`}>
                                 {bill.description}
                               </h3>
                               <span className="text-xl font-bold text-green-600">
                                 ${bill.totalAmount.toFixed(2)}
                               </span>
-                              {bill.settled && (
+                              {bill.status === 'settled' && (
                                 <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
                                   <CheckCircle size={12} className="inline mr-1" />
                                   Settled
@@ -721,13 +748,13 @@ export default function SplitsPage() {
                             <button
                               onClick={() => toggleBillSettled(bill.id)}
                               className={`p-2 rounded transition-colors ${
-                                bill.settled
+                                bill.status === 'settled'
                                   ? 'text-gray-400 hover:text-orange-600'
                                   : 'text-gray-400 hover:text-green-600'
                               }`}
-                              title={bill.settled ? 'Mark as unsettled' : 'Mark as settled'}
+                              title={bill.status === 'settled' ? 'Mark as unsettled' : 'Mark as settled'}
                             >
-                              {bill.settled ? <X size={18} /> : <Check size={18} />}
+                              {bill.status === 'settled' ? <X size={18} /> : <Check size={18} />}
                             </button>
                             <button
                               onClick={() => deleteBill(bill.id)}

@@ -30,14 +30,44 @@ export interface Split {
   splitMethod: 'equal' | 'custom' | 'percentage'
 }
 
+export interface Friend {
+  id: string
+  name: string
+  email: string
+  avatar: string
+  isCustomAvatar: boolean
+  createdAt: Date
+}
+
+export interface SplitBill {
+  id: string
+  description: string
+  totalAmount: number
+  currency?: string
+  paidBy: string // friend id or 'self' for logged in person
+  participants: string[] // friend ids
+  splitType: 'equal' | 'percentage' | 'custom'
+  customAmounts?: Record<string, number>
+  percentages?: Record<string, number>
+  createdAt: Date
+  updatedAt: Date
+  status: 'pending' | 'settled' | 'cancelled'
+  category?: string
+  notes?: string
+}
+
 interface SplitsState {
   splits: Split[]
+  friends: Friend[]
+  bills: SplitBill[]
   loading: boolean
   error: string | null
 }
 
 const initialState: SplitsState = {
   splits: [],
+  friends: [],
+  bills: [],
   loading: false,
   error: null,
 }
@@ -146,6 +176,36 @@ const splitsSlice = createSlice({
     clearSplits: (state) => {
       state.splits = []
     },
+    
+    // Friend reducers
+    addFriend: (state, action: PayloadAction<Friend>) => {
+      state.friends.push(action.payload)
+    },
+    updateFriend: (state, action: PayloadAction<{ id: string; updates: Partial<Friend> }>) => {
+      const { id, updates } = action.payload
+      const friendIndex = state.friends.findIndex(friend => friend.id === id)
+      if (friendIndex !== -1) {
+        state.friends[friendIndex] = { ...state.friends[friendIndex], ...updates }
+      }
+    },
+    deleteFriend: (state, action: PayloadAction<string>) => {
+      state.friends = state.friends.filter(friend => friend.id !== action.payload)
+    },
+    
+    // SplitBill reducers
+    addSplitBill: (state, action: PayloadAction<SplitBill>) => {
+      state.bills.push(action.payload)
+    },
+    updateSplitBill: (state, action: PayloadAction<{ id: string; updates: Partial<SplitBill> }>) => {
+      const { id, updates } = action.payload
+      const billIndex = state.bills.findIndex(bill => bill.id === id)
+      if (billIndex !== -1) {
+        state.bills[billIndex] = { ...state.bills[billIndex], ...updates }
+      }
+    },
+    deleteSplitBill: (state, action: PayloadAction<string>) => {
+      state.bills = state.bills.filter(bill => bill.id !== action.payload)
+    },
   },
 })
 
@@ -162,6 +222,12 @@ export const {
   setLoading,
   setError,
   clearSplits,
+  addFriend,
+  updateFriend,
+  deleteFriend,
+  addSplitBill,
+  updateSplitBill,
+  deleteSplitBill,
 } = splitsSlice.actions
 
 // Selectors
@@ -191,5 +257,9 @@ export const selectSplitsStats = (state: { splits: SplitsState }) => {
       .reduce((sum, split) => sum + split.totalAmount, 0),
   }
 }
+
+// Friends and Bills selectors
+export const selectFriends = (state: { splits: SplitsState }) => state.splits.friends
+export const selectSplitBills = (state: { splits: SplitsState }) => state.splits.bills
 
 export default splitsSlice.reducer
