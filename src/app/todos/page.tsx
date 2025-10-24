@@ -26,7 +26,7 @@ interface Todo {
   priority: 'low' | 'medium' | 'high'
   dueDate?: string
   category: string
-  createdAt: Date
+  createdAt: string | Date
 }
 
 const priorityColors = {
@@ -68,7 +68,7 @@ export default function TodosPage() {
         priority: newPriority,
         dueDate: newDueDate || undefined,
         category: newCategory,
-        createdAt: new Date()
+        createdAt: new Date().toISOString()
       }
       setTodos([todo, ...todos])
       setNewTodo('')
@@ -478,7 +478,7 @@ export default function TodosPage() {
                           {/* Created */}
                           <span className="flex items-center gap-1">
                             <Clock size={12} />
-                            {todo.createdAt.toLocaleDateString()}
+                            {new Date(todo.createdAt).toLocaleDateString()}
                           </span>
                         </div>
                       </div>

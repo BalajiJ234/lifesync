@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
+  <rect width="192" height="192" rx="24" fill="#3b82f6"/>
+  <g transform="translate(48, 48)">
+    <path d="M72 12L60 12L60 24L48 24L48 36L36 36L36 48L24 48L24 60L12 60L12 72L24 72L24 84L36 84L36 96L48 96L48 84L60 84L60 72L72 72L72 60L84 60L84 48L96 48L96 36L84 36L84 24L72 24L72 12Z" fill="white"/>
+    <circle cx="30" cy="30" r="8" fill="#3b82f6"/>
+    <circle cx="66" cy="66" r="8" fill="#3b82f6"/>
+  </g>
+  <text x="96" y="140" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="24" font-weight="bold">LifeSync</text>
+</svg>
