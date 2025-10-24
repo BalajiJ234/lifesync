@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { useDataStorage } from '@/hooks/useLocalStorage'
+import { useAppSelector } from '@/store/hooks'
 import { AIInsights } from '@/components/ai/AIIntegration'
 import { 
   StickyNote, 
@@ -27,9 +27,10 @@ interface ActivityItem {
 
 interface Note {
   id: string
-  title: string
   content: string
+  color: string
   createdAt: Date
+  updatedAt?: Date
 }
 
 interface Todo {
@@ -56,18 +57,18 @@ interface Friend {
 interface SplitBill {
   id: string
   totalAmount: number
-  settled: boolean
+  status: 'pending' | 'settled' | 'cancelled'
   participants: string[]
   createdAt: Date
 }
 
 const useAppData = () => {
-  // Load real data from localStorage
-  const [notes] = useDataStorage<Note[]>('notes', [])
-  const [todos] = useDataStorage<Todo[]>('todos', [])
-  const [expenses] = useDataStorage<Expense[]>('expenses', [])
-  const [friends] = useDataStorage<Friend[]>('friends', [])
-  const [bills] = useDataStorage<SplitBill[]>('bills', [])
+  // Load real data from Redux store
+  const notes = useAppSelector((state) => state.notes.notes)
+  const todos = useAppSelector((state) => state.todos.todos)
+  const expenses = useAppSelector((state) => state.expenses.expenses)
+  const friends = useAppSelector((state) => state.splits.friends)
+  const bills = useAppSelector((state) => state.splits.bills)
   const [isClient, setIsClient] = useState(false)
 
   useEffect(() => {
@@ -86,7 +87,7 @@ const useAppData = () => {
   const thisMonthTotal = thisMonthExpenses.reduce((sum, expense) => sum + expense.amount, 0)
   const activeTodos = todos.filter(todo => !todo.completed)
   const completedTodos = todos.filter(todo => todo.completed)
-  const pendingBills = bills.filter(bill => !bill.settled)
+  const pendingBills = bills.filter(bill => bill.status !== 'settled')
   const pendingAmount = pendingBills.reduce((sum, bill) => sum + bill.totalAmount, 0)
 
   // Generate recent activity from real data
@@ -116,7 +117,7 @@ const useAppData = () => {
     notes.slice(0, 1).forEach(note => {
       activities.push({
         type: 'note',
-        desc: `Created "${note.title}"`,
+        desc: `Created note: "${note.content.slice(0, 30)}..."`,
         time: formatTimeAgo(note.createdAt)
       })
     })

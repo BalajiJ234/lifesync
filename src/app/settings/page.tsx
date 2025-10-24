@@ -19,15 +19,116 @@ import {
 } from 'lucide-react'
 import { useSettings } from '@/contexts/SettingsContext'
 import { SUPPORTED_CURRENCIES, Currency } from '@/utils/currency'
-import { useDataBackup } from '@/hooks/useLocalStorage'
+import { useAppDispatch, useAppSelector } from '@/store/hooks'
+import { clearExpenses, addExpense } from '@/store/slices/expensesSlice'
+import { clearTodos, addTodo } from '@/store/slices/todosSlice'
+import { clearGoals, addGoal } from '@/store/slices/goalsSlice'
+import { clearNotes, addNote } from '@/store/slices/notesSlice'
+import { clearSplits, addFriend, addSplitBill } from '@/store/slices/splitsSlice'
+import { resetSettings } from '@/store/slices/settingsSlice'
 
 export default function SettingsPage() {
   const { settings, updateCurrency, updateTheme, updateNotifications } = useSettings()
-  const { exportData, importData, clearAllData } = useDataBackup()
+  const dispatch = useAppDispatch()
+  
+  // Get all data from Redux store
+  const expenses = useAppSelector((state) => state.expenses.expenses)
+  const todos = useAppSelector((state) => state.todos.todos)  
+  const goals = useAppSelector((state) => state.goals.goals)
+  const notes = useAppSelector((state) => state.notes.notes)
+  const friends = useAppSelector((state) => state.splits.friends)
+  const bills = useAppSelector((state) => state.splits.bills)
+  
   const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false)
   const [currencySearch, setCurrencySearch] = useState('')
   const [showClearConfirm, setShowClearConfirm] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Redux-based data management functions
+  const exportData = () => {
+    const allData = {
+      expenses,
+      todos,
+      goals, 
+      notes,
+      friends,
+      bills,
+      settings,
+      exportDate: new Date().toISOString(),
+      version: '1.0'
+    }
+    
+    const dataStr = JSON.stringify(allData, null, 2)
+    const dataBlob = new Blob([dataStr], { type: 'application/json' })
+    const url = URL.createObjectURL(dataBlob)
+    
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `lifesync-backup-${new Date().toISOString().slice(0, 10)}.json`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  }
+
+  const importData = async (file: File): Promise<boolean> => {
+    try {
+      const text = await file.text()
+      const data = JSON.parse(text)
+      
+      // Import each data type using Redux actions
+      if (data.expenses?.length) {
+        data.expenses.forEach((expense: unknown) => {
+          dispatch(addExpense(expense as ReturnType<typeof addExpense>['payload']))
+        })
+      }
+      
+      if (data.todos?.length) {
+        data.todos.forEach((todo: unknown) => {
+          dispatch(addTodo(todo as ReturnType<typeof addTodo>['payload']))
+        })
+      }
+      
+      if (data.goals?.length) {
+        data.goals.forEach((goal: unknown) => {
+          dispatch(addGoal(goal as ReturnType<typeof addGoal>['payload']))
+        })
+      }
+      
+      if (data.notes?.length) {
+        data.notes.forEach((note: unknown) => {
+          dispatch(addNote(note as ReturnType<typeof addNote>['payload']))
+        })
+      }
+      
+      if (data.friends?.length) {
+        data.friends.forEach((friend: unknown) => {
+          dispatch(addFriend(friend as ReturnType<typeof addFriend>['payload']))
+        })
+      }
+      
+      if (data.bills?.length) {
+        data.bills.forEach((bill: unknown) => {
+          dispatch(addSplitBill(bill as ReturnType<typeof addSplitBill>['payload']))
+        })
+      }
+      
+      return true
+    } catch (error) {
+      console.error('Import failed:', error)
+      return false
+    }
+  }
+
+  const clearAllData = () => {
+    dispatch(clearExpenses())
+    dispatch(clearTodos())
+    dispatch(clearGoals())
+    dispatch(clearNotes())
+    dispatch(clearSplits())
+    // Reset settings to defaults but keep onboarding status
+    dispatch(resetSettings())
+  }
 
   const filteredCurrencies = SUPPORTED_CURRENCIES.filter(currency =>
     currency.name.toLowerCase().includes(currencySearch.toLowerCase()) ||
