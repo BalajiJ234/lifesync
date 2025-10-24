@@ -19,7 +19,17 @@ import {
   Sparkles
 } from 'lucide-react'
 import { useSettings } from '@/contexts/SettingsContext'
-import { useDataStorage } from '@/hooks/useLocalStorage'
+import { useAppDispatch, useAppSelector } from '@/store/hooks'
+import { 
+  addGoal, 
+  updateGoal, 
+  deleteGoal as removeGoal, 
+  addProgress,
+  updateAiAnalysis,
+  type Goal as ReduxGoal 
+} from '@/store/slices/goalsSlice'
+import type { Expense } from '@/store/slices/expensesSlice'
+import type { RootState } from '@/store/index'
 import { formatAmount, getCurrencyByCode } from '@/utils/currency'
 import ResponsiveModal, { useMobileModal } from '@/components/ui/MobileModal'
 
@@ -58,8 +68,9 @@ const goalCategories = [
 
 export default function GoalsPage() {
   const { settings } = useSettings()
-  const [goals, setGoals] = useDataStorage<Goal[]>('financial-goals', [])
-  const [expenses] = useDataStorage<{amount: number, date: string}[]>('expenses', [])
+  const dispatch = useAppDispatch()
+  const goals = useAppSelector((state: RootState) => state.goals?.goals || [])
+  const expenses = useAppSelector((state: RootState) => state.expenses?.expenses || [])
   const [isClient, setIsClient] = useState(false)
   
   // Modal states
@@ -89,7 +100,7 @@ export default function GoalsPage() {
 
   // AI-powered goal analysis
   const analyzeGoalWithAI = async (goal: Goal) => {
-    const monthlyExpenses = expenses.reduce((total, expense) => {
+    const monthlyExpenses = expenses.reduce((total: number, expense: Expense) => {
       const expenseDate = new Date(expense.date)
       const lastMonth = new Date()
       lastMonth.setMonth(lastMonth.getMonth() - 1)
@@ -131,12 +142,10 @@ export default function GoalsPage() {
     }
 
     // Update goal with AI insights
-    const updatedGoals = goals.map(g => 
-      g.id === goal.id 
-        ? { ...g, aiInsights, aiSuggested: true }
-        : g
-    )
-    setGoals(updatedGoals)
+    dispatch(updateGoal({ 
+      id: goal.id, 
+      updates: { aiInsights, aiSuggested: true } 
+    }))
     setAiAnalysisModal({ ...goal, aiInsights })
   }
 
@@ -149,34 +158,33 @@ export default function GoalsPage() {
       createdAt: new Date(),
       aiSuggested: false
     }
-    setGoals([newGoal, ...goals])
+    dispatch(addGoal(newGoal))
     addGoalModal.closeModal()
   }
 
   const handleEditGoal = (goalData: Partial<Goal>) => {
     if (editingGoal) {
-      const updatedGoals = goals.map(g => 
-        g.id === editingGoal.id 
-          ? { ...g, ...goalData }
-          : g
-      )
-      setGoals(updatedGoals)
+      dispatch(updateGoal({ 
+        id: editingGoal.id, 
+        updates: goalData 
+      }))
       setEditingGoal(null)
       editGoalModal.closeModal()
     }
   }
 
   const deleteGoal = (goalId: string) => {
-    setGoals(goals.filter(g => g.id !== goalId))
+    dispatch(removeGoal(goalId))
   }
 
   const updateGoalProgress = (goalId: string, amount: number) => {
-    const updatedGoals = goals.map(g => 
-      g.id === goalId 
-        ? { ...g, currentAmount: Math.max(0, Math.min(g.targetAmount, amount)) }
-        : g
-    )
-    setGoals(updatedGoals)
+    const goal = goals.find(g => g.id === goalId)
+    if (goal) {
+      dispatch(updateGoal({ 
+        id: goalId, 
+        updates: { currentAmount: Math.max(0, Math.min(goal.targetAmount, amount)) } 
+      }))
+    }
   }
 
   const startEdit = (goal: Goal) => {
@@ -224,7 +232,7 @@ export default function GoalsPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {goals.map((goal) => {
+          {(goals as ReduxGoal[]).map((goal: ReduxGoal) => {
             const category = goalCategories.find(c => c.value === goal.category)
             const progress = getGoalProgress(goal)
             const daysRemaining = getDaysRemaining(goal.deadline)
