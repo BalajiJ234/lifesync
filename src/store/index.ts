@@ -10,6 +10,7 @@ import goalsReducer from './slices/goalsSlice'
 import splitsReducer from './slices/splitsSlice'
 import notesReducer from './slices/notesSlice'
 import settingsReducer from './slices/settingsSlice'
+import { lifesyncApi } from './api/lifesyncApi'
 
 const rootReducer = combineReducers({
   expenses: expensesReducer,
@@ -18,12 +19,13 @@ const rootReducer = combineReducers({
   splits: splitsReducer,
   notes: notesReducer,
   settings: settingsReducer,
+  [lifesyncApi.reducerPath]: lifesyncApi.reducer,
 })
 
 const persistConfig = {
   key: 'lifesync',
   storage,
-  whitelist: ['expenses', 'todos', 'goals', 'splits', 'notes', 'settings'], // Only persist these slices
+  whitelist: ['expenses', 'todos', 'goals', 'splits', 'notes', 'settings'], // Only persist these slices, not API cache
 }
 
 const persistedReducer = persistReducer(persistConfig, rootReducer)
@@ -35,7 +37,7 @@ export const store = configureStore({
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
-    }),
+    }).concat(lifesyncApi.middleware),
 })
 
 export const persistor = persistStore(store)

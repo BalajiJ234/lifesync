@@ -16,18 +16,17 @@ import {
   ChevronRight,
   Upload
 } from 'lucide-react'
-import { useDataStorage } from '@/hooks/useLocalStorage'
+import { useAppDispatch, useAppSelector } from '@/store/hooks'
+import { 
+  addTodo, 
+  updateTodo, 
+  deleteTodo, 
+  toggleTodo, 
+  bulkImportTodos,
+  type Todo 
+} from '@/store/slices/todosSlice'
+import type { RootState } from '@/store/index'
 import BulkImport from '@/components/BulkImport'
-
-interface Todo {
-  id: string
-  text: string
-  completed: boolean
-  priority: 'low' | 'medium' | 'high'
-  dueDate?: string
-  category: string
-  createdAt: string | Date
-}
 
 const priorityColors = {
   low: 'text-green-600 bg-green-100',
@@ -45,7 +44,8 @@ const categories = [
 ]
 
 export default function TodosPage() {
-  const [todos, setTodos] = useDataStorage<Todo[]>('todos', [])
+  const dispatch = useAppDispatch()
+  const todos = useAppSelector((state: RootState) => state.todos?.todos || [])
   const [newTodo, setNewTodo] = useState('')
   const [newPriority, setNewPriority] = useState<'low' | 'medium' | 'high'>('medium')
   const [newCategory, setNewCategory] = useState('Personal')
@@ -59,7 +59,7 @@ export default function TodosPage() {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [showBulkImport, setShowBulkImport] = useState(false)
 
-  const addTodo = () => {
+  const handleAddTodo = () => {
     if (newTodo.trim()) {
       const todo: Todo = {
         id: Date.now().toString(),
@@ -70,20 +70,18 @@ export default function TodosPage() {
         category: newCategory,
         createdAt: new Date().toISOString()
       }
-      setTodos([todo, ...todos])
+      dispatch(addTodo(todo))
       setNewTodo('')
       setNewDueDate('')
     }
   }
 
-  const toggleComplete = (id: string) => {
-    setTodos(todos.map(todo => 
-      todo.id === id ? { ...todo, completed: !todo.completed } : todo
-    ))
+  const handleToggleComplete = (id: string) => {
+    dispatch(toggleTodo(id))
   }
 
-  const deleteTodo = (id: string) => {
-    setTodos(todos.filter(todo => todo.id !== id))
+  const handleDeleteTodo = (id: string) => {
+    dispatch(deleteTodo(id))
   }
 
   const startEdit = (todo: Todo) => {
@@ -93,11 +91,10 @@ export default function TodosPage() {
 
   const saveEdit = () => {
     if (editingId && editText.trim()) {
-      setTodos(todos.map(todo => 
-        todo.id === editingId 
-          ? { ...todo, text: editText.trim() }
-          : todo
-      ))
+      dispatch(updateTodo({ 
+        id: editingId, 
+        updates: { text: editText.trim() } 
+      }))
       setEditingId(null)
       setEditText('')
     }
@@ -121,7 +118,7 @@ export default function TodosPage() {
   }
 
   // Filter todos
-  const filteredTodos = todos.filter(todo => {
+  const filteredTodos = (todos as Todo[]).filter((todo: Todo) => {
     // Status filter
     if (filter === 'active' && todo.completed) return false
     if (filter === 'completed' && !todo.completed) return false
@@ -140,16 +137,16 @@ export default function TodosPage() {
   })
 
   const stats = {
-    total: todos.length,
-    completed: todos.filter(t => t.completed).length,
-    active: todos.filter(t => !t.completed).length,
-    overdue: todos.filter(t => !t.completed && isOverdue(t.dueDate)).length,
-    dueToday: todos.filter(t => !t.completed && isDueToday(t.dueDate)).length
+    total: (todos as Todo[]).length,
+    completed: (todos as Todo[]).filter((t: Todo) => t.completed).length,
+    active: (todos as Todo[]).filter((t: Todo) => !t.completed).length,
+    overdue: (todos as Todo[]).filter((t: Todo) => !t.completed && isOverdue(t.dueDate)).length,
+    dueToday: (todos as Todo[]).filter((t: Todo) => !t.completed && isDueToday(t.dueDate)).length
   }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && e.ctrlKey) {
-      addTodo()
+      handleAddTodo()
     }
   }
 
@@ -172,7 +169,7 @@ export default function TodosPage() {
 
   const getTodosForDate = (date: Date) => {
     const dateStr = date.toISOString().split('T')[0]
-    return filteredTodos.filter(todo => 
+    return filteredTodos.filter((todo: Todo) => 
       todo.dueDate === dateStr || 
       (todo.createdAt && new Date(todo.createdAt).toISOString().split('T')[0] === dateStr)
     )
@@ -199,7 +196,7 @@ export default function TodosPage() {
 
   const handleBulkImport = (data: unknown[]) => {
     const importedTodos = data as Todo[]
-    setTodos([...importedTodos, ...todos])
+    dispatch(bulkImportTodos(importedTodos))
     setShowBulkImport(false)
   }
 
@@ -285,7 +282,7 @@ export default function TodosPage() {
             </div>
             <div className="flex gap-2">
               <button
-                onClick={addTodo}
+                onClick={handleAddTodo}
                 disabled={!newTodo.trim()}
                 className="flex items-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
               >
@@ -396,7 +393,7 @@ export default function TodosPage() {
           </div>
         ) : (
           <div className="space-y-3">
-            {filteredTodos.map((todo) => (
+            {filteredTodos.map((todo: Todo) => (
               <div
                 key={todo.id}
                 className={`bg-white p-4 rounded-lg shadow-sm border transition-all ${
@@ -407,7 +404,7 @@ export default function TodosPage() {
                 <div className="flex items-center gap-4">
                   {/* Checkbox */}
                   <button
-                    onClick={() => toggleComplete(todo.id)}
+                    onClick={() => handleToggleComplete(todo.id)}
                     className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${
                       todo.completed
                         ? 'bg-green-500 border-green-500 text-white'
@@ -449,7 +446,7 @@ export default function TodosPage() {
                         </div>
                         <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
                           {/* Priority */}
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${priorityColors[todo.priority]}`}>
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${priorityColors[todo.priority as keyof typeof priorityColors]}`}>
                             <Flag size={12} className="inline mr-1" />
                             {todo.priority.toUpperCase()}
                           </span>
@@ -495,7 +492,7 @@ export default function TodosPage() {
                         <Edit3 size={18} />
                       </button>
                       <button
-                        onClick={() => deleteTodo(todo.id)}
+                        onClick={() => handleDeleteTodo(todo.id)}
                         className="text-gray-400 hover:text-red-600 transition-colors"
                       >
                         <X size={18} />
@@ -574,15 +571,15 @@ export default function TodosPage() {
                       {day}
                     </div>
                     <div className="space-y-1 max-h-16 overflow-y-auto">
-                      {dayTodos.slice(0, 3).map((todo) => (
+                      {dayTodos.slice(0, 3).map((todo: Todo) => (
                         <div
                           key={todo.id}
                           className={`text-xs p-1 rounded truncate cursor-pointer transition-colors ${
                             todo.completed
                               ? 'bg-green-100 text-green-700 line-through'
-                              : `${priorityColors[todo.priority]} hover:opacity-80`
+                              : `${priorityColors[todo.priority as keyof typeof priorityColors]} hover:opacity-80`
                           }`}
-                          onClick={() => toggleComplete(todo.id)}
+                          onClick={() => handleToggleComplete(todo.id)}
                           title={todo.text}
                         >
                           {todo.text}

@@ -88,7 +88,7 @@ export const {
   clearExpenses,
 } = expensesSlice.actions
 
-// Selectors
+// Selectors - Note: RootState will be imported from store/index.ts in components
 export const selectExpenses = (state: { expenses: ExpensesState }) => state.expenses.expenses
 export const selectTotalSpent = (state: { expenses: ExpensesState }) => state.expenses.totalSpent
 export const selectExpensesLoading = (state: { expenses: ExpensesState }) => state.expenses.loading
@@ -97,7 +97,7 @@ export const selectExpensesError = (state: { expenses: ExpensesState }) => state
 // Advanced selectors
 export const selectExpensesByCategory = (state: { expenses: ExpensesState }) => {
   const expenses = state.expenses.expenses
-  return expenses.reduce((acc, expense) => {
+  return expenses.reduce((acc: Record<string, number>, expense: Expense) => {
     acc[expense.category] = (acc[expense.category] || 0) + expense.amount
     return acc
   }, {} as Record<string, number>)
@@ -105,7 +105,7 @@ export const selectExpensesByCategory = (state: { expenses: ExpensesState }) => 
 
 export const selectExpensesByMonth = (state: { expenses: ExpensesState }) => {
   const expenses = state.expenses.expenses
-  return expenses.reduce((acc, expense) => {
+  return expenses.reduce((acc: Record<string, number>, expense: Expense) => {
     const monthKey = expense.date.substring(0, 7) // YYYY-MM
     acc[monthKey] = (acc[monthKey] || 0) + expense.amount
     return acc
