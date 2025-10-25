@@ -64,15 +64,17 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `
               if ('serviceWorker' in navigator) {
-                window.addEventListener('load', function() {
-                  navigator.serviceWorker.register('/sw.js')
-                    .then(function(registration) {
-                      console.log('SW registered: ', registration);
-                    })
-                    .catch(function(registrationError) {
-                      console.log('SW registration failed: ', registrationError);
+                navigator.serviceWorker.getRegistrations()
+                  .then((registrations) => {
+                    registrations.forEach((registration) => {
+                      registration.unregister().catch((error) => {
+                        console.log('SW unregister failed:', error);
+                      });
                     });
-                });
+                  })
+                  .catch((error) => {
+                    console.log('SW lookup failed:', error);
+                  });
               }
             `,
           }}
