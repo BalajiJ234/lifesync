@@ -10,11 +10,12 @@ Build the world's most privacy-first personal finance app - 100% local, zero tra
 ### What's Working
 - ✅ localStorage-based persistence
 - ✅ AI expense categorization (local)
-- ✅ Goal tracking with feasibility analysis
+- ✅ Goal tracking with feasibility analysis and intent classification
+- ✅ Income tracking data model (backend ready)
 - ✅ Bill splitting with export/import
 - ✅ PWA offline support
 - ✅ Mobile-responsive UI
-- ✅ Complete data export/import
+- ✅ Complete data export/import (including income)
 
 ---
 
@@ -27,8 +28,12 @@ Build the world's most privacy-first personal finance app - 100% local, zero tra
 - [x] Expense tracking with categories
 - [x] Multi-currency support (30+ currencies)
 - [x] Local AI categorization
-- [x] Bulk import/export
+- [x] Bulk import/export (expenses and income)
 - [x] Mobile-responsive UI
+- [x] Income tracking data model and state management
+
+### Features In Progress 🚧
+- [ ] Income tracking UI (data model complete, UI pending)
 
 ### User Stories (To Create in GitHub)
 1. **Monthly budget limit alerts** - Set budgets, get warnings at 80%, alerts at 100%
@@ -68,6 +73,8 @@ Build the world's most privacy-first personal finance app - 100% local, zero tra
 - [x] Basic goal tracking
 - [x] Goal progress visualization
 - [x] Goal feasibility analysis
+- [x] Goal intent classification (future-expense, savings, investment)
+- [x] Income-to-goal linking for better tracking
 
 ### User Stories (To Create in GitHub)
 1. **AI-powered goal forecasting** - "At current rate, you'll reach goal in X months"
