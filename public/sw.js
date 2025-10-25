@@ -132,8 +132,18 @@ async function cacheFirstStrategy(request, cacheName) {
     console.log('[SW] Fetching and caching:', request.url);
     const response = await fetch(request);
 
-    if (response.status === 200) {
-      cache.put(request, response.clone());
+    // Only cache successful responses with appropriate content types
+    if (response.status === 200 && response.headers.get('content-type')) {
+      const contentType = response.headers.get('content-type');
+      // Cache JavaScript, CSS, images, fonts, JSON
+      if (contentType.includes('javascript') || 
+          contentType.includes('css') || 
+          contentType.includes('image') ||
+          contentType.includes('font') ||
+          contentType.includes('json') ||
+          contentType.includes('woff')) {
+        cache.put(request, response.clone());
+      }
     }
 
     return response;
@@ -149,9 +159,13 @@ async function networkFirstStrategy(request, cacheName) {
     console.log('[SW] Network first for:', request.url);
     const response = await fetch(request);
 
-    if (response.status === 200) {
-      const cache = await caches.open(cacheName);
-      cache.put(request, response.clone());
+    // Only cache successful HTML/page responses
+    if (response.status === 200 && response.headers.get('content-type')) {
+      const contentType = response.headers.get('content-type');
+      if (contentType.includes('text/html') || contentType.includes('application/json')) {
+        const cache = await caches.open(cacheName);
+        cache.put(request, response.clone());
+      }
     }
 
     return response;
