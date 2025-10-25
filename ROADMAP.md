@@ -1,5 +1,10 @@
 # 🚀 LifeSync Roadmap - Privacy-First Evolution
 
+## Vision
+Build the world's most privacy-first personal finance app - 100% local, zero tracking, AI-powered.
+
+---
+
 ## Current Status: v1.0 ✅
 
 ### What's Working
@@ -13,250 +18,183 @@
 
 ---
 
-## Phase 1: Enhanced AI Insights 🤖
-**Timeline**: 1-2 months
-**Focus**: Better local AI capabilities
+## EPIC 1: Core Financial Management 🎯
+**Goal:** Robust expense tracking and categorization
+**Timeline**: v1.0.0 - November 2025
+**GitHub Milestone**: Create at https://github.com/BalajiJ234/lifesync/milestones
 
-### 1.1 Recurring Expense Detection
-**Priority**: HIGH
-**Impact**: Major UX improvement
+### Features Completed ✅
+- [x] Expense tracking with categories
+- [x] Multi-currency support (30+ currencies)
+- [x] Local AI categorization
+- [x] Bulk import/export
+- [x] Mobile-responsive UI
 
-**Features**:
-- [ ] Auto-detect recurring patterns (same amount, ~30 days apart)
-- [ ] Tag expenses as "Recurring" vs "One-Time"
-- [ ] Alert when recurring expense expected
-- [ ] Categorize subscriptions automatically
-- [ ] Settings to manage detected recurring expenses
-
-**Implementation**:
-```typescript
-// Local pattern matching
-function detectRecurring(expenses: Expense[]): RecurringPattern[] {
-  // Group by similar amounts
-  // Check time intervals
-  // Return patterns (all local!)
-}
-```
-
-### 1.2 Spending Forecasts
-**Priority**: HIGH
-**Impact**: Core value proposition
-
-**Features**:
-- [ ] 3-month spending prediction
-- [ ] Category-based forecasts
-- [ ] "At current rate, you'll spend AED X this month"
-- [ ] Visual trend charts
-- [ ] Anomaly detection ("unusual spending detected")
-
-**Privacy**: All math done locally using historical data
-
-### 1.3 Smarter Categorization
-**Priority**: MEDIUM
-**Impact**: Better accuracy
-
-**Features**:
-- [ ] Learn from user corrections
-- [ ] More comprehensive keyword patterns
-- [ ] Support for custom categories
-- [ ] Multi-language detection (Arabic, Hindi)
-- [ ] Subcategories (Groceries → Vegetables, Meat, etc.)
+### User Stories (To Create in GitHub)
+1. **Monthly budget limit alerts** - Set budgets, get warnings at 80%, alerts at 100%
+2. **Custom expense categories** - Create, edit, delete custom categories
+3. **Advanced spending analytics** - Charts, trends, month-over-month comparisons
+4. **Receipt photo attachment** - Store receipts in IndexedDB
+5. **Recurring expense templates** - Auto-detect recurring payments, subscription management
 
 ---
 
-## Phase 2: Budget Management 💰
-**Timeline**: 2-3 months
-**Focus**: Proactive spending control
+## EPIC 2: Enhanced Privacy & PWA 🔒
+**Goal:** Best-in-class privacy and offline experience
+**Timeline**: v1.1.0 - December 2025
+**GitHub Milestone**: Create at https://github.com/BalajiJ234/lifesync/milestones
 
-### 2.1 Budget Limits
-**Priority**: HIGH
-**Impact**: Prevent overspending
+### Features Completed ✅
+- [x] 100% localStorage (no database)
+- [x] PWA with service worker
+- [x] Offline-first architecture
+- [x] Privacy-themed branding
 
-**Features**:
-- [ ] Set monthly limits per category
-- [ ] Visual progress bars (spent vs limit)
-- [ ] Alerts at 50%, 80%, 100% thresholds
-- [ ] "You have AED 200 left for dining this month"
-- [ ] Budget recommendations based on history
-
-**UI**:
-```
-Dining: AED 600 / AED 800
-[████████░░] 75%
-⚠️ You have AED 200 left for 10 days
-```
-
-### 2.2 Spending Insights Dashboard
-**Priority**: MEDIUM
-**Impact**: Better understanding
-
-**Features**:
-- [ ] Pie charts (category breakdown)
-- [ ] Line charts (spending over time)
-- [ ] Comparison (this month vs last month)
-- [ ] "You spent 20% less on dining this month! 🎉"
-- [ ] Exportable reports (PDF/CSV)
-
-### 2.3 Smart Notifications
-**Priority**: MEDIUM
-**Impact**: Awareness
-
-**Features**:
-- [ ] Budget alerts (local, no push notifications)
-- [ ] Recurring payment reminders
-- [ ] Goal milestone celebrations
-- [ ] Weekly spending summary
-- [ ] All privacy-respecting (local only)
+### User Stories (To Create in GitHub)
+1. **Optional encrypted cloud backup** - End-to-end encrypted backup to user's cloud (opt-in)
+2. **Biometric authentication** - Lock app with fingerprint/face ID
+3. **Scheduled auto-exports** - Auto-backup to Downloads folder monthly
+4. **Privacy transparency dashboard** - Show what's tracked (nothing!), data location
+5. **Data export automation** - One-click export with encryption option
 
 ---
 
-## Phase 3: Enhanced UX 🎨
-**Timeline**: 3-4 months
-**Focus**: Better user experience
+## EPIC 3: Goals & Financial Planning 💰
+**Goal:** Help users achieve financial goals
+**Timeline**: v1.2.0 - January 2026
+**GitHub Milestone**: Create at https://github.com/BalajiJ234/lifesync/milestones
 
-### 3.1 Improved Goal Tracking
-**Priority**: MEDIUM
-**Impact**: Motivation
+### Features Completed ✅
+- [x] Basic goal tracking
+- [x] Goal progress visualization
+- [x] Goal feasibility analysis
 
-**Features**:
-- [ ] Milestone markers (25%, 50%, 75% complete)
-- [ ] Visual progress indicators
-- [ ] Celebration animations on achievement
-- [ ] Goal streak tracking
-- [ ] "Save AED X this week to stay on track"
-
-### 3.2 Receipt Management
-**Priority**: LOW
-**Impact**: Convenience
-
-**Features**:
-- [ ] Photo storage (IndexedDB, still local!)
-- [ ] Attach receipts to expenses
-- [ ] OCR text extraction (optional, local library)
-- [ ] Gallery view
-- [ ] Privacy: Photos never uploaded
-
-**Note**: Uses IndexedDB for larger storage (still on device)
-
-### 3.3 Advanced Bill Splitting
-**Priority**: LOW
-**Impact**: Better collaboration
-
-**Features**:
-- [ ] Generate QR codes for easy sharing
-- [ ] Percentage-based splits
-- [ ] Custom amount per person
-- [ ] Settlement history tracking
-- [ ] Export to popular payment apps format
+### User Stories (To Create in GitHub)
+1. **AI-powered goal forecasting** - "At current rate, you'll reach goal in X months"
+2. **Multiple concurrent goals** - Track 5+ goals simultaneously
+3. **Smart goal recommendations** - Suggest realistic goals based on spending
+4. **Debt payoff calculator** - Snowball/avalanche method calculator
+5. **Emergency fund planner** - Calculate 3-6 months expenses
 
 ---
 
-## Phase 4: Data Portability 📦
-**Timeline**: 4-5 months
-**Focus**: User control
+## EPIC 4: Smart Insights & AI 🤖
+**Goal:** Provide intelligent financial insights
+**Timeline**: v1.3.0 - February 2026
+**GitHub Milestone**: Create at https://github.com/BalajiJ234/lifesync/milestones
 
-### 4.1 Enhanced Export/Import
-**Priority**: MEDIUM
-**Impact**: Data ownership
+### Features Completed ✅
+- [x] Basic AI categorization
 
-**Features**:
-- [ ] Multiple export formats (JSON, CSV, PDF)
-- [ ] Selective export (only expenses, only goals, etc.)
-- [ ] Date range filters
-- [ ] Password-protected exports (optional encryption)
-- [ ] Import from other apps (Mint, YNAB format support)
-
-### 4.2 Backup Reminders
-**Priority**: LOW
-**Impact**: Data safety
-
-**Features**:
-- [ ] Remind to export monthly
-- [ ] One-click backup to device downloads
-- [ ] Verify backup integrity
-- [ ] Import wizard for easy restoration
-- [ ] All local, no cloud uploads
+### User Stories (To Create in GitHub)
+1. **Spending pattern detection** - Detect habits: "You spend more on weekends"
+2. **Unusual expense alerts** - "This is 3x your typical grocery bill"
+3. **Predictive monthly budgets** - "Based on trends, you'll spend AED X this month"
+4. **Savings opportunity finder** - "Switch to cheaper provider, save AED 200/mo"
+5. **Cashflow forecasting** - Predict when you'll run low on funds
 
 ---
 
-## Phase 5: Optional Features ✨
-**Timeline**: 5-6 months
-**Focus**: Power users
+## EPIC 5: Collaboration & Sharing 👥
+**Goal:** Enable shared finances with privacy
+**Timeline**: v1.4.0 - March 2026
+**GitHub Milestone**: Create at https://github.com/BalajiJ234/lifesync/milestones
 
-### 5.1 Custom Categories
-**Priority**: LOW
-**Impact**: Personalization
+### Features Completed ✅
+- [x] Bill splitting basics
+- [x] Friend management
+- [x] Split export/import
 
-**Features**:
-- [ ] Create custom expense categories
-- [ ] Define custom color schemes
-- [ ] Custom AI patterns (teach AI new keywords)
-- [ ] Category hierarchies
-- [ ] Import/export category configs
+### User Stories (To Create in GitHub)
+1. **Household shared budget** - Multiple people track shared expenses
+2. **Family member permissions** - Parent controls, kid view-only access
+3. **Group trip expense manager** - Track trip expenses, split at end
+4. **Settlement payment tracking** - Mark debts as paid, track history
+5. **Split expense reports** - Export who owes whom, send via WhatsApp
 
-### 5.2 Multi-Currency Enhancements
-**Priority**: LOW
-**Impact**: International users
+---
 
-**Features**:
-- [ ] Better currency conversion
-- [ ] Historical exchange rates
-- [ ] Multi-currency budgets
-- [ ] Travel expense tracking
-- [ ] All conversions local (no API calls)
+## EPIC 6: Advanced Reporting �
+**Goal:** Comprehensive financial reports
+**Timeline**: v1.5.0 - April 2026
+**GitHub Milestone**: Create at https://github.com/BalajiJ234/lifesync/milestones
 
-### 5.3 Advanced Analytics
-**Priority**: LOW
-**Impact**: Data nerds
-
-**Features**:
-- [ ] Year-over-year comparisons
-- [ ] Seasonal spending patterns
-- [ ] Category trends over time
+### Features (All To Create)
+- [ ] Monthly/yearly expense reports
+- [ ] Category breakdown charts
+- [ ] Trend analysis
 - [ ] Custom date range reports
-- [ ] Interactive charts
+- [ ] Export to PDF/Excel
+- [ ] Tax-ready reports
+- [ ] Year-over-year comparison
+- [ ] Custom report builder
+
+### User Stories (To Create in GitHub)
+1. **Monthly expense reports** - PDF report with charts and summaries
+2. **Tax preparation exports** - CSV with categories for tax filing
+3. **Custom report builder** - Select date range, categories, format
+4. **Year-over-year comparison** - "You spent 20% less this year!"
+5. **Category trend analysis** - Line charts showing spending trends
 
 ---
 
-## Future Possibilities 🔮
-**Timeline**: 6+ months
-**Status**: Exploratory
+## Release Schedule
 
-### Optional End-to-End Encrypted Sync
-**Privacy-Preserving Cloud Backup**
+| Version | Release Date | Focus | Status |
+|---------|-------------|-------|--------|
+| v0.9.0 | Oct 2025 | Beta - Core features | ✅ Done |
+| v1.0.0 | Nov 2025 | Public Launch | 🚧 In Progress |
+| v1.1.0 | Dec 2025 | Privacy & PWA | 📋 Planned |
+| v1.2.0 | Jan 2026 | Goals & Planning | 📋 Planned |
+| v1.3.0 | Feb 2026 | AI & Insights | 📋 Planned |
+| v1.4.0 | Mar 2026 | Collaboration | 📋 Planned |
+| v1.5.0 | Apr 2026 | Reporting | 📋 Planned |
 
-**Concept**:
-- User generates encryption key (stored locally)
-- Data encrypted on device
-- Encrypted data uploaded to cloud (optional, opt-in)
-- Only user can decrypt (zero-knowledge)
-- Still works fully offline
+---
 
-**Requirements**:
-- Must be 100% opt-in
-- Must be end-to-end encrypted
-- User controls encryption keys
-- App works without it
-- Open source crypto implementation
+## How to Use This Roadmap
 
-**Status**: Research phase - only if demand warrants complexity
+### 1. Create GitHub Milestones
+Go to: https://github.com/BalajiJ234/lifesync/milestones
 
-### Community Pattern Sharing
-**Anonymized AI Improvement**
+Create one milestone for each EPIC above (copy title and timeline).
 
-**Concept**:
-- Users opt-in to share categorization patterns (anonymized)
-- "Carrefour → Groceries" shared (no amounts, no personal data)
-- Community benefits from collective learning
-- Fully transparent and optional
+### 2. Create User Stories as Issues
+Go to: https://github.com/BalajiJ234/lifesync/issues/new/choose
 
-**Privacy**:
-- Opt-in only
-- Anonymized keywords only (no expenses, no amounts)
-- User reviews before sharing
-- Can opt-out anytime
+Use "User Story" template for each story listed above.
 
-**Status**: Concept only - privacy review needed
+### 3. Track in Kanban Board
+Move stories through: Backlog → In Progress → In Review → Done
+
+### 4. Update This File
+Mark features as complete when done.
+
+---
+
+## Labels to Create in GitHub
+
+Go to: https://github.com/BalajiJ234/lifesync/labels
+
+### Priority Labels
+- `priority: critical` (red) - Blocking issues
+- `priority: high` (orange) - Important
+- `priority: medium` (yellow) - Should have
+- `priority: low` (green) - Nice to have
+
+### EPIC Labels
+- `epic: core-financial` (dark blue)
+- `epic: privacy-pwa` (dark green)
+- `epic: goals-planning` (dark orange)
+- `epic: ai-insights` (purple)
+- `epic: collaboration` (orange)
+- `epic: reporting` (dark red)
+
+### Status Labels
+- `status: ready` (green) - Ready to start
+- `status: in-progress` (yellow) - Being worked on
+- `status: blocked` (red) - Blocked
+- `status: review` (blue) - In review
 
 ---
 
@@ -275,109 +213,20 @@ Dining: AED 600 / AED 800
 
 **Reason**: Against privacy-first philosophy
 
----
-
-## Community Contributions
-
-### How to Contribute
-1. Pick a feature from roadmap
-2. Open GitHub issue to discuss approach
-3. Fork and implement
-4. Submit PR with tests
-5. Celebrate! 🎉
-
-### High-Impact Contributions Needed
-- 🤖 **AI Patterns**: Add more categorization keywords
-- 📊 **Visualizations**: Chart components
-- 🌍 **i18n**: Multi-language support
-- ♿ **Accessibility**: ARIA labels, keyboard navigation
-- 📱 **Mobile UX**: Touch gestures, better mobile UI
-- 📚 **Documentation**: Tutorials, guides
-
----
-
-## Success Metrics
-
-### We Track (Publicly)
-- GitHub stars ⭐
-- Open issues / PRs
-- Community contributions
-- Code quality improvements
-
-### We DON'T Track
-- User counts (impossible - no analytics!)
-- Feature usage
-- User behavior
-- Any personal data
-
-**Transparency**: All metrics public on GitHub
-
----
-
-## Version History
-
-### v1.0 (Current)
-- ✅ Core expense tracking
-- ✅ Basic AI categorization
-- ✅ Goal setting
-- ✅ Bill splitting
-- ✅ PWA support
-- ✅ Export/import
-
-### v1.1 (Next - Q1 2025)
-- [ ] Recurring expense detection
-- [ ] Enhanced AI patterns
-- [ ] Budget limits
-- [ ] Improved dashboard
-
-### v1.2 (Q2 2025)
-- [ ] Spending forecasts
-- [ ] Visual charts
-- [ ] Smart notifications
-- [ ] Receipt storage
-
-### v2.0 (Q3-Q4 2025)
-- [ ] Advanced analytics
-- [ ] Custom categories
-- [ ] Enhanced export formats
-- [ ] Possibly encrypted sync (opt-in)
-
----
-
-## Get Involved!
-
-### Ways to Help
-1. **Use the app** - Report bugs, suggest features
-2. **Star on GitHub** ⭐ - Help others discover it
-3. **Contribute code** - Pick a feature and build it
-4. **Share feedback** - Tell us what works/doesn't
-5. **Spread the word** - Privacy-first tools need support!
-
-### Contact
-- **GitHub Issues**: Bug reports, feature requests
-- **Discussions**: Ideas, questions, feedback
-- **Pull Requests**: Code contributions
 
 ---
 
 <div align="center">
 
-## 🎯 Roadmap Principles
+## 🎯 Next Steps
 
-**1. Privacy Always First** 🔒
-Every feature must preserve privacy-first architecture
+**1. Create Labels** → [Guide](PROJECT_SETUP_GUIDE.md#step-1-create-labels-5-minutes)
 
-**2. Local AI Priority** 🤖
-External APIs only as opt-in, never required
+**2. Create Milestones** → [Guide](PROJECT_SETUP_GUIDE.md#step-2-create-milestones-10-minutes)
 
-**3. User Control** 🎮
-Users control their data, always
+**3. Create User Stories** → [Guide](PROJECT_SETUP_GUIDE.md#step-4-create-first-user-stories-15-minutes)
 
-**4. Open Development** 🌍
-Community-driven, transparent roadmap
-
-**5. Free Forever** 💚
-No paywalls, no premium features
+**4. Start Working** → Pick highest priority story from Backlog!
 
 ---
 
