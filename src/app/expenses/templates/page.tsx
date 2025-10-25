@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import {
   Repeat,
   Plus,
@@ -45,6 +46,7 @@ const expenseCategories = [
 ]
 
 export default function RecurringTemplatesPage() {
+  const router = useRouter()
   const dispatch = useAppDispatch()
   const templates = useAppSelector(selectTemplates)
   const { settings } = useSettings()
@@ -109,6 +111,12 @@ export default function RecurringTemplatesPage() {
   }
 
   const handleCreateFromTemplate = (template: RecurringTemplate) => {
+    // Validate template data to prevent NaN errors
+    if (!template.amount || isNaN(template.amount)) {
+      console.error('Invalid template amount:', template)
+      return
+    }
+
     const nextDue = calculateNextDueDate(
       template.startDate,
       template.frequency,
@@ -134,6 +142,9 @@ export default function RecurringTemplatesPage() {
       id: template.id,
       updates: { lastGenerated: nextDue }
     }))
+
+    // Navigate to expenses page to see the created expense
+    router.push('/expenses')
   }
 
   if (!isClient) {
