@@ -21,6 +21,7 @@ import { useSettings } from '@/contexts/SettingsContext'
 import { SUPPORTED_CURRENCIES, Currency } from '@/utils/currency'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { clearExpenses, addExpense } from '@/store/slices/expensesSlice'
+import { clearIncome, addIncome } from '@/store/slices/incomeSlice'
 import { clearTodos, addTodo } from '@/store/slices/todosSlice'
 import { clearGoals, addGoal } from '@/store/slices/goalsSlice'
 import { clearNotes, addNote } from '@/store/slices/notesSlice'
@@ -33,6 +34,7 @@ export default function SettingsPage() {
 
   // Get all data from Redux store
   const expenses = useAppSelector((state) => state.expenses.expenses)
+  const income = useAppSelector((state) => state.income?.incomes || [])
   const todos = useAppSelector((state) => state.todos.todos)
   const goals = useAppSelector((state) => state.goals.goals)
   const notes = useAppSelector((state) => state.notes.notes)
@@ -53,6 +55,7 @@ export default function SettingsPage() {
   const exportData = () => {
     const allData = {
       expenses,
+      income,
       todos,
       goals,
       notes,
@@ -110,6 +113,14 @@ export default function SettingsPage() {
         console.log(`Importing ${data.expenses.length} expenses`)
         data.expenses.forEach((expense: unknown) => {
           dispatch(addExpense(expense as ReturnType<typeof addExpense>['payload']))
+          importedCount++
+        })
+      }
+
+      if (data.income?.length) {
+        console.log(`Importing ${data.income.length} income entries`)
+        data.income.forEach((incomeEntry: unknown) => {
+          dispatch(addIncome(incomeEntry as ReturnType<typeof addIncome>['payload']))
           importedCount++
         })
       }
@@ -181,6 +192,7 @@ export default function SettingsPage() {
 
   const clearAllData = () => {
     dispatch(clearExpenses())
+    dispatch(clearIncome())
     dispatch(clearTodos())
     dispatch(clearGoals())
     dispatch(clearNotes())
