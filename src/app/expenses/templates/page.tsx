@@ -492,7 +492,10 @@ function TemplateForm({
               min="1"
               max="31"
               value={formData.dayOfMonth || ''}
-              onChange={(e) => setFormData({ ...formData, dayOfMonth: parseInt(e.target.value) || undefined })}
+              onChange={(e) => {
+                const value = e.target.value
+                setFormData({ ...formData, dayOfMonth: value ? parseInt(value) : undefined })
+              }}
               className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
               placeholder="e.g., 15"
             />
@@ -504,7 +507,10 @@ function TemplateForm({
             <label className="block text-sm font-medium text-gray-700 mb-1">Day of Week</label>
             <select
               value={formData.dayOfWeek ?? ''}
-              onChange={(e) => setFormData({ ...formData, dayOfWeek: parseInt(e.target.value) || undefined })}
+              onChange={(e) => {
+                const value = e.target.value
+                setFormData({ ...formData, dayOfWeek: value ? parseInt(value) : undefined })
+              }}
               className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Any</option>
