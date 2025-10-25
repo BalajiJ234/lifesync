@@ -3,11 +3,11 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
-import { 
-  Home, 
-  StickyNote, 
-  DollarSign, 
-  CheckSquare, 
+import {
+  Home,
+  StickyNote,
+  DollarSign,
+  CheckSquare,
 
   Settings,
   ChevronDown,
@@ -44,34 +44,32 @@ export default function Navigation() {
             {navItems.map((item) => {
               const Icon = item.icon
               const isActive = pathname === item.href || (item.hasSubmenu && (pathname === '/expenses' || pathname === '/splits'))
-              
+
               if (item.hasSubmenu) {
                 return (
                   <div key={item.href} className="relative">
                     <button
                       onClick={() => setShowExpenseSubmenu(!showExpenseSubmenu)}
-                      className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                        isActive
+                      className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive
                           ? 'text-blue-600 bg-blue-50'
                           : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
-                      }`}
+                        }`}
                     >
                       <Icon size={20} />
                       <span>{item.label}</span>
                       {showExpenseSubmenu ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                     </button>
-                    
+
                     {showExpenseSubmenu && (
                       <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
                         {expenseSubmenuItems.map((subItem) => (
                           <Link
                             key={subItem.href}
                             href={subItem.href}
-                            className={`block px-4 py-2 text-sm hover:bg-gray-50 first:rounded-t-md last:rounded-b-md ${
-                              pathname === subItem.href
+                            className={`block px-4 py-2 text-sm hover:bg-gray-50 first:rounded-t-md last:rounded-b-md ${pathname === subItem.href
                                 ? 'text-blue-600 bg-blue-50'
                                 : 'text-gray-600 hover:text-blue-600'
-                            }`}
+                              }`}
                             onClick={() => setShowExpenseSubmenu(false)}
                           >
                             {subItem.label}
@@ -87,11 +85,10 @@ export default function Navigation() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    isActive
+                  className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive
                       ? 'text-blue-600 bg-blue-50'
                       : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
-                  }`}
+                    }`}
                 >
                   <Icon size={20} />
                   <span>{item.label}</span>
@@ -115,17 +112,16 @@ export default function Navigation() {
           {navItems.map((item) => {
             const Icon = item.icon
             const isActive = pathname === item.href || (item.hasSubmenu && (pathname === '/expenses' || pathname === '/splits'))
-            
+
             if (item.hasSubmenu) {
               return (
                 <div key={item.href} className="space-y-2">
                   <button
                     onClick={() => setShowExpenseSubmenu(!showExpenseSubmenu)}
-                    className={`w-full flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                      isActive
+                    className={`w-full flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive
                         ? 'text-blue-600 bg-blue-50'
                         : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center space-x-2">
                       <Icon size={20} />
@@ -133,18 +129,17 @@ export default function Navigation() {
                     </div>
                     {showExpenseSubmenu ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                   </button>
-                  
+
                   {showExpenseSubmenu && (
                     <div className="ml-4 space-y-1">
                       {expenseSubmenuItems.map((subItem) => (
                         <Link
                           key={subItem.href}
                           href={subItem.href}
-                          className={`block px-3 py-2 rounded-md text-sm transition-colors ${
-                            pathname === subItem.href
+                          className={`block px-3 py-2 rounded-md text-sm transition-colors ${pathname === subItem.href
                               ? 'text-blue-600 bg-blue-50'
                               : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
-                          }`}
+                            }`}
                           onClick={() => setShowExpenseSubmenu(false)}
                         >
                           {subItem.label}
@@ -160,11 +155,10 @@ export default function Navigation() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  isActive
+                className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive
                     ? 'text-blue-600 bg-blue-50'
                     : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
-                }`}
+                  }`}
               >
                 <Icon size={20} />
                 <span>{item.label}</span>

@@ -79,48 +79,102 @@ export default function SettingsPage() {
   const importData = async (file: File): Promise<boolean> => {
     try {
       const text = await file.text()
-      const data = JSON.parse(text)
+      const parsed = JSON.parse(text)
+
+      console.log('Parsed backup file:', parsed)
+
+      // Handle both new export format and old localStorage backup format
+      let data = parsed
+
+      // Check if it's the old localStorage backup format with nested data object
+      if (parsed.data && parsed.version) {
+        console.log('Detected old localStorage backup format')
+        // Extract from nested structure
+        const storageData = parsed.data
+        data = {
+          expenses: storageData['lifesync-expenses-v1'] || [],
+          todos: storageData['lifesync-todos'] || [],
+          goals: storageData['lifesync-goals'] || [],
+          notes: storageData['lifesync-notes'] || [],
+          friends: storageData['lifesync-friends'] || [],
+          bills: storageData['lifesync-bills'] || [],
+          settings: storageData['lifesync-settings'] || null
+        }
+        console.log('Converted data:', data)
+      }
+
+      let importedCount = 0
 
       // Import each data type using Redux actions
       if (data.expenses?.length) {
+        console.log(`Importing ${data.expenses.length} expenses`)
         data.expenses.forEach((expense: unknown) => {
           dispatch(addExpense(expense as ReturnType<typeof addExpense>['payload']))
+          importedCount++
         })
       }
 
       if (data.todos?.length) {
+        console.log(`Importing ${data.todos.length} todos`)
         data.todos.forEach((todo: unknown) => {
           dispatch(addTodo(todo as ReturnType<typeof addTodo>['payload']))
+          importedCount++
         })
       }
 
       if (data.goals?.length) {
+        console.log(`Importing ${data.goals.length} goals`)
         data.goals.forEach((goal: unknown) => {
           dispatch(addGoal(goal as ReturnType<typeof addGoal>['payload']))
+          importedCount++
         })
       }
 
       if (data.notes?.length) {
+        console.log(`Importing ${data.notes.length} notes`)
         data.notes.forEach((note: unknown) => {
           dispatch(addNote(note as ReturnType<typeof addNote>['payload']))
+          importedCount++
         })
       }
 
       if (data.friends?.length) {
+        console.log(`Importing ${data.friends.length} friends`)
         data.friends.forEach((friend: unknown) => {
           dispatch(addFriend(friend as ReturnType<typeof addFriend>['payload']))
+          importedCount++
         })
       }
 
       if (data.bills?.length) {
+        console.log(`Importing ${data.bills.length} bills`)
         data.bills.forEach((bill: unknown) => {
           dispatch(addSplitBill(bill as ReturnType<typeof addSplitBill>['payload']))
+          importedCount++
         })
       }
 
+      // Import settings if available
+      if (data.settings) {
+        console.log('Importing settings:', data.settings)
+        const importedSettings = data.settings
+        if (importedSettings.defaultCurrency) {
+          updateCurrency(importedSettings.defaultCurrency)
+        }
+        if (importedSettings.theme) {
+          updateTheme(importedSettings.theme)
+        }
+        if (typeof importedSettings.notifications === 'boolean') {
+          updateNotifications(importedSettings.notifications)
+        }
+      }
+
+      console.log(`✅ Successfully imported ${importedCount} items`)
+      alert(`✅ Successfully imported ${importedCount} items!`)
       return true
     } catch (error) {
-      console.error('Import failed:', error)
+      console.error('❌ Import failed:', error)
+      alert(`❌ Import failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
       return false
     }
   }
@@ -151,7 +205,7 @@ export default function SettingsPage() {
     if (file) {
       const success = await importData(file)
       if (!success) {
-        alert('Failed to import data. Please check the file format.')
+        alert('❌ Failed to import data. Please check the file format.')
       }
     }
     // Reset file input
@@ -276,8 +330,8 @@ export default function SettingsPage() {
                     key={value}
                     onClick={() => updateTheme(value as 'light' | 'dark' | 'auto')}
                     className={`p-3 border rounded-lg flex flex-col items-center space-y-2 transition-colors ${settings.theme === value
-                        ? 'border-blue-500 bg-blue-50 text-blue-700'
-                        : 'border-gray-300 hover:border-gray-400'
+                      ? 'border-blue-500 bg-blue-50 text-blue-700'
+                      : 'border-gray-300 hover:border-gray-400'
                       }`}
                   >
                     <Icon size={20} />
@@ -343,8 +397,8 @@ export default function SettingsPage() {
                 <button
                   onClick={handleClearData}
                   className={`flex items-center justify-center px-4 py-3 rounded-lg transition-colors ${showClearConfirm
-                      ? 'bg-red-600 text-white hover:bg-red-700'
-                      : 'bg-red-100 text-red-600 hover:bg-red-200'
+                    ? 'bg-red-600 text-white hover:bg-red-700'
+                    : 'bg-red-100 text-red-600 hover:bg-red-200'
                     }`}
                 >
                   {showClearConfirm ? (

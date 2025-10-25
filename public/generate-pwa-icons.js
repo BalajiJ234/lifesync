@@ -40,35 +40,35 @@ const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="512" height="
 </svg>`;
 
 async function generatePNGs() {
-  try {
-    const sharp = require('sharp');
-    
-    console.log('Generating 192x192 icon...');
-    await sharp(Buffer.from(svgContent))
-      .resize(192, 192)
-      .png()
-      .toFile(path.join(__dirname, 'icon-192x192.png'));
-    
-    console.log('Generating 512x512 icon...');
-    await sharp(Buffer.from(svgContent))
-      .resize(512, 512)
-      .png()
-      .toFile(path.join(__dirname, 'icon-512x512.png'));
-    
-    console.log('✅ Icons generated successfully!');
-  } catch (error) {
-    if (error.code === 'MODULE_NOT_FOUND') {
-      console.log('⚠️  Sharp module not found. Installing...');
-      console.log('Run: npm install sharp --save-dev');
-      console.log('Then run this script again: node generate-pwa-icons.js');
-      
-      // Alternative: Save as SVG and use online converter
-      console.log('\n📝 Alternative: Use the generate-icons.html file in a browser');
-      console.log('   Open public/generate-icons.html in Chrome/Edge to download PNGs');
-    } else {
-      console.error('Error:', error);
+    try {
+        const sharp = require('sharp');
+
+        console.log('Generating 192x192 icon...');
+        await sharp(Buffer.from(svgContent))
+            .resize(192, 192)
+            .png()
+            .toFile(path.join(__dirname, 'icon-192x192.png'));
+
+        console.log('Generating 512x512 icon...');
+        await sharp(Buffer.from(svgContent))
+            .resize(512, 512)
+            .png()
+            .toFile(path.join(__dirname, 'icon-512x512.png'));
+
+        console.log('✅ Icons generated successfully!');
+    } catch (error) {
+        if (error.code === 'MODULE_NOT_FOUND') {
+            console.log('⚠️  Sharp module not found. Installing...');
+            console.log('Run: npm install sharp --save-dev');
+            console.log('Then run this script again: node generate-pwa-icons.js');
+
+            // Alternative: Save as SVG and use online converter
+            console.log('\n📝 Alternative: Use the generate-icons.html file in a browser');
+            console.log('   Open public/generate-icons.html in Chrome/Edge to download PNGs');
+        } else {
+            console.error('Error:', error);
+        }
     }
-  }
 }
 
 generatePNGs();

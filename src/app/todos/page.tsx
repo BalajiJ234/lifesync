@@ -326,8 +326,8 @@ export default function TodosPage() {
             <button
               onClick={() => setViewMode('list')}
               className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${viewMode === 'list'
-                  ? 'bg-white text-blue-600 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                ? 'bg-white text-blue-600 shadow-sm'
+                : 'text-gray-600 hover:text-gray-900'
                 }`}
             >
               <List size={16} />
@@ -336,8 +336,8 @@ export default function TodosPage() {
             <button
               onClick={() => setViewMode('calendar')}
               className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${viewMode === 'calendar'
-                  ? 'bg-white text-blue-600 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                ? 'bg-white text-blue-600 shadow-sm'
+                : 'text-gray-600 hover:text-gray-900'
                 }`}
             >
               <Calendar size={16} />
@@ -352,8 +352,8 @@ export default function TodosPage() {
                 key={status}
                 onClick={() => setFilter(status)}
                 className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${filter === status
-                    ? 'bg-white text-blue-600 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-white text-blue-600 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
                   }`}
               >
                 {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -407,8 +407,8 @@ export default function TodosPage() {
                   <button
                     onClick={() => handleToggleComplete(todo.id)}
                     className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${todo.completed
-                        ? 'bg-green-500 border-green-500 text-white'
-                        : 'border-gray-300 hover:border-green-500'
+                      ? 'bg-green-500 border-green-500 text-white'
+                      : 'border-gray-300 hover:border-green-500'
                       }`}
                   >
                     {todo.completed && <Check size={16} />}
@@ -459,10 +459,10 @@ export default function TodosPage() {
                           {/* Due Date */}
                           {todo.dueDate && (
                             <span className={`px-2 py-1 rounded-full text-xs flex items-center gap-1 ${isOverdue(todo.dueDate) && !todo.completed
-                                ? 'bg-red-100 text-red-600'
-                                : isDueToday(todo.dueDate) && !todo.completed
-                                  ? 'bg-orange-100 text-orange-600'
-                                  : 'bg-blue-100 text-blue-600'
+                              ? 'bg-red-100 text-red-600'
+                              : isDueToday(todo.dueDate) && !todo.completed
+                                ? 'bg-orange-100 text-orange-600'
+                                : 'bg-blue-100 text-blue-600'
                               }`}>
                               <Calendar size={12} />
                               {new Date(todo.dueDate).toLocaleDateString()}
@@ -574,8 +574,8 @@ export default function TodosPage() {
                         <div
                           key={todo.id}
                           className={`text-xs p-1 rounded truncate cursor-pointer transition-colors ${todo.completed
-                              ? 'bg-green-100 text-green-700 line-through'
-                              : `${priorityColors[todo.priority as keyof typeof priorityColors]} hover:opacity-80`
+                            ? 'bg-green-100 text-green-700 line-through'
+                            : `${priorityColors[todo.priority as keyof typeof priorityColors]} hover:opacity-80`
                             }`}
                           onClick={() => handleToggleComplete(todo.id)}
                           title={todo.text}

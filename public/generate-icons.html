@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Generate PWA Icons</title>
 </head>
+
 <body>
     <h2>Generating PNG icons from SVG...</h2>
     <canvas id="canvas192" width="192" height="192" style="border:1px solid #ccc; margin:10px;"></canvas>
     <canvas id="canvas512" width="512" height="512" style="border:1px solid #ccc; margin:10px;"></canvas>
-    
+
     <script>
         // SVG content
         const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
@@ -60,30 +62,31 @@
         function generateIcon(canvasId, size) {
             const canvas = document.getElementById(canvasId);
             const ctx = canvas.getContext('2d');
-            
+
             const img = new Image();
-            const blob = new Blob([svgContent], {type: 'image/svg+xml'});
+            const blob = new Blob([svgContent], { type: 'image/svg+xml' });
             const url = URL.createObjectURL(blob);
-            
-            img.onload = function() {
+
+            img.onload = function () {
                 ctx.drawImage(img, 0, 0, size, size);
                 URL.revokeObjectURL(url);
-                
+
                 // Download
-                canvas.toBlob(function(blob) {
+                canvas.toBlob(function (blob) {
                     const link = document.createElement('a');
                     link.download = `icon-${size}x${size}.png`;
                     link.href = URL.createObjectURL(blob);
                     link.click();
                 }, 'image/png');
             };
-            
+
             img.src = url;
         }
-        
+
         // Generate both sizes
         setTimeout(() => generateIcon('canvas192', 192), 100);
         setTimeout(() => generateIcon('canvas512', 512), 500);
     </script>
 </body>
+
 </html>
