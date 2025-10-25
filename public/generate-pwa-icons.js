@@ -8,45 +8,35 @@ const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="512" height="
       <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
       <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
     </linearGradient>
-    <linearGradient id="shieldGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#f0fdf4;stop-opacity:1" />
-    </linearGradient>
   </defs>
   
-  <rect width="512" height="512" rx="100" fill="url(#bgGradient)"/>
+  <rect width="512" height="512" rx="115" fill="url(#bgGradient)"/>
   
-  <path d="M 256 80 
-           L 160 120 
-           L 160 240 
-           Q 160 340 256 420 
-           Q 352 340 352 240 
-           L 352 120 Z" 
-        fill="url(#shieldGradient)" 
-        stroke="#10b981" 
-        stroke-width="4"/>
+  <path d="M 256 100 
+           L 140 150 
+           L 140 260 
+           Q 140 350 256 430 
+           Q 372 350 372 260 
+           L 372 150 Z" 
+        fill="white" 
+        opacity="0.95"/>
   
-  <g transform="translate(256, 220)">
-    <rect x="-35" y="0" width="70" height="80" rx="8" fill="#10b981"/>
-    <path d="M -25 0 
-             L -25 -30 
-             Q -25 -50 0 -50 
-             Q 25 -50 25 -30 
-             L 25 0" 
+  <g transform="translate(256, 270)">
+    <path d="M -35 -15 
+             L -35 -45 
+             Q -35 -70 0 -70 
+             Q 35 -70 35 -45 
+             L 35 -15" 
           fill="none" 
           stroke="#10b981" 
-          stroke-width="12" 
+          stroke-width="18" 
           stroke-linecap="round"/>
-    <circle cx="0" cy="30" r="8" fill="#ffffff"/>
-    <rect x="-3" y="30" width="6" height="25" rx="3" fill="#ffffff"/>
+    
+    <rect x="-50" y="-15" width="100" height="85" rx="12" fill="#10b981"/>
+    
+    <circle cx="0" cy="15" r="12" fill="white"/>
+    <rect x="-5" y="15" width="10" height="30" rx="5" fill="white"/>
   </g>
-  
-  <circle cx="180" cy="360" r="6" fill="#ffffff" opacity="0.6"/>
-  <circle cx="210" cy="380" r="6" fill="#ffffff" opacity="0.6"/>
-  <circle cx="240" cy="390" r="6" fill="#ffffff" opacity="0.6"/>
-  <circle cx="270" cy="390" r="6" fill="#ffffff" opacity="0.6"/>
-  <circle cx="300" cy="380" r="6" fill="#ffffff" opacity="0.6"/>
-  <circle cx="330" cy="360" r="6" fill="#ffffff" opacity="0.6"/>
 </svg>`;
 
 async function generatePNGs() {
