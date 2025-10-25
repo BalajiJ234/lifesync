@@ -145,6 +145,8 @@ export default function GoalsPage() {
       status: 'active',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      intent: goalData.intent ?? 'future-expense',
+      linkedIncomeIds: goalData.linkedIncomeIds ?? [],
     }
     dispatch(addGoal(newGoal))
     addGoalModal.closeModal()
