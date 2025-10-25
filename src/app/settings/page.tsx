@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useRef } from 'react'
-import { 
-  Settings, 
-  Globe, 
-  Bell, 
-  Moon, 
-  Sun, 
+import { useState, useRef, useEffect } from 'react'
+import {
+  Settings,
+  Globe,
+  Bell,
+  Moon,
+  Sun,
   Monitor,
   Check,
   Search,
@@ -30,26 +30,31 @@ import { resetSettings } from '@/store/slices/settingsSlice'
 export default function SettingsPage() {
   const { settings, updateCurrency, updateTheme, updateNotifications } = useSettings()
   const dispatch = useAppDispatch()
-  
+
   // Get all data from Redux store
   const expenses = useAppSelector((state) => state.expenses.expenses)
-  const todos = useAppSelector((state) => state.todos.todos)  
+  const todos = useAppSelector((state) => state.todos.todos)
   const goals = useAppSelector((state) => state.goals.goals)
   const notes = useAppSelector((state) => state.notes.notes)
   const friends = useAppSelector((state) => state.splits.friends)
   const bills = useAppSelector((state) => state.splits.bills)
-  
+
   const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false)
   const [currencySearch, setCurrencySearch] = useState('')
   const [showClearConfirm, setShowClearConfirm] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Set page title
+  useEffect(() => {
+    document.title = 'Settings - LifeSync'
+  }, [])
 
   // Redux-based data management functions
   const exportData = () => {
     const allData = {
       expenses,
       todos,
-      goals, 
+      goals,
       notes,
       friends,
       bills,
@@ -57,11 +62,11 @@ export default function SettingsPage() {
       exportDate: new Date().toISOString(),
       version: '1.0'
     }
-    
+
     const dataStr = JSON.stringify(allData, null, 2)
     const dataBlob = new Blob([dataStr], { type: 'application/json' })
     const url = URL.createObjectURL(dataBlob)
-    
+
     const link = document.createElement('a')
     link.href = url
     link.download = `lifesync-backup-${new Date().toISOString().slice(0, 10)}.json`
@@ -75,44 +80,44 @@ export default function SettingsPage() {
     try {
       const text = await file.text()
       const data = JSON.parse(text)
-      
+
       // Import each data type using Redux actions
       if (data.expenses?.length) {
         data.expenses.forEach((expense: unknown) => {
           dispatch(addExpense(expense as ReturnType<typeof addExpense>['payload']))
         })
       }
-      
+
       if (data.todos?.length) {
         data.todos.forEach((todo: unknown) => {
           dispatch(addTodo(todo as ReturnType<typeof addTodo>['payload']))
         })
       }
-      
+
       if (data.goals?.length) {
         data.goals.forEach((goal: unknown) => {
           dispatch(addGoal(goal as ReturnType<typeof addGoal>['payload']))
         })
       }
-      
+
       if (data.notes?.length) {
         data.notes.forEach((note: unknown) => {
           dispatch(addNote(note as ReturnType<typeof addNote>['payload']))
         })
       }
-      
+
       if (data.friends?.length) {
         data.friends.forEach((friend: unknown) => {
           dispatch(addFriend(friend as ReturnType<typeof addFriend>['payload']))
         })
       }
-      
+
       if (data.bills?.length) {
         data.bills.forEach((bill: unknown) => {
           dispatch(addSplitBill(bill as ReturnType<typeof addSplitBill>['payload']))
         })
       }
-      
+
       return true
     } catch (error) {
       console.error('Import failed:', error)
@@ -181,7 +186,7 @@ export default function SettingsPage() {
               <Globe className="mr-3 text-green-600" size={24} />
               <h2 className="text-xl font-semibold text-gray-900">Currency & Region</h2>
             </div>
-            
+
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -201,9 +206,9 @@ export default function SettingsPage() {
                         </div>
                       </div>
                     </div>
-                    <ChevronDown 
-                      size={20} 
-                      className={`text-gray-400 transition-transform ${showCurrencyDropdown ? 'rotate-180' : ''}`} 
+                    <ChevronDown
+                      size={20}
+                      className={`text-gray-400 transition-transform ${showCurrencyDropdown ? 'rotate-180' : ''}`}
                     />
                   </button>
 
@@ -256,7 +261,7 @@ export default function SettingsPage() {
               <Monitor className="mr-3 text-purple-600" size={24} />
               <h2 className="text-xl font-semibold text-gray-900">Appearance</h2>
             </div>
-            
+
             <div className="space-y-3">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Theme
@@ -270,11 +275,10 @@ export default function SettingsPage() {
                   <button
                     key={value}
                     onClick={() => updateTheme(value as 'light' | 'dark' | 'auto')}
-                    className={`p-3 border rounded-lg flex flex-col items-center space-y-2 transition-colors ${
-                      settings.theme === value
+                    className={`p-3 border rounded-lg flex flex-col items-center space-y-2 transition-colors ${settings.theme === value
                         ? 'border-blue-500 bg-blue-50 text-blue-700'
                         : 'border-gray-300 hover:border-gray-400'
-                    }`}
+                      }`}
                   >
                     <Icon size={20} />
                     <span className="text-sm font-medium">{label}</span>
@@ -290,7 +294,7 @@ export default function SettingsPage() {
               <Bell className="mr-3 text-yellow-600" size={24} />
               <h2 className="text-xl font-semibold text-gray-900">Notifications</h2>
             </div>
-            
+
             <div className="flex items-center justify-between">
               <div>
                 <div className="font-medium text-gray-900">Push Notifications</div>
@@ -300,14 +304,12 @@ export default function SettingsPage() {
               </div>
               <button
                 onClick={() => updateNotifications(!settings.enableNotifications)}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                  settings.enableNotifications ? 'bg-blue-600' : 'bg-gray-300'
-                }`}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${settings.enableNotifications ? 'bg-blue-600' : 'bg-gray-300'
+                  }`}
               >
                 <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                    settings.enableNotifications ? 'translate-x-6' : 'translate-x-1'
-                  }`}
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${settings.enableNotifications ? 'translate-x-6' : 'translate-x-1'
+                    }`}
                 />
               </button>
             </div>
@@ -319,7 +321,7 @@ export default function SettingsPage() {
               <Database className="mr-3 text-indigo-600" size={24} />
               <h2 className="text-xl font-semibold text-gray-900">Data Management</h2>
             </div>
-            
+
             <div className="space-y-4">
               <div className="flex flex-col sm:flex-row gap-4">
                 <button
@@ -329,7 +331,7 @@ export default function SettingsPage() {
                   <Download size={20} className="mr-2" />
                   Export Data
                 </button>
-                
+
                 <button
                   onClick={() => fileInputRef.current?.click()}
                   className="flex items-center justify-center px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
@@ -337,14 +339,13 @@ export default function SettingsPage() {
                   <Upload size={20} className="mr-2" />
                   Import Data
                 </button>
-                
+
                 <button
                   onClick={handleClearData}
-                  className={`flex items-center justify-center px-4 py-3 rounded-lg transition-colors ${
-                    showClearConfirm 
-                      ? 'bg-red-600 text-white hover:bg-red-700' 
+                  className={`flex items-center justify-center px-4 py-3 rounded-lg transition-colors ${showClearConfirm
+                      ? 'bg-red-600 text-white hover:bg-red-700'
                       : 'bg-red-100 text-red-600 hover:bg-red-200'
-                  }`}
+                    }`}
                 >
                   {showClearConfirm ? (
                     <>
@@ -359,7 +360,7 @@ export default function SettingsPage() {
                   )}
                 </button>
               </div>
-              
+
               <input
                 ref={fileInputRef}
                 type="file"
@@ -367,7 +368,7 @@ export default function SettingsPage() {
                 onChange={handleFileImport}
                 className="hidden"
               />
-              
+
               <div className="bg-gray-50 rounded-lg p-4">
                 <h4 className="font-medium text-gray-900 mb-2">Data Storage Info</h4>
                 <ul className="text-sm text-gray-600 space-y-1">

@@ -34,37 +34,19 @@
       "name": "Add Expense",
       "short_name": "Expense",
       "description": "Track spending with local AI categorization",
-      "url": "/expenses",
-      "icons": [
-        {
-          "src": "/icon-192x192.png",
-          "sizes": "192x192"
-        }
-      ]
+      "url": "/expenses"
     },
     {
       "name": "View Goals",
       "short_name": "Goals",
       "description": "Check progress on your financial goals",
-      "url": "/goals",
-      "icons": [
-        {
-          "src": "/icon-192x192.png",
-          "sizes": "192x192"
-        }
-      ]
+      "url": "/goals"
     },
     {
       "name": "Split Bills",
       "short_name": "Splits",
       "description": "Manage shared expenses with friends",
-      "url": "/splits",
-      "icons": [
-        {
-          "src": "/icon-192x192.png",
-          "sizes": "192x192"
-        }
-      ]
+      "url": "/splits"
     }
   ],
   "related_applications": [],

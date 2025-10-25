@@ -1,12 +1,12 @@
 'use client'
 
-import { useState } from 'react'
-import { 
-  Plus, 
-  Check, 
-  X, 
-  Edit3, 
-  Save, 
+import { useState, useEffect } from 'react'
+import {
+  Plus,
+  Check,
+  X,
+  Edit3,
+  Save,
   Calendar,
   Flag,
   Search,
@@ -17,26 +17,26 @@ import {
   Upload
 } from 'lucide-react'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
-import { 
-  addTodo, 
-  updateTodo, 
-  deleteTodo, 
-  toggleTodo, 
+import {
+  addTodo,
+  updateTodo,
+  deleteTodo,
+  toggleTodo,
   bulkImportTodos,
-  type Todo 
+  type Todo
 } from '@/store/slices/todosSlice'
 import type { RootState } from '@/store/index'
 import BulkImport from '@/components/BulkImport'
 
 const priorityColors = {
   low: 'text-green-600 bg-green-100',
-  medium: 'text-yellow-600 bg-yellow-100', 
+  medium: 'text-yellow-600 bg-yellow-100',
   high: 'text-red-600 bg-red-100'
 }
 
 const categories = [
   'Personal',
-  'Work', 
+  'Work',
   'Shopping',
   'Health',
   'Finance',
@@ -58,6 +58,11 @@ export default function TodosPage() {
   const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list')
   const [currentDate, setCurrentDate] = useState(new Date())
   const [showBulkImport, setShowBulkImport] = useState(false)
+
+  // Set page title
+  useEffect(() => {
+    document.title = 'Todos - LifeSync'
+  }, [])
 
   const handleAddTodo = () => {
     if (newTodo.trim()) {
@@ -91,9 +96,9 @@ export default function TodosPage() {
 
   const saveEdit = () => {
     if (editingId && editText.trim()) {
-      dispatch(updateTodo({ 
-        id: editingId, 
-        updates: { text: editText.trim() } 
+      dispatch(updateTodo({
+        id: editingId,
+        updates: { text: editText.trim() }
       }))
       setEditingId(null)
       setEditText('')
@@ -122,17 +127,17 @@ export default function TodosPage() {
     // Status filter
     if (filter === 'active' && todo.completed) return false
     if (filter === 'completed' && !todo.completed) return false
-    
+
     // Search filter
     if (searchTerm && !todo.text.toLowerCase().includes(searchTerm.toLowerCase())) {
       return false
     }
-    
+
     // Category filter
     if (categoryFilter !== 'all' && todo.category !== categoryFilter) {
       return false
     }
-    
+
     return true
   })
 
@@ -169,16 +174,16 @@ export default function TodosPage() {
 
   const getTodosForDate = (date: Date) => {
     const dateStr = date.toISOString().split('T')[0]
-    return filteredTodos.filter((todo: Todo) => 
-      todo.dueDate === dateStr || 
+    return filteredTodos.filter((todo: Todo) =>
+      todo.dueDate === dateStr ||
       (todo.createdAt && new Date(todo.createdAt).toISOString().split('T')[0] === dateStr)
     )
   }
 
   const formatDate = (date: Date) => {
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'long' 
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long'
     })
   }
 
@@ -267,7 +272,7 @@ export default function TodosPage() {
               </select>
             </div>
           </div>
-          
+
           <div className="flex flex-col md:flex-row gap-4 items-end">
             <div className="flex-1">
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -315,50 +320,47 @@ export default function TodosPage() {
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          
+
           {/* View Toggle */}
           <div className="flex bg-gray-100 rounded-lg p-1">
             <button
               onClick={() => setViewMode('list')}
-              className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                viewMode === 'list'
+              className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${viewMode === 'list'
                   ? 'bg-white text-blue-600 shadow-sm'
                   : 'text-gray-600 hover:text-gray-900'
-              }`}
+                }`}
             >
               <List size={16} />
               <span>List</span>
             </button>
             <button
               onClick={() => setViewMode('calendar')}
-              className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                viewMode === 'calendar'
+              className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${viewMode === 'calendar'
                   ? 'bg-white text-blue-600 shadow-sm'
                   : 'text-gray-600 hover:text-gray-900'
-              }`}
+                }`}
             >
               <Calendar size={16} />
               <span>Calendar</span>
             </button>
           </div>
-          
+
           {/* Status Filter */}
           <div className="flex bg-gray-100 rounded-lg p-1">
             {(['all', 'active', 'completed'] as const).map(status => (
               <button
                 key={status}
                 onClick={() => setFilter(status)}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                  filter === status
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${filter === status
                     ? 'bg-white text-blue-600 shadow-sm'
                     : 'text-gray-600 hover:text-gray-900'
-                }`}
+                  }`}
               >
                 {status.charAt(0).toUpperCase() + status.slice(1)}
               </button>
             ))}
           </div>
-          
+
           {/* Category Filter */}
           <select
             value={categoryFilter}
@@ -385,7 +387,7 @@ export default function TodosPage() {
               {searchTerm || categoryFilter !== 'all' ? 'No matching tasks' : 'No tasks yet'}
             </h3>
             <p className="text-gray-600">
-              {searchTerm || categoryFilter !== 'all' 
+              {searchTerm || categoryFilter !== 'all'
                 ? 'Try adjusting your filters or search term'
                 : 'Add your first task to get started!'
               }
@@ -396,20 +398,18 @@ export default function TodosPage() {
             {filteredTodos.map((todo: Todo) => (
               <div
                 key={todo.id}
-                className={`bg-white p-4 rounded-lg shadow-sm border transition-all ${
-                  todo.completed ? 'opacity-75' : ''
-                } ${isOverdue(todo.dueDate) && !todo.completed ? 'border-l-4 border-l-red-500' : ''}
+                className={`bg-white p-4 rounded-lg shadow-sm border transition-all ${todo.completed ? 'opacity-75' : ''
+                  } ${isOverdue(todo.dueDate) && !todo.completed ? 'border-l-4 border-l-red-500' : ''}
                 ${isDueToday(todo.dueDate) && !todo.completed ? 'border-l-4 border-l-orange-500' : ''}`}
               >
                 <div className="flex items-center gap-4">
                   {/* Checkbox */}
                   <button
                     onClick={() => handleToggleComplete(todo.id)}
-                    className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${
-                      todo.completed
+                    className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${todo.completed
                         ? 'bg-green-500 border-green-500 text-white'
                         : 'border-gray-300 hover:border-green-500'
-                    }`}
+                      }`}
                   >
                     {todo.completed && <Check size={16} />}
                   </button>
@@ -450,28 +450,27 @@ export default function TodosPage() {
                             <Flag size={12} className="inline mr-1" />
                             {todo.priority.toUpperCase()}
                           </span>
-                          
+
                           {/* Category */}
                           <span className="px-2 py-1 bg-gray-100 rounded-full text-xs">
                             {todo.category}
                           </span>
-                          
+
                           {/* Due Date */}
                           {todo.dueDate && (
-                            <span className={`px-2 py-1 rounded-full text-xs flex items-center gap-1 ${
-                              isOverdue(todo.dueDate) && !todo.completed
+                            <span className={`px-2 py-1 rounded-full text-xs flex items-center gap-1 ${isOverdue(todo.dueDate) && !todo.completed
                                 ? 'bg-red-100 text-red-600'
                                 : isDueToday(todo.dueDate) && !todo.completed
-                                ? 'bg-orange-100 text-orange-600'
-                                : 'bg-blue-100 text-blue-600'
-                            }`}>
+                                  ? 'bg-orange-100 text-orange-600'
+                                  : 'bg-blue-100 text-blue-600'
+                              }`}>
                               <Calendar size={12} />
                               {new Date(todo.dueDate).toLocaleDateString()}
                               {isOverdue(todo.dueDate) && !todo.completed && ' (Overdue)'}
                               {isDueToday(todo.dueDate) && !todo.completed && ' (Today)'}
                             </span>
                           )}
-                          
+
                           {/* Created */}
                           <span className="flex items-center gap-1">
                             <Clock size={12} />
@@ -574,11 +573,10 @@ export default function TodosPage() {
                       {dayTodos.slice(0, 3).map((todo: Todo) => (
                         <div
                           key={todo.id}
-                          className={`text-xs p-1 rounded truncate cursor-pointer transition-colors ${
-                            todo.completed
+                          className={`text-xs p-1 rounded truncate cursor-pointer transition-colors ${todo.completed
                               ? 'bg-green-100 text-green-700 line-through'
                               : `${priorityColors[todo.priority as keyof typeof priorityColors]} hover:opacity-80`
-                          }`}
+                            }`}
                           onClick={() => handleToggleComplete(todo.id)}
                           title={todo.text}
                         >

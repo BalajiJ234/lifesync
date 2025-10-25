@@ -110,6 +110,11 @@ export default function ExpensesPage() {
   const expenses = useAppSelector((state: RootState) => state.expenses?.expenses || [])
   // Remove unused totalSpent variable
 
+  // Set page title
+  useEffect(() => {
+    document.title = 'Expenses - LifeSync'
+  }, [])
+
   // Load friends and bills from Redux
   const friends = useAppSelector((state: RootState) => state.splits?.friends || [])
   // const bills = useAppSelector((state: RootState) => state.splits?.bills || []) // Temporarily unused

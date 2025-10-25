@@ -76,6 +76,7 @@ export default function SplitsPage() {
   // Client-side only rendering to prevent hydration errors
   useEffect(() => {
     setIsClient(true)
+    document.title = 'Bill Splitting - LifeSync'
   }, [])
 
   // Friend form
@@ -373,8 +374,8 @@ export default function SplitsPage() {
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === tab
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                   }`}
               >
                 {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -489,8 +490,8 @@ export default function SplitsPage() {
                           <label
                             key={friend.id}
                             className={`flex items-center space-x-3 p-3 border rounded-lg cursor-pointer transition-colors ${billForm.participants.includes(friend.id)
-                                ? 'border-blue-500 bg-blue-50'
-                                : 'border-gray-300 hover:border-gray-400'
+                              ? 'border-blue-500 bg-blue-50'
+                              : 'border-gray-300 hover:border-gray-400'
                               }`}
                           >
                             <input
@@ -711,8 +712,8 @@ export default function SplitsPage() {
                             <button
                               onClick={() => toggleBillSettled(bill.id)}
                               className={`p-2 rounded transition-colors ${bill.status === 'settled'
-                                  ? 'text-gray-400 hover:text-orange-600'
-                                  : 'text-gray-400 hover:text-green-600'
+                                ? 'text-gray-400 hover:text-orange-600'
+                                : 'text-gray-400 hover:text-green-600'
                                 }`}
                               title={bill.status === 'settled' ? 'Mark as unsettled' : 'Mark as settled'}
                             >

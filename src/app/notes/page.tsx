@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Plus, X, Edit3, Save, Upload } from 'lucide-react'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import {
@@ -43,6 +43,11 @@ export default function NotesPage() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editContent, setEditContent] = useState('')
   const [showBulkImport, setShowBulkImport] = useState(false)
+
+  // Set page title
+  useEffect(() => {
+    document.title = 'Notes - LifeSync'
+  }, [])
 
   const handleAddNote = () => {
     if (newNote.trim()) {

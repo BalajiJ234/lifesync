@@ -60,6 +60,7 @@ export default function GoalsPage() {
 
   useEffect(() => {
     setIsClient(true)
+    document.title = 'Goals - LifeSync'
   }, [])
 
   // Calculate goal progress
@@ -390,7 +391,7 @@ export default function GoalsPage() {
 
                 {/* Feasibility */}
                 <div className={`p-4 rounded-lg ${aiAnalysisModal.aiAnalysis.feasibility === 'easy' ? 'bg-green-50' :
-                    aiAnalysisModal.aiAnalysis.feasibility === 'moderate' ? 'bg-yellow-50' : 'bg-red-50'
+                  aiAnalysisModal.aiAnalysis.feasibility === 'moderate' ? 'bg-yellow-50' : 'bg-red-50'
                   }`}>
                   <div className="flex items-center space-x-2 mb-2">
                     <TrendingUp size={18} className={
