@@ -4,6 +4,9 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useAppSelector } from '@/store/hooks'
 import { AIInsights } from '@/components/ai/AIIntegration'
+import { selectIncomes } from '@/store/slices/incomeSlice'
+import { formatAmount, getCurrencyByCode } from '@/utils/currency'
+import { useSettings } from '@/contexts/SettingsContext'
 import { 
   StickyNote, 
   DollarSign, 
@@ -14,7 +17,9 @@ import {
   Clock,
   Calendar,
   Target,
-  Activity 
+  Activity,
+  ArrowDownCircle,
+  ArrowUpCircle 
 } from 'lucide-react'
 
 // Data interfaces
@@ -30,8 +35,10 @@ const useAppData = () => {
   const notes = useAppSelector((state) => state.notes.notes)
   const todos = useAppSelector((state) => state.todos.todos)
   const expenses = useAppSelector((state) => state.expenses.expenses)
+  const incomes = useAppSelector(selectIncomes)
   const friends = useAppSelector((state) => state.splits.friends)
   const bills = useAppSelector((state) => state.splits.bills)
+  const { settings } = useSettings()
   const [isClient, setIsClient] = useState(false)
 
   useEffect(() => {
@@ -47,11 +54,20 @@ const useAppData = () => {
     return expenseDate.getMonth() === currentMonth && expenseDate.getFullYear() === currentYear
   })
   
-  const thisMonthTotal = thisMonthExpenses.reduce((sum, expense) => sum + expense.amount, 0)
+  const thisMonthIncomes = incomes.filter(income => {
+    const incomeDate = new Date(income.eventDate)
+    return incomeDate.getMonth() === currentMonth && incomeDate.getFullYear() === currentYear && income.status === 'received'
+  })
+  
+  // Round to 2 decimal places to fix floating point precision
+  const thisMonthExpenseTotal = Math.round(thisMonthExpenses.reduce((sum, expense) => sum + expense.amount, 0) * 100) / 100
+  const thisMonthIncomeTotal = Math.round(thisMonthIncomes.reduce((sum, income) => sum + income.amount, 0) * 100) / 100
+  const netCashflow = Math.round((thisMonthIncomeTotal - thisMonthExpenseTotal) * 100) / 100
+  
   const activeTodos = todos.filter(todo => !todo.completed)
   const completedTodos = todos.filter(todo => todo.completed)
   const pendingBills = bills.filter(bill => bill.status !== 'settled')
-  const pendingAmount = pendingBills.reduce((sum, bill) => sum + bill.totalAmount, 0)
+  const pendingAmount = Math.round(pendingBills.reduce((sum, bill) => sum + bill.totalAmount, 0) * 100) / 100
 
   // Generate recent activity from real data
   const generateRecentActivity = (): ActivityItem[] => {
@@ -114,9 +130,14 @@ const useAppData = () => {
   return {
     notes: isClient ? notes.length : 0,
     expenses: { 
-      thisMonth: isClient ? thisMonthTotal : 0,
+      thisMonth: isClient ? thisMonthExpenseTotal : 0,
       count: isClient ? expenses.length : 0
     },
+    income: {
+      thisMonth: isClient ? thisMonthIncomeTotal : 0,
+      count: isClient ? incomes.length : 0
+    },
+    netCashflow: isClient ? netCashflow : 0,
     todos: { 
       active: isClient ? activeTodos.length : 0,
       completed: isClient ? completedTodos.length : 0
@@ -125,6 +146,7 @@ const useAppData = () => {
       pending: isClient ? pendingAmount : 0,
       friends: isClient ? friends.length : 0
     },
+    currency: isClient ? getCurrencyByCode(settings.currency) : getCurrencyByCode('USD'),
     recentActivity: isClient ? generateRecentActivity() : []
   }
 }
@@ -182,12 +204,44 @@ export default function Home() {
         <div className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">This Month</p>
-              <p className="text-2xl font-bold text-gray-900">${appData.expenses.thisMonth}</p>
-              <p className="text-xs text-gray-500 mt-1">{appData.expenses.count} expenses tracked</p>
+              <p className="text-sm font-medium text-gray-600">Expenses</p>
+              <p className="text-2xl font-bold text-red-600">{formatAmount(appData.expenses.thisMonth, appData.currency)}</p>
+              <p className="text-xs text-gray-500 mt-1">{appData.expenses.count} tracked this month</p>
+            </div>
+            <div className="p-3 bg-red-100 rounded-full">
+              <ArrowDownCircle className="h-6 w-6 text-red-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Income</p>
+              <p className="text-2xl font-bold text-green-600">{formatAmount(appData.income.thisMonth, appData.currency)}</p>
+              <p className="text-xs text-gray-500 mt-1">{appData.income.count} received this month</p>
             </div>
             <div className="p-3 bg-green-100 rounded-full">
-              <DollarSign className="h-6 w-6 text-green-600" />
+              <ArrowUpCircle className="h-6 w-6 text-green-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Net Cashflow</p>
+              <p className={`text-2xl font-bold ${
+                appData.netCashflow >= 0 ? 'text-green-600' : 'text-red-600'
+              }`}>{formatAmount(appData.netCashflow, appData.currency)}</p>
+              <p className="text-xs text-gray-500 mt-1">This month</p>
+            </div>
+            <div className={`p-3 rounded-full ${
+              appData.netCashflow >= 0 ? 'bg-green-100' : 'bg-red-100'
+            }`}>
+              <TrendingUp className={`h-6 w-6 ${
+                appData.netCashflow >= 0 ? 'text-green-600' : 'text-red-600'
+              }`} />
             </div>
           </div>
         </div>
@@ -209,7 +263,7 @@ export default function Home() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Pending Splits</p>
-              <p className="text-2xl font-bold text-gray-900">${appData.splits.pending}</p>
+              <p className="text-2xl font-bold text-gray-900">{formatAmount(appData.splits.pending, appData.currency)}</p>
               <p className="text-xs text-gray-500 mt-1">{appData.splits.friends} friends</p>
             </div>
             <div className="p-3 bg-purple-100 rounded-full">
@@ -220,7 +274,45 @@ export default function Home() {
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+        <Link 
+          href="/income"
+          className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition-shadow group"
+        >
+          <div className="flex flex-col items-center text-center space-y-4">
+            <div className="p-3 bg-green-100 rounded-full group-hover:bg-green-200 transition-colors">
+              <TrendingUp className="h-8 w-8 text-green-600" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Track Income</h3>
+              <p className="text-sm text-gray-600">Record earnings & inflows</p>
+            </div>
+            <div className="flex items-center text-blue-600 text-sm font-medium">
+              <Plus className="h-4 w-4 mr-1" />
+              Add Income
+            </div>
+          </div>
+        </Link>
+
+        <Link 
+          href="/expenses"
+          className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition-shadow group"
+        >
+          <div className="flex flex-col items-center text-center space-y-4">
+            <div className="p-3 bg-red-100 rounded-full group-hover:bg-red-200 transition-colors">
+              <DollarSign className="h-8 w-8 text-red-600" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Track Expenses</h3>
+              <p className="text-sm text-gray-600">Monitor your spending</p>
+            </div>
+            <div className="flex items-center text-blue-600 text-sm font-medium">
+              <Plus className="h-4 w-4 mr-1" />
+              Add Expense
+            </div>
+          </div>
+        </Link>
+
         <Link 
           href="/notes"
           className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition-shadow group"
@@ -236,25 +328,6 @@ export default function Home() {
             <div className="flex items-center text-blue-600 text-sm font-medium">
               <Plus className="h-4 w-4 mr-1" />
               Add Note
-            </div>
-          </div>
-        </Link>
-
-        <Link 
-          href="/expenses"
-          className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition-shadow group"
-        >
-          <div className="flex flex-col items-center text-center space-y-4">
-            <div className="p-3 bg-green-100 rounded-full group-hover:bg-green-200 transition-colors">
-              <DollarSign className="h-8 w-8 text-green-600" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">Track Expenses</h3>
-              <p className="text-sm text-gray-600">Monitor your spending</p>
-            </div>
-            <div className="flex items-center text-blue-600 text-sm font-medium">
-              <Plus className="h-4 w-4 mr-1" />
-              Add Expense
             </div>
           </div>
         </Link>

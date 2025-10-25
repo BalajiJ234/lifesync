@@ -10,6 +10,7 @@ import {
   CheckSquare,
   Settings,
   Target,
+  TrendingUp,
   ChevronDown,
   ChevronUp,
   Menu,
@@ -19,6 +20,7 @@ import Logo from './Logo'
 
 const navItems = [
   { href: '/', label: 'Dashboard', icon: Home },
+  { href: '/income', label: 'Income', icon: TrendingUp },
   { href: '/expenses', label: 'Expenses', icon: DollarSign, hasSubmenu: true },
   { href: '/goals', label: 'Goals', icon: Target },
   { href: '/notes', label: 'Notes', icon: StickyNote },
@@ -34,9 +36,9 @@ const expenseSubmenuItems = [
 // Bottom tab items for mobile (main items only)
 const bottomTabItems = [
   { href: '/', label: 'Home', icon: Home },
+  { href: '/income', label: 'Income', icon: TrendingUp },
   { href: '/expenses', label: 'Expenses', icon: DollarSign },
   { href: '/goals', label: 'Goals', icon: Target },
-  { href: '/todos', label: 'Todos', icon: CheckSquare },
   { href: '/settings', label: 'Settings', icon: Settings },
 ]
 
