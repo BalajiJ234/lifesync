@@ -15,6 +15,7 @@ import {
   Menu,
   X
 } from 'lucide-react'
+import Logo from './Logo'
 
 const navItems = [
   { href: '/', label: 'Dashboard', icon: Home },
@@ -62,9 +63,7 @@ export default function MobileNavigation() {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <Link href="/" className="text-2xl font-bold text-blue-600">
-              LifeSync
-            </Link>
+            <Logo size="md" showText={true} animated={true} />
 
             {/* Desktop Navigation Links */}
             <div className="hidden md:flex space-x-8 relative">

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <!-- Settings/Gear icon -->
+  <defs>
+    <linearGradient id="settingsGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Gear outer shape -->
+  <path d="M 32 8 
+           L 36 14 L 42 12 L 46 18 L 52 18 L 54 24 L 60 28 L 58 34 L 60 40 L 54 44 L 52 50 L 46 50 L 42 56 L 36 54 L 32 60 
+           L 28 54 L 22 56 L 18 50 L 12 50 L 10 44 L 4 40 L 6 34 L 4 28 L 10 24 L 12 18 L 18 18 L 22 12 L 28 14 Z" 
+        fill="url(#settingsGradient)"/>
+  
+  <!-- Center circle -->
+  <circle cx="32" cy="32" r="10" fill="white"/>
+  
+  <!-- Inner circle -->
+  <circle cx="32" cy="32" r="6" fill="url(#settingsGradient)"/>
+  
+  <!-- Center dot -->
+  <circle cx="32" cy="32" r="2" fill="white"/>
+  
+  <!-- Accent dots on gear teeth -->
+  <circle cx="32" cy="12" r="1.5" fill="#34d399" opacity="0.8"/>
+  <circle cx="50" cy="20" r="1.5" fill="#34d399" opacity="0.6"/>
+  <circle cx="56" cy="36" r="1.5" fill="#34d399" opacity="0.7"/>
+  <circle cx="44" cy="52" r="1.5" fill="#34d399" opacity="0.6"/>
+  <circle cx="20" cy="52" r="1.5" fill="#34d399" opacity="0.7"/>
+  <circle cx="8" cy="36" r="1.5" fill="#34d399" opacity="0.6"/>
+</svg>

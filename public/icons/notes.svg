@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <!-- Notebook/Notes icon -->
+  <defs>
+    <linearGradient id="notesGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Notebook cover -->
+  <rect x="14" y="8" width="36" height="48" rx="4" fill="url(#notesGradient)"/>
+  
+  <!-- Spiral binding -->
+  <circle cx="18" cy="12" r="2" fill="#059669"/>
+  <circle cx="18" cy="20" r="2" fill="#059669"/>
+  <circle cx="18" cy="28" r="2" fill="#059669"/>
+  <circle cx="18" cy="36" r="2" fill="#059669"/>
+  <circle cx="18" cy="44" r="2" fill="#059669"/>
+  <circle cx="18" cy="52" r="2" fill="#059669"/>
+  
+  <!-- Text lines -->
+  <line x1="24" y1="20" x2="44" y2="20" stroke="white" stroke-width="2" stroke-linecap="round"/>
+  <line x1="24" y1="28" x2="44" y2="28" stroke="white" stroke-width="2" stroke-linecap="round"/>
+  <line x1="24" y1="36" x2="40" y2="36" stroke="white" stroke-width="2" stroke-linecap="round"/>
+  <line x1="24" y1="44" x2="42" y2="44" stroke="white" stroke-width="2" stroke-linecap="round"/>
+  
+  <!-- Pen icon accent -->
+  <g transform="translate(42, 48) rotate(-45)">
+    <rect x="0" y="-1" width="12" height="2" fill="#34d399"/>
+    <polygon points="12,-2 16,0 12,2" fill="#059669"/>
+  </g>
+</svg>

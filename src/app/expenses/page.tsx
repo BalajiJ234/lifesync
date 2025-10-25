@@ -559,7 +559,7 @@ export default function ExpensesPage() {
                   <div className={`p-3 rounded-full flex-shrink-0 ${categoryInfo.color}`}>
                     <span className="text-xl">{categoryInfo.icon}</span>
                   </div>
-                  
+
                   {/* Expense Details */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2">
@@ -580,36 +580,36 @@ export default function ExpensesPage() {
                         )}
                       </div>
                     </div>                      <div className="flex items-center gap-4 mt-1 text-sm text-gray-500 flex-wrap">
-                        <span className={`px-2 py-1 rounded-full text-xs whitespace-nowrap ${categoryInfo.color}`}>
-                          {expense.category}
-                        </span>
+                      <span className={`px-2 py-1 rounded-full text-xs whitespace-nowrap ${categoryInfo.color}`}>
+                        {expense.category}
+                      </span>
 
-                        <span className={`px-2 py-1 rounded-full text-xs whitespace-nowrap ${expense.isRecurring ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}`}>
-                          {expense.isRecurring ? '🔄' : '💰'} {expense.isRecurring ? 'Recurring' : 'One-time'}
-                          {expense.isRecurring && expense.recurringPeriod && (
-                            <span className="ml-1">({expense.recurringPeriod})</span>
-                          )}
-                        </span>
-
-                        <span className="flex items-center gap-1">
-                          <Calendar size={12} />
-                          {isClient ? new Date(expense.date).toLocaleDateString() : 'Recent'}
-                        </span>
-
-                        {expense.notes && (
-                          <span className="text-gray-400" title={expense.notes}>
-                            📝 Notes
-                          </span>
+                      <span className={`px-2 py-1 rounded-full text-xs whitespace-nowrap ${expense.isRecurring ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}`}>
+                        {expense.isRecurring ? '🔄' : '💰'} {expense.isRecurring ? 'Recurring' : 'One-time'}
+                        {expense.isRecurring && expense.recurringPeriod && (
+                          <span className="ml-1">({expense.recurringPeriod})</span>
                         )}
-                      </div>
+                      </span>
+
+                      <span className="flex items-center gap-1">
+                        <Calendar size={12} />
+                        {isClient ? new Date(expense.date).toLocaleDateString() : 'Recent'}
+                      </span>
 
                       {expense.notes && (
-                        <p className="mt-2 text-sm text-gray-600 bg-gray-50 p-2 rounded">
-                          {expense.notes}
-                        </p>
+                        <span className="text-gray-400" title={expense.notes}>
+                          📝 Notes
+                        </span>
                       )}
                     </div>
-                  
+
+                    {expense.notes && (
+                      <p className="mt-2 text-sm text-gray-600 bg-gray-50 p-2 rounded">
+                        {expense.notes}
+                      </p>
+                    )}
+                  </div>
+
                   {/* Actions */}
                   <div className="flex gap-2 ml-4">
                     <button

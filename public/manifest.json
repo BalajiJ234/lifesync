@@ -7,7 +7,12 @@
   "background_color": "#ffffff",
   "theme_color": "#10b981",
   "orientation": "portrait-primary",
-  "categories": ["productivity", "finance", "lifestyle", "utilities"],
+  "categories": [
+    "productivity",
+    "finance",
+    "lifestyle",
+    "utilities"
+  ],
   "lang": "en",
   "dir": "ltr",
   "icons": [
@@ -30,28 +35,46 @@
       "short_name": "Expense",
       "description": "Track spending with local AI categorization",
       "url": "/expenses",
-      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
+      "icons": [
+        {
+          "src": "/icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
     },
     {
       "name": "View Goals",
-      "short_name": "Goals", 
+      "short_name": "Goals",
       "description": "Check progress on your financial goals",
       "url": "/goals",
-      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
+      "icons": [
+        {
+          "src": "/icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
     },
     {
       "name": "Split Bills",
       "short_name": "Splits",
       "description": "Manage shared expenses with friends",
       "url": "/splits",
-      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
+      "icons": [
+        {
+          "src": "/icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
     }
   ],
   "related_applications": [],
   "prefer_related_applications": false,
   "scope": "/",
   "id": "lifesync-pwa",
-  "display_override": ["window-controls-overlay", "standalone"],
+  "display_override": [
+    "window-controls-overlay",
+    "standalone"
+  ],
   "edge_side_panel": {
     "preferred_width": 400
   }

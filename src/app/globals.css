@@ -38,13 +38,21 @@ html {
 }
 
 /* Touch-friendly minimum sizes */
-button, a, input, select, textarea {
-  min-height: 44px; /* iOS recommended touch target */
+button,
+a,
+input,
+select,
+textarea {
+  min-height: 44px;
+  /* iOS recommended touch target */
 }
 
 /* Better input on mobile */
-input, textarea, select {
-  font-size: 16px; /* Prevent iOS zoom on focus */
+input,
+textarea,
+select {
+  font-size: 16px;
+  /* Prevent iOS zoom on focus */
 }
 
 /* Responsive images */

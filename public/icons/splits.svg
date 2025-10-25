@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <!-- Bill splitting icon (people sharing) -->
+  <defs>
+    <linearGradient id="splitsGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Receipt/Bill background -->
+  <rect x="18" y="10" width="28" height="44" rx="3" fill="url(#splitsGradient)"/>
+  
+  <!-- Receipt top tear edge -->
+  <path d="M 18 10 L 20 12 L 22 10 L 24 12 L 26 10 L 28 12 L 30 10 L 32 12 L 34 10 L 36 12 L 38 10 L 40 12 L 42 10 L 44 12 L 46 10 L 46 54 L 18 54 Z" 
+        fill="url(#splitsGradient)"/>
+  
+  <!-- Bill items/lines -->
+  <line x1="24" y1="20" x2="40" y2="20" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="24" y1="26" x2="40" y2="26" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="24" y1="32" x2="36" y2="32" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+  
+  <!-- Total line -->
+  <line x1="24" y1="40" x2="40" y2="40" stroke="white" stroke-width="2" stroke-linecap="round"/>
+  <line x1="24" y1="46" x2="40" y2="46" stroke="white" stroke-width="2" stroke-linecap="round"/>
+  
+  <!-- Split arrows -->
+  <g opacity="0.9">
+    <!-- Left arrow -->
+    <path d="M 14 32 L 8 32 L 11 29 M 8 32 L 11 35" stroke="#34d399" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Right arrow -->
+    <path d="M 50 32 L 56 32 L 53 29 M 56 32 L 53 35" stroke="#34d399" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  
+  <!-- People icons (small) -->
+  <circle cx="10" cy="24" r="3" fill="#34d399"/>
+  <circle cx="54" cy="24" r="3" fill="#34d399"/>
+</svg>

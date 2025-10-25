@@ -1,9 +1,56 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
-  <rect width="192" height="192" rx="24" fill="#3b82f6"/>
-  <g transform="translate(48, 48)">
-    <path d="M72 12L60 12L60 24L48 24L48 36L36 36L36 48L24 48L24 60L12 60L12 72L24 72L24 84L36 84L36 96L48 96L48 84L60 84L60 72L72 72L72 60L84 60L84 48L96 48L96 36L84 36L84 24L72 24L72 12Z" fill="white"/>
-    <circle cx="30" cy="30" r="8" fill="#3b82f6"/>
-    <circle cx="66" cy="66" r="8" fill="#3b82f6"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!-- Background with gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="shieldGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f0fdf4;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Rounded rectangle background -->
+  <rect width="512" height="512" rx="100" fill="url(#bgGradient)"/>
+  
+  <!-- Shield shape (privacy symbol) -->
+  <path d="M 256 80 
+           L 160 120 
+           L 160 240 
+           Q 160 340 256 420 
+           Q 352 340 352 240 
+           L 352 120 Z" 
+        fill="url(#shieldGradient)" 
+        stroke="#10b981" 
+        stroke-width="4"/>
+  
+  <!-- Lock icon inside shield -->
+  <g transform="translate(256, 220)">
+    <!-- Lock body -->
+    <rect x="-35" y="0" width="70" height="80" rx="8" fill="#10b981"/>
+    
+    <!-- Lock shackle -->
+    <path d="M -25 0 
+             L -25 -30 
+             Q -25 -50 0 -50 
+             Q 25 -50 25 -30 
+             L 25 0" 
+          fill="none" 
+          stroke="#10b981" 
+          stroke-width="12" 
+          stroke-linecap="round"/>
+    
+    <!-- Keyhole -->
+    <circle cx="0" cy="30" r="8" fill="#ffffff"/>
+    <rect x="-3" y="30" width="6" height="25" rx="3" fill="#ffffff"/>
   </g>
-  <text x="96" y="140" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="24" font-weight="bold">LifeSync</text>
+  
+  <!-- Small accent dots (representing data points staying local) -->
+  <circle cx="180" cy="360" r="6" fill="#ffffff" opacity="0.6"/>
+  <circle cx="210" cy="380" r="6" fill="#ffffff" opacity="0.6"/>
+  <circle cx="240" cy="390" r="6" fill="#ffffff" opacity="0.6"/>
+  <circle cx="270" cy="390" r="6" fill="#ffffff" opacity="0.6"/>
+  <circle cx="300" cy="380" r="6" fill="#ffffff" opacity="0.6"/>
+  <circle cx="330" cy="360" r="6" fill="#ffffff" opacity="0.6"/>
 </svg>
