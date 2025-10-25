@@ -350,7 +350,7 @@ export default function SettingsPage() {
             </div>
 
             <div className="flex items-center justify-between">
-              <div>
+              <div className="flex-1">
                 <div className="font-medium text-gray-900">Push Notifications</div>
                 <div className="text-sm text-gray-500">
                   Get notified about due tasks, bill reminders, and updates
@@ -358,12 +358,15 @@ export default function SettingsPage() {
               </div>
               <button
                 onClick={() => updateNotifications(!settings.enableNotifications)}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${settings.enableNotifications ? 'bg-blue-600' : 'bg-gray-300'
-                  }`}
+                className={`relative inline-flex h-8 w-14 flex-shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                  settings.enableNotifications ? 'bg-blue-600' : 'bg-gray-300'
+                }`}
+                aria-label={`Turn ${settings.enableNotifications ? 'off' : 'on'} notifications`}
               >
                 <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${settings.enableNotifications ? 'translate-x-6' : 'translate-x-1'
-                    }`}
+                  className={`inline-block h-6 w-6 transform rounded-full bg-white shadow-lg transition-transform ${
+                    settings.enableNotifications ? 'translate-x-7' : 'translate-x-1'
+                  }`}
                 />
               </button>
             </div>

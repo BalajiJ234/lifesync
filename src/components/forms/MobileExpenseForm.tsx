@@ -43,7 +43,7 @@ const expenseCategories = [
 ]
 
 const SUPPORTED_CURRENCIES = [
-  { code: 'AED', symbol: 'AED', flag: '🇦🇪' },
+  { code: 'AED', symbol: 'Dh.', flag: '🇦🇪' },
   { code: 'USD', symbol: '$', flag: '🇺🇸' },
   { code: 'EUR', symbol: '€', flag: '🇪🇺' },
   { code: 'GBP', symbol: '£', flag: '🇬🇧' },
