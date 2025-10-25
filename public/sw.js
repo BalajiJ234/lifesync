@@ -10,16 +10,8 @@ const STATIC_ASSETS = [
   '/manifest.json',
   '/icon-192x192.png',
   '/icon-512x512.png',
-  '/offline',
-  // Core pages
-  '/expenses',
-  '/todos', 
-  '/notes',
-  '/splits',
-  '/settings',
-  // Essential styles and scripts (Next.js will generate these)
-  '/_next/static/css/',
-  '/_next/static/js/',
+  '/offline'
+  // Note: Pages and Next.js assets will be cached on first visit
 ];
 
 // API endpoints that can be cached
@@ -34,20 +26,21 @@ self.addEventListener('install', (event) => {
   console.log('[SW] Installing service worker...');
   
   event.waitUntil(
-    Promise.all([
-      // Cache static assets
-      caches.open(STATIC_CACHE).then((cache) => {
-        console.log('[SW] Caching static assets');
-        return cache.addAll(STATIC_ASSETS.map(url => new Request(url, {credentials: 'same-origin'})));
-      }),
-      // Initialize AI cache
-      caches.open(API_CACHE).then((cache) => {
-        console.log('[SW] Initializing API cache');
-        return Promise.resolve();
-      })
-    ]).then(() => {
+    caches.open(STATIC_CACHE).then((cache) => {
+      console.log('[SW] Caching static assets');
+      // Cache assets one by one to handle failures gracefully
+      return Promise.allSettled(
+        STATIC_ASSETS.map(url => 
+          cache.add(new Request(url, {credentials: 'same-origin'}))
+            .catch(err => console.log('[SW] Failed to cache:', url, err))
+        )
+      );
+    }).then(() => {
       console.log('[SW] Installation complete');
       return self.skipWaiting();
+    }).catch(err => {
+      console.error('[SW] Installation failed:', err);
+      return self.skipWaiting(); // Continue anyway
     })
   );
 });

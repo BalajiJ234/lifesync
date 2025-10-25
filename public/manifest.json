@@ -1,13 +1,13 @@
 {
-  "name": "LifeSync - Personal Life Management",
+  "name": "LifeSync - Privacy-First Personal Finance",
   "short_name": "LifeSync",
-  "description": "Manage your expenses, todos, notes, and split bills with friends using AI-powered features",
+  "description": "Track expenses, set goals, and get AI insights - all while keeping your data on YOUR device. No cloud, no tracking, 100% private.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#3b82f6",
+  "theme_color": "#10b981",
   "orientation": "portrait-primary",
-  "categories": ["productivity", "finance", "lifestyle"],
+  "categories": ["productivity", "finance", "lifestyle", "utilities"],
   "lang": "en",
   "dir": "ltr",
   "icons": [
@@ -28,29 +28,22 @@
     {
       "name": "Add Expense",
       "short_name": "Expense",
-      "description": "Quickly add a new expense with AI categorization",
-      "url": "/expenses?action=add",
+      "description": "Track spending with local AI categorization",
+      "url": "/expenses",
       "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
     },
     {
-      "name": "Add Todo",
-      "short_name": "Todo", 
-      "description": "Create a new todo with natural language",
-      "url": "/todos?action=add",
+      "name": "View Goals",
+      "short_name": "Goals", 
+      "description": "Check progress on your financial goals",
+      "url": "/goals",
       "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
     },
     {
-      "name": "Split Bill",
-      "short_name": "Split",
-      "description": "Split a bill with smart suggestions",
-      "url": "/splits?action=add",
-      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
-    },
-    {
-      "name": "AI Assistant",
-      "short_name": "AI",
-      "description": "Get AI-powered insights and suggestions",
-      "url": "/?ai=true",
+      "name": "Split Bills",
+      "short_name": "Splits",
+      "description": "Manage shared expenses with friends",
+      "url": "/splits",
       "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
     }
   ],
