@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generate PWA Icons</title>
+</head>
+<body>
+    <h2>Generating PNG icons from SVG...</h2>
+    <canvas id="canvas192" width="192" height="192" style="border:1px solid #ccc; margin:10px;"></canvas>
+    <canvas id="canvas512" width="512" height="512" style="border:1px solid #ccc; margin:10px;"></canvas>
+    
+    <script>
+        // SVG content
+        const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="shieldGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f0fdf4;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <rect width="512" height="512" rx="100" fill="url(#bgGradient)"/>
+  
+  <path d="M 256 80 
+           L 160 120 
+           L 160 240 
+           Q 160 340 256 420 
+           Q 352 340 352 240 
+           L 352 120 Z" 
+        fill="url(#shieldGradient)" 
+        stroke="#10b981" 
+        stroke-width="4"/>
+  
+  <g transform="translate(256, 220)">
+    <rect x="-35" y="0" width="70" height="80" rx="8" fill="#10b981"/>
+    <path d="M -25 0 
+             L -25 -30 
+             Q -25 -50 0 -50 
+             Q 25 -50 25 -30 
+             L 25 0" 
+          fill="none" 
+          stroke="#10b981" 
+          stroke-width="12" 
+          stroke-linecap="round"/>
+    <circle cx="0" cy="30" r="8" fill="#ffffff"/>
+    <rect x="-3" y="30" width="6" height="25" rx="3" fill="#ffffff"/>
+  </g>
+  
+  <circle cx="180" cy="360" r="6" fill="#ffffff" opacity="0.6"/>
+  <circle cx="210" cy="380" r="6" fill="#ffffff" opacity="0.6"/>
+  <circle cx="240" cy="390" r="6" fill="#ffffff" opacity="0.6"/>
+  <circle cx="270" cy="390" r="6" fill="#ffffff" opacity="0.6"/>
+  <circle cx="300" cy="380" r="6" fill="#ffffff" opacity="0.6"/>
+  <circle cx="330" cy="360" r="6" fill="#ffffff" opacity="0.6"/>
+</svg>`;
+
+        function generateIcon(canvasId, size) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            
+            const img = new Image();
+            const blob = new Blob([svgContent], {type: 'image/svg+xml'});
+            const url = URL.createObjectURL(blob);
+            
+            img.onload = function() {
+                ctx.drawImage(img, 0, 0, size, size);
+                URL.revokeObjectURL(url);
+                
+                // Download
+                canvas.toBlob(function(blob) {
+                    const link = document.createElement('a');
+                    link.download = `icon-${size}x${size}.png`;
+                    link.href = URL.createObjectURL(blob);
+                    link.click();
+                }, 'image/png');
+            };
+            
+            img.src = url;
+        }
+        
+        // Generate both sizes
+        setTimeout(() => generateIcon('canvas192', 192), 100);
+        setTimeout(() => generateIcon('canvas512', 512), 500);
+    </script>
+</body>
+</html>
