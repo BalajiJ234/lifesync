@@ -4,6 +4,7 @@ import "./globals.css";
 import MobileNavigation from "@/components/MobileNavigation";
 import NotificationBanner from "@/components/ui/NotificationBanner";
 import ReduxProvider from "@/store/ReduxProvider";
+import { SettingsProvider } from "@/contexts/SettingsContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,11 +37,13 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50 min-h-screen`}
       >
         <ReduxProvider>
-          <NotificationBanner />
-          <MobileNavigation />
+          <SettingsProvider>
+            <NotificationBanner />
+            <MobileNavigation />
           <main className="container mx-auto px-4 py-4 md:py-8 pb-20 md:pb-8">
             {children}
           </main>
+          </SettingsProvider>
         </ReduxProvider>
         
         <script

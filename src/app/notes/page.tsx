@@ -22,6 +22,20 @@ const noteColors = [
   'bg-orange-100 border-orange-300',
 ]
 
+// Map note color types to CSS classes
+const getColorClass = (color?: 'default' | 'blue' | 'green' | 'yellow' | 'red' | 'purple' | 'pink'): string => {
+  const colorMap: Record<string, string> = {
+    default: 'bg-gray-100 border-gray-300',
+    blue: 'bg-blue-100 border-blue-300',
+    green: 'bg-green-100 border-green-300',
+    yellow: 'bg-yellow-100 border-yellow-300',
+    red: 'bg-red-100 border-red-300',
+    purple: 'bg-purple-100 border-purple-300',
+    pink: 'bg-pink-100 border-pink-300',
+  }
+  return colorMap[color || 'default'] || colorMap.default
+}
+
 export default function NotesPage() {
   const dispatch = useAppDispatch()
   const notes = useAppSelector((state) => state.notes.notes)
@@ -32,11 +46,12 @@ export default function NotesPage() {
 
   const handleAddNote = () => {
     if (newNote.trim()) {
+      const colorOptions: Array<'default' | 'blue' | 'green' | 'yellow' | 'red' | 'purple' | 'pink'> = ['default', 'blue', 'green', 'yellow', 'red', 'purple', 'pink'];
       const note: Note = {
         id: Date.now().toString(),
         title: '', // Default empty title
         content: newNote.trim(),
-        color: noteColors[Math.floor(Math.random() * noteColors.length)] as 'default' | 'blue' | 'green' | 'yellow' | 'red' | 'purple' | 'pink',
+        color: colorOptions[Math.floor(Math.random() * colorOptions.length)],
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         isPinned: false,
@@ -166,7 +181,7 @@ export default function NotesPage() {
           {notes.map((note) => (
             <div
               key={note.id}
-              className={`p-4 rounded-lg border-l-4 shadow-sm hover:shadow-md transition-shadow ${note.color}`}
+              className={`p-4 rounded-lg border-l-4 shadow-sm hover:shadow-md transition-shadow ${getColorClass(note.color)}`}
             >
               <div className="flex justify-between items-start mb-3">
                 <div className="text-xs text-gray-500">

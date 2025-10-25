@@ -130,11 +130,18 @@ export default function GoalsPage() {
   }
 
   // Handle goal operations  
-  const handleAddGoal = (goalData: Omit<ReduxGoal, 'id' | 'currentAmount' | 'createdAt' | 'updatedAt'>) => {
+  const handleAddGoal = (goalData: Partial<ReduxGoal>) => {
     const newGoal: ReduxGoal = {
       id: Date.now().toString(),
-      ...goalData,
+      title: goalData.title || '',
+      description: goalData.description,
+      category: goalData.category || 'travel',
+      targetAmount: goalData.targetAmount || 0,
       currentAmount: 0,
+      currency: goalData.currency || 'USD',
+      targetDate: goalData.targetDate,
+      priority: goalData.priority || 'medium',
+      status: 'active',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     }
@@ -430,7 +437,7 @@ export default function GoalsPage() {
 // Goal Form Component
 interface GoalFormProps {
   initialData?: Partial<ReduxGoal>
-  onSubmit: (data: Omit<ReduxGoal, 'id' | 'currentAmount' | 'createdAt' | 'updatedAt'>) => void
+  onSubmit: (data: Partial<ReduxGoal>) => void
   onCancel: () => void
   isEditing: boolean
 }
@@ -441,9 +448,9 @@ function GoalForm({ initialData, onSubmit, onCancel, isEditing }: GoalFormProps)
     title: initialData?.title || '',
     description: initialData?.description || '',
     targetAmount: initialData?.targetAmount?.toString() || '',
-    category: initialData?.category || 'travel',
+    category: initialData?.category || 'travel' as GoalCategory,
     deadline: initialData?.targetDate || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    priority: initialData?.priority || 'medium',
+    priority: initialData?.priority || 'medium' as 'low' | 'medium' | 'high',
     currency: initialData?.currency || settings.currency
   })
 
@@ -454,7 +461,7 @@ function GoalForm({ initialData, onSubmit, onCancel, isEditing }: GoalFormProps)
         ...formData,
         targetAmount: parseFloat(formData.targetAmount),
         targetDate: formData.deadline, // Map deadline to targetDate for Redux interface
-        status: 'active' as const // Default status for new goals
+        status: initialData?.status || 'active' as const // Preserve status if editing, default to active for new goals
       })
     }
   }

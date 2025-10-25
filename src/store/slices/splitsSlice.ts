@@ -43,7 +43,7 @@ export interface SplitBill {
   id: string
   description: string
   totalAmount: number
-  currency?: string
+  currency: string // Changed from optional to required
   paidBy: string // friend id or 'self' for logged in person
   participants: string[] // friend ids
   splitType: 'equal' | 'percentage' | 'custom'

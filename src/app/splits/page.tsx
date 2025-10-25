@@ -18,6 +18,7 @@ import {
   Upload
 } from 'lucide-react'
 import BulkImport from '@/components/BulkImport'
+import { useSettings } from '@/contexts/SettingsContext'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { 
   addFriend, 
@@ -69,44 +70,13 @@ export default function SplitsPage() {
   const [showAddBill, setShowAddBill] = useState(false)
   const [activeTab, setActiveTab] = useState<'bills' | 'friends' | 'balances'>('bills')
   const [showBulkImport, setShowBulkImport] = useState(false)
-  // Removed unused shareMode and percentages state variables
   const [isClient, setIsClient] = useState(false)
+  const { settings } = useSettings()
   
   // Client-side only rendering to prevent hydration errors
   useEffect(() => {
     setIsClient(true)
   }, [])
-  
-  // Data migration effect to handle existing records
-  useEffect(() => {
-    if (isClient && bills.length > 0) {
-      // Check if migration is needed
-      const needsMigration = bills.some(bill => 
-        !bill.splitType || 
-        !bill.customAmounts || 
-        !bill.percentages || 
-        bill.paidBy === 'me'
-      )
-      
-      if (needsMigration) {
-        // Migrate existing bills to include new fields
-        bills.forEach(bill => {
-          if (!bill.splitType || !bill.customAmounts || !bill.percentages || bill.paidBy === 'me') {
-            dispatch(updateSplitBill({
-              id: bill.id,
-              updates: {
-                splitType: bill.splitType || 'equal',
-                customAmounts: bill.customAmounts || {},
-                percentages: bill.percentages || {},
-                currency: bill.currency || undefined,
-                paidBy: bill.paidBy === 'me' ? 'self' : bill.paidBy // Migrate old 'me' to 'self'
-              }
-            }))
-          }
-        })
-      }
-    }
-  }, [isClient, bills, dispatch]) // Only run when client is ready
   
   // Friend form
   const [friendForm, setFriendForm] = useState({
@@ -127,7 +97,8 @@ export default function SplitsPage() {
     customAmounts: {} as Record<string, number>,
     percentages: {} as Record<string, number>,
     date: new Date().toISOString().split('T')[0],
-    notes: ''
+    notes: '',
+    currency: settings.currency
   })
 
   const handleAddFriend = () => {
@@ -200,6 +171,7 @@ export default function SplitsPage() {
         id: Date.now().toString(),
         description: billForm.description.trim(),
         totalAmount,
+        currency: billForm.currency,
         paidBy: billForm.paidBy,
         participants: billForm.participants,
         splitType: billForm.splitType,
@@ -227,7 +199,8 @@ export default function SplitsPage() {
       customAmounts: {},
       percentages: {},
       date: new Date().toISOString().split('T')[0],
-      notes: ''
+      notes: '',
+      currency: settings.currency
     })
   }
 
