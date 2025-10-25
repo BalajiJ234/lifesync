@@ -1,0 +1,70 @@
+name: User Story
+description: Create a user story for new features or improvements
+title: "[USER STORY] "
+labels: ["user-story", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## User Story Template
+        Help us understand what you need and why it matters.
+        
+  - type: textarea
+    id: user-story
+    attributes:
+      label: User Story
+      description: "As a [type of user], I want [goal] so that [reason/benefit]"
+      placeholder: |
+        As a budget-conscious user, I want to set monthly spending limits so that I can better control my expenses.
+    validations:
+      required: true
+      
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: What conditions must be met for this story to be considered complete?
+      placeholder: |
+        - [ ] User can set a monthly budget limit
+        - [ ] App shows warning when approaching limit (80%)
+        - [ ] App notifies when limit is exceeded
+        - [ ] Budget can be edited or removed
+    validations:
+      required: true
+      
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this feature?
+      options:
+        - Low - Nice to have
+        - Medium - Should have
+        - High - Must have
+        - Critical - Blocking
+    validations:
+      required: true
+      
+  - type: dropdown
+    id: size
+    attributes:
+      label: Story Points / Complexity
+      description: Estimate the effort required
+      options:
+        - "1 - Very Small (< 2 hours)"
+        - "2 - Small (2-4 hours)"
+        - "3 - Medium (4-8 hours)"
+        - "5 - Large (1-2 days)"
+        - "8 - Very Large (2-4 days)"
+        - "13 - Extra Large (> 4 days)"
+    validations:
+      required: false
+      
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Any mockups, examples, or additional information
+      placeholder: Add screenshots, links, or examples here
+    validations:
+      required: false

@@ -325,19 +325,26 @@ export default function SettingsPage() {
                   { value: 'light', label: 'Light', icon: Sun },
                   { value: 'dark', label: 'Dark', icon: Moon },
                   { value: 'auto', label: 'Auto', icon: Monitor }
-                ].map(({ value, label, icon: Icon }) => (
-                  <button
-                    key={value}
-                    onClick={() => updateTheme(value as 'light' | 'dark' | 'auto')}
-                    className={`p-3 border rounded-lg flex flex-col items-center space-y-2 transition-colors ${settings.theme === value
-                      ? 'border-blue-500 bg-blue-50 text-blue-700'
-                      : 'border-gray-300 hover:border-gray-400'
+                ].map(({ value, label, icon: Icon }) => {
+                  const isActive = settings?.theme === value || (!settings?.theme && value === 'auto')
+                  return (
+                    <button
+                      key={value}
+                      onClick={() => {
+                        console.log('Theme clicked:', value)
+                        updateTheme(value as 'light' | 'dark' | 'auto')
+                      }}
+                      className={`p-4 border-2 rounded-lg flex flex-col items-center gap-2 transition-all ${
+                        isActive
+                          ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-sm'
+                          : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50'
                       }`}
-                  >
-                    <Icon size={20} />
-                    <span className="text-sm font-medium">{label}</span>
-                  </button>
-                ))}
+                    >
+                      <Icon size={24} />
+                      <span className="text-sm font-medium">{label}</span>
+                    </button>
+                  )
+                })}
               </div>
             </div>
           </div>
@@ -349,21 +356,29 @@ export default function SettingsPage() {
               <h2 className="text-xl font-semibold text-gray-900">Notifications</h2>
             </div>
 
-            <div className="flex items-center justify-between">
-              <div>
+            <div className="flex items-start sm:items-center justify-between gap-4">
+              <div className="flex-1">
                 <div className="font-medium text-gray-900">Push Notifications</div>
-                <div className="text-sm text-gray-500">
+                <div className="text-sm text-gray-500 mt-1">
                   Get notified about due tasks, bill reminders, and updates
                 </div>
               </div>
               <button
-                onClick={() => updateNotifications(!settings.enableNotifications)}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${settings.enableNotifications ? 'bg-blue-600' : 'bg-gray-300'
-                  }`}
+                onClick={() => {
+                  console.log('Notification toggle clicked:', !settings.enableNotifications)
+                  updateNotifications(!settings.enableNotifications)
+                }}
+                className={`relative inline-flex h-8 w-14 flex-shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                  settings.enableNotifications ? 'bg-blue-600' : 'bg-gray-300'
+                }`}
+                role="switch"
+                aria-checked={settings.enableNotifications}
               >
+                <span className="sr-only">Enable notifications</span>
                 <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${settings.enableNotifications ? 'translate-x-6' : 'translate-x-1'
-                    }`}
+                  className={`inline-block h-6 w-6 transform rounded-full bg-white shadow-lg transition-transform ${
+                    settings.enableNotifications ? 'translate-x-7' : 'translate-x-1'
+                  }`}
                 />
               </button>
             </div>
