@@ -12,6 +12,7 @@ import splitsReducer from './slices/splitsSlice'
 import notesReducer from './slices/notesSlice'
 import settingsReducer from './slices/settingsSlice'
 import incomeReducer, { type IncomeState, type Income } from './slices/incomeSlice'
+import recurringTemplatesReducer from './slices/recurringTemplatesSlice'
 import { lifesyncApi } from './api/lifesyncApi'
 
 const rootReducer = combineReducers({
@@ -22,6 +23,7 @@ const rootReducer = combineReducers({
   splits: splitsReducer,
   notes: notesReducer,
   settings: settingsReducer,
+  recurringTemplates: recurringTemplatesReducer,
   [lifesyncApi.reducerPath]: lifesyncApi.reducer,
 })
 
@@ -117,7 +119,7 @@ const persistConfig = {
   key: 'lifesync',
   storage,
   version: 1,
-  whitelist: ['expenses', 'income', 'todos', 'goals', 'splits', 'notes', 'settings'], // Only persist these slices, not API cache
+  whitelist: ['expenses', 'income', 'todos', 'goals', 'splits', 'notes', 'settings', 'recurringTemplates'], // Only persist these slices, not API cache
   migrate: migrateState,
 }
 

@@ -28,6 +28,7 @@ const navItems = [
 
 const expenseSubmenuItems = [
   { href: '/expenses', label: 'My Expenses' },
+  { href: '/expenses/templates', label: 'Recurring Templates' },
   { href: '/splits', label: 'Bill Splitting' },
 ]
 
@@ -46,7 +47,7 @@ export default function Navigation() {
           <div className="hidden md:flex space-x-8 relative">
             {navItems.map((item) => {
               const Icon = item.icon
-              const isActive = pathname === item.href || (item.hasSubmenu && (pathname === '/expenses' || pathname === '/splits'))
+              const isActive = pathname === item.href || (item.hasSubmenu && (pathname === '/expenses' || pathname === '/splits' || pathname.startsWith('/expenses/')))
 
               if (item.hasSubmenu) {
                 return (

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useAppSelector } from '@/store/hooks'
 import { AIInsights } from '@/components/ai/AIIntegration'
 import { selectIncomes } from '@/store/slices/incomeSlice'
+import { selectTemplates, getUpcomingTemplates } from '@/store/slices/recurringTemplatesSlice'
 import { formatAmount, getCurrencyByCode } from '@/utils/currency'
 import { useSettings } from '@/contexts/SettingsContext'
 import { 
@@ -19,7 +20,8 @@ import {
   Target,
   Activity,
   ArrowDownCircle,
-  ArrowUpCircle 
+  ArrowUpCircle,
+  Repeat 
 } from 'lucide-react'
 
 // Data interfaces
@@ -38,7 +40,7 @@ const useAppData = () => {
   const incomes = useAppSelector(selectIncomes)
   const friends = useAppSelector((state) => state.splits.friends)
   const bills = useAppSelector((state) => state.splits.bills)
-  const { settings } = useSettings()
+  // const { settings } = useSettings()
   const [isClient, setIsClient] = useState(false)
 
   useEffect(() => {
@@ -371,6 +373,9 @@ export default function Home() {
         </Link>
       </div>
 
+      {/* Upcoming Recurring Expenses */}
+      <UpcomingRecurringWidget />
+
       {/* AI Insights */}
       <AIInsights />
 
@@ -455,6 +460,78 @@ export default function Home() {
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  )
+}// Upcoming Recurring Expenses Widget
+function UpcomingRecurringWidget() {
+  const templates = useAppSelector(selectTemplates)
+  // const { settings } = useSettings()
+  const [isClient, setIsClient] = useState(false)
+
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+
+  if (!isClient) return null
+
+  const upcoming = getUpcomingTemplates(templates, 7) // Next 7 days
+  
+  if (upcoming.length === 0) return null
+
+  return (
+    <div className="bg-white rounded-lg shadow-sm border">
+      <div className="p-6 border-b flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <Repeat className="h-5 w-5 text-blue-600" />
+          <h2 className="text-xl font-semibold text-gray-900">Upcoming Recurring Bills</h2>
+        </div>
+        <Link
+          href="/expenses/templates"
+          className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+        >
+          View all 
+        </Link>
+      </div>
+      <div className="p-6">
+        <div className="space-y-3">
+          {upcoming.map((item) => {
+            const currency = getCurrencyByCode(item.currency)
+            const daysUntil = Math.ceil(
+              (new Date(item.dueDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
+            )
+            return (
+              <div
+                key={item.id}
+                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <div className="flex items-center space-x-3">
+                  <div className={`p-2 rounded-full ${item.isOverdue ? 'bg-red-100' : 'bg-blue-100'}`}>
+                    <Repeat className={`h-4 w-4 ${item.isOverdue ? 'text-red-600' : 'text-blue-600'}`} />
+                  </div>
+                  <div>
+                    <div className="font-medium text-gray-900">{item.name}</div>
+                    <div className="text-sm text-gray-500">
+                      {item.isOverdue ? (
+                        <span className="text-red-600 font-medium">Overdue</span>
+                      ) : daysUntil === 0 ? (
+                        'Due today'
+                      ) : (
+                        `Due in ${daysUntil} day${daysUntil !== 1 ? 's' : ''}`
+                      )}  {item.category}
+                    </div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="font-semibold text-gray-900">
+                    {formatAmount(item.amount, currency)}
+                  </div>
+                  <div className="text-xs text-gray-500 capitalize">{item.frequency}</div>
+                </div>
+              </div>
+            )
+          })}
         </div>
       </div>
     </div>
