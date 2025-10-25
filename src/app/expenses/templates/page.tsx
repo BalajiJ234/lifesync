@@ -126,6 +126,7 @@ export default function RecurringTemplatesPage() {
       date: nextDue,
       notes: template.notes || 'Created from recurring template',
       createdAt: new Date().toISOString(),
+      templateId: template.id, // Track which template created this expense
     }
 
     dispatch(addExpense(newExpense))

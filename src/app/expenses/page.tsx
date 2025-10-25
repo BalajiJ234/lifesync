@@ -150,6 +150,7 @@ export default function ExpensesPage() {
     date: string
     recurringFrequency: 'daily' | 'weekly' | 'monthly' | 'yearly'
     notes: string
+    templateId?: string
   }) => {
     const expense: ReduxExpense = {
       id: Date.now().toString(),
@@ -163,6 +164,7 @@ export default function ExpensesPage() {
       notes: formData.notes.trim() || undefined,
       isRecurring: formData.isRecurring || false,
       recurringPeriod: formData.isRecurring ? formData.recurringFrequency as 'daily' | 'weekly' | 'monthly' | 'yearly' : undefined,
+      templateId: formData.templateId, // Track template source
     }
 
     dispatch(addExpense(expense))
@@ -178,6 +180,7 @@ export default function ExpensesPage() {
     date: string
     recurringFrequency: 'daily' | 'weekly' | 'monthly' | 'yearly'
     notes: string
+    templateId?: string
   }) => {
     if (editingExpense) {
       dispatch(updateExpense({
