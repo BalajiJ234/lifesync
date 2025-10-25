@@ -26,6 +26,7 @@ import { clearTodos, addTodo } from '@/store/slices/todosSlice'
 import { clearGoals, addGoal } from '@/store/slices/goalsSlice'
 import { clearNotes, addNote } from '@/store/slices/notesSlice'
 import { clearSplits, addFriend, addSplitBill } from '@/store/slices/splitsSlice'
+import { clearTemplates, bulkImportTemplates } from '@/store/slices/recurringTemplatesSlice'
 import { resetSettings } from '@/store/slices/settingsSlice'
 
 export default function SettingsPage() {
@@ -40,6 +41,7 @@ export default function SettingsPage() {
   const notes = useAppSelector((state) => state.notes.notes)
   const friends = useAppSelector((state) => state.splits.friends)
   const bills = useAppSelector((state) => state.splits.bills)
+  const recurringTemplates = useAppSelector((state) => state.recurringTemplates?.templates || [])
 
   const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false)
   const [currencySearch, setCurrencySearch] = useState('')
@@ -61,6 +63,7 @@ export default function SettingsPage() {
       notes,
       friends,
       bills,
+      recurringTemplates,
       settings,
       exportDate: new Date().toISOString(),
       version: '1.0'
@@ -165,6 +168,12 @@ export default function SettingsPage() {
         })
       }
 
+      if (data.recurringTemplates?.length) {
+        console.log(`Importing ${data.recurringTemplates.length} recurring templates`)
+        dispatch(bulkImportTemplates(data.recurringTemplates))
+        importedCount += data.recurringTemplates.length
+      }
+
       // Import settings if available
       if (data.settings) {
         console.log('Importing settings:', data.settings)
@@ -197,6 +206,7 @@ export default function SettingsPage() {
     dispatch(clearGoals())
     dispatch(clearNotes())
     dispatch(clearSplits())
+    dispatch(clearTemplates())
     // Reset settings to defaults but keep onboarding status
     dispatch(resetSettings())
   }
