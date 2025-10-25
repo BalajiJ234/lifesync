@@ -82,10 +82,10 @@ const splitsSlice = createSlice({
     updateSplit: (state, action: PayloadAction<{ id: string; updates: Partial<Split> }>) => {
       const { id, updates } = action.payload
       const splitIndex = state.splits.findIndex(split => split.id === id)
-      
+
       if (splitIndex !== -1) {
-        state.splits[splitIndex] = { 
-          ...state.splits[splitIndex], 
+        state.splits[splitIndex] = {
+          ...state.splits[splitIndex],
           ...updates,
           updatedAt: new Date().toISOString()
         }
@@ -97,7 +97,7 @@ const splitsSlice = createSlice({
     addParticipant: (state, action: PayloadAction<{ splitId: string; participant: Split['participants'][0] }>) => {
       const { splitId, participant } = action.payload
       const split = state.splits.find(split => split.id === splitId)
-      
+
       if (split) {
         split.participants.push(participant)
         split.updatedAt = new Date().toISOString()
@@ -106,17 +106,17 @@ const splitsSlice = createSlice({
     updateParticipant: (state, action: PayloadAction<{ splitId: string; participantId: string; updates: Partial<Split['participants'][0]> }>) => {
       const { splitId, participantId, updates } = action.payload
       const split = state.splits.find(split => split.id === splitId)
-      
+
       if (split) {
         const participantIndex = split.participants.findIndex(p => p.id === participantId)
         if (participantIndex !== -1) {
           split.participants[participantIndex] = { ...split.participants[participantIndex], ...updates }
           split.updatedAt = new Date().toISOString()
-          
+
           // Update split status based on payments
           const allPaid = split.participants.every(p => p.paid)
           const somePaid = split.participants.some(p => p.paid)
-          
+
           if (allPaid) {
             split.status = 'completed'
           } else if (somePaid) {
@@ -130,14 +130,14 @@ const splitsSlice = createSlice({
     markParticipantPaid: (state, action: PayloadAction<{ splitId: string; participantId: string }>) => {
       const { splitId, participantId } = action.payload
       const split = state.splits.find(split => split.id === splitId)
-      
+
       if (split) {
         const participant = split.participants.find(p => p.id === participantId)
         if (participant) {
           participant.paid = true
           participant.paidAt = new Date().toISOString()
           split.updatedAt = new Date().toISOString()
-          
+
           // Update split status
           const allPaid = split.participants.every(p => p.paid)
           split.status = allPaid ? 'completed' : 'partially-paid'
@@ -147,7 +147,7 @@ const splitsSlice = createSlice({
     addExpenseToSplit: (state, action: PayloadAction<{ splitId: string; expense: Split['expenses'][0] }>) => {
       const { splitId, expense } = action.payload
       const split = state.splits.find(split => split.id === splitId)
-      
+
       if (split) {
         split.expenses.push(expense)
         split.totalAmount = split.expenses.reduce((sum, exp) => sum + exp.amount, 0)
@@ -157,7 +157,7 @@ const splitsSlice = createSlice({
     setSplitStatus: (state, action: PayloadAction<{ id: string; status: Split['status'] }>) => {
       const { id, status } = action.payload
       const split = state.splits.find(split => split.id === id)
-      
+
       if (split) {
         split.status = status
         split.updatedAt = new Date().toISOString()
@@ -176,7 +176,7 @@ const splitsSlice = createSlice({
     clearSplits: (state) => {
       state.splits = []
     },
-    
+
     // Friend reducers
     addFriend: (state, action: PayloadAction<Friend>) => {
       state.friends.push(action.payload)
@@ -191,7 +191,7 @@ const splitsSlice = createSlice({
     deleteFriend: (state, action: PayloadAction<string>) => {
       state.friends = state.friends.filter(friend => friend.id !== action.payload)
     },
-    
+
     // SplitBill reducers
     addSplitBill: (state, action: PayloadAction<SplitBill>) => {
       state.bills.push(action.payload)

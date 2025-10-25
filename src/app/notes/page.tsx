@@ -3,9 +3,9 @@
 import { useState } from 'react'
 import { Plus, X, Edit3, Save, Upload } from 'lucide-react'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
-import { 
-  addNote as addNoteAction, 
-  updateNote, 
+import {
+  addNote as addNoteAction,
+  updateNote,
   deleteNote,
   type Note
 } from '@/store/slices/notesSlice'
@@ -185,7 +185,7 @@ export default function NotesPage() {
             >
               <div className="flex justify-between items-start mb-3">
                 <div className="text-xs text-gray-500">
-                  {new Date(note.createdAt).toLocaleDateString()} {new Date(note.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                  {new Date(note.createdAt).toLocaleDateString()} {new Date(note.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </div>
                 <div className="flex space-x-1">
                   <button

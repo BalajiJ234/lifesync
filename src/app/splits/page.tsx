@@ -1,11 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { 
-  Plus, 
-  Users, 
-  DollarSign, 
-  Trash2, 
+import {
+  Plus,
+  Users,
+  DollarSign,
+  Trash2,
   UserPlus,
   Calculator,
   Check,
@@ -20,11 +20,11 @@ import {
 import BulkImport from '@/components/BulkImport'
 import { useSettings } from '@/contexts/SettingsContext'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
-import { 
-  addFriend, 
+import {
+  addFriend,
   deleteFriend,
-  addSplitBill, 
-  updateSplitBill, 
+  addSplitBill,
+  updateSplitBill,
   deleteSplitBill,
   selectFriends,
   selectSplitBills,
@@ -72,12 +72,12 @@ export default function SplitsPage() {
   const [showBulkImport, setShowBulkImport] = useState(false)
   const [isClient, setIsClient] = useState(false)
   const { settings } = useSettings()
-  
+
   // Client-side only rendering to prevent hydration errors
   useEffect(() => {
     setIsClient(true)
   }, [])
-  
+
   // Friend form
   const [friendForm, setFriendForm] = useState({
     name: '',
@@ -86,7 +86,7 @@ export default function SplitsPage() {
     customAvatar: null as string | null
   })
   const [showAvatarSelector, setShowAvatarSelector] = useState(false)
-  
+
   // Bill form  
   const [billForm, setBillForm] = useState({
     description: '',
@@ -152,7 +152,7 @@ export default function SplitsPage() {
     if (billForm.description.trim() && billForm.totalAmount && billForm.paidBy && billForm.participants.length > 0) {
       const totalAmount = parseFloat(billForm.totalAmount)
       let customAmounts: Record<string, number> = {}
-      
+
       if (billForm.splitType === 'equal') {
         const perPerson = totalAmount / billForm.participants.length
         billForm.participants.forEach(id => {
@@ -182,7 +182,7 @@ export default function SplitsPage() {
         updatedAt: new Date(),
         notes: billForm.notes.trim() || undefined
       }
-      
+
       dispatch(addSplitBill(bill))
       resetBillForm()
       setShowAddBill(false)
@@ -208,7 +208,7 @@ export default function SplitsPage() {
     const participants = billForm.participants.includes(friendId)
       ? billForm.participants.filter(id => id !== friendId)
       : [...billForm.participants, friendId]
-    
+
     setBillForm({ ...billForm, participants })
   }
 
@@ -249,31 +249,31 @@ export default function SplitsPage() {
   // Calculate balances
   const calculateBalances = (): Settlement[] => {
     const balances: Record<string, number> = {}
-    
+
     // Initialize balances
     friends.forEach(friend => {
       balances[friend.id] = 0
     })
-    
+
     // Calculate net balances from all bills
     bills.forEach(bill => {
       if (bill.status === 'settled') return
-      
+
       // Person who paid gets positive balance
       balances[bill.paidBy] += bill.totalAmount
-      
+
       // Participants get negative balance for their share
       bill.participants.forEach(participantId => {
         const share = bill.customAmounts?.[participantId] || 0
         balances[participantId] -= share
       })
     })
-    
+
     // Convert to settlements (who owes whom)
     const settlements: Settlement[] = []
     const positiveBalances = Object.entries(balances).filter(([, amount]) => amount > 0)
     const negativeBalances = Object.entries(balances).filter(([, amount]) => amount < 0)
-    
+
     positiveBalances.forEach(([creditorId, creditAmount]) => {
       negativeBalances.forEach(([debtorId, debtAmount]) => {
         if (creditAmount > 0 && debtAmount < 0) {
@@ -290,7 +290,7 @@ export default function SplitsPage() {
         }
       })
     })
-    
+
     return settlements.filter(s => s.amount > 0.01) // Filter out tiny amounts
   }
 
@@ -372,11 +372,10 @@ export default function SplitsPage() {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === tab
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === tab
                     ? 'border-blue-500 text-blue-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
+                  }`}
               >
                 {tab.charAt(0).toUpperCase() + tab.slice(1)}
               </button>
@@ -418,7 +417,7 @@ export default function SplitsPage() {
               {showAddBill && isClient && friends.length > 0 && (
                 <div className="bg-gray-50 p-6 rounded-lg border">
                   <h3 className="text-lg font-semibold mb-4">Split a New Bill</h3>
-                  
+
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
@@ -428,12 +427,12 @@ export default function SplitsPage() {
                         <input
                           type="text"
                           value={billForm.description}
-                          onChange={(e) => setBillForm({...billForm, description: e.target.value})}
+                          onChange={(e) => setBillForm({ ...billForm, description: e.target.value })}
                           placeholder="e.g., Dinner at Restaurant"
                           className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                         />
                       </div>
-                      
+
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           Total Amount *
@@ -442,7 +441,7 @@ export default function SplitsPage() {
                           type="number"
                           step="0.01"
                           value={billForm.totalAmount}
-                          onChange={(e) => setBillForm({...billForm, totalAmount: e.target.value})}
+                          onChange={(e) => setBillForm({ ...billForm, totalAmount: e.target.value })}
                           placeholder="0.00"
                           className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                         />
@@ -456,7 +455,7 @@ export default function SplitsPage() {
                         </label>
                         <select
                           value={billForm.paidBy}
-                          onChange={(e) => setBillForm({...billForm, paidBy: e.target.value})}
+                          onChange={(e) => setBillForm({ ...billForm, paidBy: e.target.value })}
                           className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                         >
                           <option value="self">🙋‍♂️ Me (You)</option>
@@ -467,7 +466,7 @@ export default function SplitsPage() {
                           ))}
                         </select>
                       </div>
-                      
+
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           Date
@@ -475,7 +474,7 @@ export default function SplitsPage() {
                         <input
                           type="date"
                           value={billForm.date}
-                          onChange={(e) => setBillForm({...billForm, date: e.target.value})}
+                          onChange={(e) => setBillForm({ ...billForm, date: e.target.value })}
                           className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                         />
                       </div>
@@ -489,11 +488,10 @@ export default function SplitsPage() {
                         {friends.map(friend => (
                           <label
                             key={friend.id}
-                            className={`flex items-center space-x-3 p-3 border rounded-lg cursor-pointer transition-colors ${
-                              billForm.participants.includes(friend.id)
+                            className={`flex items-center space-x-3 p-3 border rounded-lg cursor-pointer transition-colors ${billForm.participants.includes(friend.id)
                                 ? 'border-blue-500 bg-blue-50'
                                 : 'border-gray-300 hover:border-gray-400'
-                            }`}
+                              }`}
                           >
                             <input
                               type="checkbox"
@@ -518,7 +516,7 @@ export default function SplitsPage() {
                             type="radio"
                             value="equal"
                             checked={billForm.splitType === 'equal'}
-                            onChange={(e) => setBillForm({...billForm, splitType: e.target.value as 'equal'})}
+                            onChange={(e) => setBillForm({ ...billForm, splitType: e.target.value as 'equal' })}
                             className="text-blue-600 focus:ring-blue-500"
                           />
                           <Equal className="w-4 h-4 ml-2 mr-1" />
@@ -529,7 +527,7 @@ export default function SplitsPage() {
                             type="radio"
                             value="percentage"
                             checked={billForm.splitType === 'percentage'}
-                            onChange={(e) => setBillForm({...billForm, splitType: e.target.value as 'percentage'})}
+                            onChange={(e) => setBillForm({ ...billForm, splitType: e.target.value as 'percentage' })}
                             className="text-blue-600 focus:ring-blue-500"
                           />
                           <Percent className="w-4 h-4 ml-2 mr-1" />
@@ -540,7 +538,7 @@ export default function SplitsPage() {
                             type="radio"
                             value="custom"
                             checked={billForm.splitType === 'custom'}
-                            onChange={(e) => setBillForm({...billForm, splitType: e.target.value as 'custom'})}
+                            onChange={(e) => setBillForm({ ...billForm, splitType: e.target.value as 'custom' })}
                             className="text-blue-600 focus:ring-blue-500"
                           />
                           <DollarSign className="w-4 h-4 ml-2 mr-1" />
@@ -583,7 +581,7 @@ export default function SplitsPage() {
                             )
                           })}
                           <div className="text-sm text-gray-600 mt-2">
-                            Total: {Object.values(billForm.percentages).reduce((sum, p) => sum + p, 0)}% 
+                            Total: {Object.values(billForm.percentages).reduce((sum, p) => sum + p, 0)}%
                             {Object.values(billForm.percentages).reduce((sum, p) => sum + p, 0) !== 100 && (
                               <span className="text-red-500 ml-2">⚠ Should total 100%</span>
                             )}
@@ -625,7 +623,7 @@ export default function SplitsPage() {
                       </label>
                       <textarea
                         value={billForm.notes}
-                        onChange={(e) => setBillForm({...billForm, notes: e.target.value})}
+                        onChange={(e) => setBillForm({ ...billForm, notes: e.target.value })}
                         placeholder="Any additional details..."
                         rows={2}
                         className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
@@ -641,7 +639,7 @@ export default function SplitsPage() {
                         <Calculator size={20} />
                         <span>Split Bill</span>
                       </button>
-                      
+
                       <button
                         onClick={() => {
                           setShowAddBill(false)
@@ -688,13 +686,13 @@ export default function SplitsPage() {
                                 </span>
                               )}
                             </div>
-                            
+
                             <div className="mt-2 text-sm text-gray-600">
                               <p>Paid by {bill.paidBy === 'self' ? '🙋‍♂️ You' : `${paidByFriend?.avatar} ${paidByFriend?.name}`} on {isClient && bill.createdAt ? new Date(bill.createdAt).toLocaleDateString() : 'Recent'}</p>
                               <p>Split between: {bill.participants.map(id => getFriendById(id)?.name).join(', ')}</p>
                               {bill.notes && <p className="italic">&quot;{bill.notes}&quot;</p>}
                             </div>
-                            
+
                             <div className="mt-3 space-y-1">
                               {bill.participants.map(participantId => {
                                 const friend = getFriendById(participantId)
@@ -708,15 +706,14 @@ export default function SplitsPage() {
                               })}
                             </div>
                           </div>
-                          
+
                           <div className="flex gap-2 ml-4">
                             <button
                               onClick={() => toggleBillSettled(bill.id)}
-                              className={`p-2 rounded transition-colors ${
-                                bill.status === 'settled'
+                              className={`p-2 rounded transition-colors ${bill.status === 'settled'
                                   ? 'text-gray-400 hover:text-orange-600'
                                   : 'text-gray-400 hover:text-green-600'
-                              }`}
+                                }`}
                               title={bill.status === 'settled' ? 'Mark as unsettled' : 'Mark as settled'}
                             >
                               {bill.status === 'settled' ? <X size={18} /> : <Check size={18} />}
@@ -764,7 +761,7 @@ export default function SplitsPage() {
               {showAddFriend && (
                 <div className="bg-gray-50 p-6 rounded-lg border">
                   <h3 className="text-lg font-semibold mb-4">Add New Friend</h3>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -773,12 +770,12 @@ export default function SplitsPage() {
                       <input
                         type="text"
                         value={friendForm.name}
-                        onChange={(e) => setFriendForm({...friendForm, name: e.target.value})}
+                        onChange={(e) => setFriendForm({ ...friendForm, name: e.target.value })}
                         placeholder="Friend's name"
                         className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
-                    
+
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Email (Optional)
@@ -786,7 +783,7 @@ export default function SplitsPage() {
                       <input
                         type="email"
                         value={friendForm.email}
-                        onChange={(e) => setFriendForm({...friendForm, email: e.target.value})}
+                        onChange={(e) => setFriendForm({ ...friendForm, email: e.target.value })}
                         placeholder="friend@example.com"
                         className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                       />
@@ -802,9 +799,9 @@ export default function SplitsPage() {
                       <div className="flex items-center gap-2">
                         <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center border-2 border-gray-200">
                           {friendForm.customAvatar ? (
-                            <img 
-                              src={friendForm.customAvatar} 
-                              alt="Custom avatar" 
+                            <img
+                              src={friendForm.customAvatar}
+                              alt="Custom avatar"
                               className="w-10 h-10 rounded-full object-cover"
                               loading="lazy"
                             />
@@ -820,7 +817,7 @@ export default function SplitsPage() {
                           Change
                         </button>
                       </div>
-                      
+
                       <div className="flex items-center gap-2">
                         <input
                           type="file"
@@ -859,9 +856,8 @@ export default function SplitsPage() {
                                 setFriendForm({ ...friendForm, selectedAvatar: avatar, customAvatar: null })
                                 setShowAvatarSelector(false)
                               }}
-                              className={`w-10 h-10 rounded-full flex items-center justify-center text-xl hover:bg-gray-100 transition-colors ${
-                                friendForm.selectedAvatar === avatar && !friendForm.customAvatar ? 'bg-blue-100 ring-2 ring-blue-500' : ''
-                              }`}
+                              className={`w-10 h-10 rounded-full flex items-center justify-center text-xl hover:bg-gray-100 transition-colors ${friendForm.selectedAvatar === avatar && !friendForm.customAvatar ? 'bg-blue-100 ring-2 ring-blue-500' : ''
+                                }`}
                             >
                               {avatar}
                             </button>
@@ -870,7 +866,7 @@ export default function SplitsPage() {
                       </div>
                     )}
                   </div>
-                  
+
                   <div className="flex gap-3 mt-4">
                     <button
                       onClick={handleAddFriend}
@@ -880,7 +876,7 @@ export default function SplitsPage() {
                       <UserPlus size={20} />
                       <span>Add Friend</span>
                     </button>
-                    
+
                     <button
                       onClick={() => {
                         setShowAddFriend(false)
@@ -919,7 +915,7 @@ export default function SplitsPage() {
                             </p>
                           </div>
                         </div>
-                        
+
                         <button
                           onClick={() => handleDeleteFriend(friend.id)}
                           className="text-gray-400 hover:text-red-600 transition-colors"
@@ -938,7 +934,7 @@ export default function SplitsPage() {
           {activeTab === 'balances' && (
             <div className="space-y-6">
               <h2 className="text-lg font-semibold">Who Owes What</h2>
-              
+
               {settlements.length === 0 ? (
                 <div className="text-center py-8">
                   <CheckCircle className="h-12 w-12 text-green-300 mx-auto mb-4" />
@@ -950,7 +946,7 @@ export default function SplitsPage() {
                   {settlements.map((settlement, index) => {
                     const fromFriend = getFriendById(settlement.fromId)
                     const toFriend = getFriendById(settlement.toId)
-                    
+
                     return (
                       <div key={index} className="bg-white border rounded-lg p-4">
                         <div className="flex items-center justify-between">
@@ -965,7 +961,7 @@ export default function SplitsPage() {
                               </p>
                             </div>
                           </div>
-                          
+
                           <div className="flex gap-2">
                             <button className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
                               <Send size={16} />

@@ -1,9 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { 
-  Target, 
-  TrendingUp, 
+import {
+  Target,
+  TrendingUp,
   Calendar,
   DollarSign,
   Plane,
@@ -20,11 +20,11 @@ import {
 } from 'lucide-react'
 import { useSettings } from '@/contexts/SettingsContext'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
-import { 
-  addGoal, 
-  updateGoal, 
-  deleteGoal as removeGoal, 
-  type Goal as ReduxGoal 
+import {
+  addGoal,
+  updateGoal,
+  deleteGoal as removeGoal,
+  type Goal as ReduxGoal
 } from '@/store/slices/goalsSlice'
 import type { Expense } from '@/store/slices/expensesSlice'
 import type { RootState } from '@/store/index'
@@ -51,7 +51,7 @@ export default function GoalsPage() {
   const goals = useAppSelector((state: RootState) => state.goals?.goals || [])
   const expenses = useAppSelector((state: RootState) => state.expenses?.expenses || [])
   const [isClient, setIsClient] = useState(false)
-  
+
   // Modal states
   const addGoalModal = useMobileModal()
   const editGoalModal = useMobileModal()
@@ -83,7 +83,7 @@ export default function GoalsPage() {
       const expenseDate = new Date(expense.date)
       const lastMonth = new Date()
       lastMonth.setMonth(lastMonth.getMonth() - 1)
-      
+
       if (expenseDate >= lastMonth) {
         return total + expense.amount
       }
@@ -122,9 +122,9 @@ export default function GoalsPage() {
     }
 
     // Update goal with AI insights
-    dispatch(updateGoal({ 
-      id: goal.id, 
-      updates: { aiAnalysis: aiInsights } 
+    dispatch(updateGoal({
+      id: goal.id,
+      updates: { aiAnalysis: aiInsights }
     }))
     setAiAnalysisModal({ ...goal, aiAnalysis: aiInsights })
   }
@@ -151,9 +151,9 @@ export default function GoalsPage() {
 
   const handleEditGoal = (goalData: Partial<ReduxGoal>) => {
     if (editingGoal) {
-      dispatch(updateGoal({ 
-        id: editingGoal.id, 
-        updates: goalData 
+      dispatch(updateGoal({
+        id: editingGoal.id,
+        updates: goalData
       }))
       setEditingGoal(null)
       editGoalModal.closeModal()
@@ -167,9 +167,9 @@ export default function GoalsPage() {
   const updateGoalProgress = (goalId: string, amount: number) => {
     const goal = goals.find(g => g.id === goalId)
     if (goal) {
-      dispatch(updateGoal({ 
-        id: goalId, 
-        updates: { currentAmount: Math.max(0, Math.min(goal.targetAmount, amount)) } 
+      dispatch(updateGoal({
+        id: goalId,
+        updates: { currentAmount: Math.max(0, Math.min(goal.targetAmount, amount)) }
       }))
     }
   }
@@ -262,8 +262,8 @@ export default function GoalsPage() {
                       <span className="font-medium">{progress.toFixed(1)}%</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+                      <div
+                        className="bg-blue-600 h-2 rounded-full transition-all duration-300"
                         style={{ width: `${progress}%` }}
                       />
                     </div>
@@ -389,14 +389,13 @@ export default function GoalsPage() {
                 </div>
 
                 {/* Feasibility */}
-                <div className={`p-4 rounded-lg ${
-                  aiAnalysisModal.aiAnalysis.feasibility === 'easy' ? 'bg-green-50' :
-                  aiAnalysisModal.aiAnalysis.feasibility === 'moderate' ? 'bg-yellow-50' : 'bg-red-50'
-                }`}>
+                <div className={`p-4 rounded-lg ${aiAnalysisModal.aiAnalysis.feasibility === 'easy' ? 'bg-green-50' :
+                    aiAnalysisModal.aiAnalysis.feasibility === 'moderate' ? 'bg-yellow-50' : 'bg-red-50'
+                  }`}>
                   <div className="flex items-center space-x-2 mb-2">
                     <TrendingUp size={18} className={
                       aiAnalysisModal.aiAnalysis.feasibility === 'easy' ? 'text-green-600' :
-                      aiAnalysisModal.aiAnalysis.feasibility === 'moderate' ? 'text-yellow-600' : 'text-red-600'
+                        aiAnalysisModal.aiAnalysis.feasibility === 'moderate' ? 'text-yellow-600' : 'text-red-600'
                     } />
                     <span className="font-medium">Feasibility: {aiAnalysisModal.aiAnalysis.feasibility.charAt(0).toUpperCase() + aiAnalysisModal.aiAnalysis.feasibility.slice(1)}</span>
                   </div>
@@ -469,7 +468,7 @@ function GoalForm({ initialData, onSubmit, onCancel, isEditing }: GoalFormProps)
   return (
     <div className="h-full flex flex-col">
       <form id="goal-form" onSubmit={handleSubmit} className="flex-1 p-4 md:p-6 space-y-4 md:space-y-6 overflow-y-auto">
-        
+
         {/* Goal Title */}
         <div>
           <label className="flex items-center space-x-2 text-sm font-medium text-gray-700 mb-3">
@@ -479,7 +478,7 @@ function GoalForm({ initialData, onSubmit, onCancel, isEditing }: GoalFormProps)
           <input
             type="text"
             value={formData.title}
-            onChange={(e) => setFormData({...formData, title: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
             placeholder="e.g., Summer Vacation to Europe"
             className="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg"
           />
@@ -493,7 +492,7 @@ function GoalForm({ initialData, onSubmit, onCancel, isEditing }: GoalFormProps)
             </label>
             <select
               value={formData.category}
-              onChange={(e) => setFormData({...formData, category: e.target.value as GoalCategory})}
+              onChange={(e) => setFormData({ ...formData, category: e.target.value as GoalCategory })}
               className="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 text-lg"
             >
               {goalCategories.map(category => (
@@ -513,7 +512,7 @@ function GoalForm({ initialData, onSubmit, onCancel, isEditing }: GoalFormProps)
               type="number"
               step="0.01"
               value={formData.targetAmount}
-              onChange={(e) => setFormData({...formData, targetAmount: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, targetAmount: e.target.value })}
               placeholder="5000.00"
               className="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg"
             />
@@ -530,7 +529,7 @@ function GoalForm({ initialData, onSubmit, onCancel, isEditing }: GoalFormProps)
             <input
               type="date"
               value={formData.deadline}
-              onChange={(e) => setFormData({...formData, deadline: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
               className="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 text-lg"
             />
           </div>
@@ -541,7 +540,7 @@ function GoalForm({ initialData, onSubmit, onCancel, isEditing }: GoalFormProps)
             </label>
             <select
               value={formData.priority}
-              onChange={(e) => setFormData({...formData, priority: e.target.value as 'low' | 'medium' | 'high'})}
+              onChange={(e) => setFormData({ ...formData, priority: e.target.value as 'low' | 'medium' | 'high' })}
               className="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 text-lg"
             >
               <option value="low">🟢 Low Priority</option>
@@ -558,7 +557,7 @@ function GoalForm({ initialData, onSubmit, onCancel, isEditing }: GoalFormProps)
           </label>
           <textarea
             value={formData.description}
-            onChange={(e) => setFormData({...formData, description: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
             placeholder="Describe your goal and why it's important to you..."
             rows={3}
             className="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 text-lg resize-none"

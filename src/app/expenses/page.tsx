@@ -1,11 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { 
-  Plus, 
-  DollarSign, 
-  Edit3, 
-  Trash2, 
+import {
+  Plus,
+  DollarSign,
+  Edit3,
+  Trash2,
   Search,
   Calendar,
   TrendingUp,
@@ -21,10 +21,10 @@ import BulkImport from '@/components/BulkImport'
 import { useSettings } from '@/contexts/SettingsContext'
 import { formatAmount, convertCurrency, SUPPORTED_CURRENCIES } from '@/utils/currency'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
-import { 
-  addExpense, 
+import {
+  addExpense,
   updateExpense,
-  deleteExpense, 
+  deleteExpense,
   bulkImportExpenses,
   type Expense as ReduxExpense
 } from '@/store/slices/expensesSlice'
@@ -53,38 +53,38 @@ interface SplitBill {
 // Using Redux Expense interface - no local interface needed
 
 const expenseTypes = [
-  { 
-    value: 'recurring', 
-    name: 'Recurring Payment', 
-    icon: '🔄', 
+  {
+    value: 'recurring',
+    name: 'Recurring Payment',
+    icon: '🔄',
     color: 'bg-blue-100 text-blue-800',
     description: 'Subscriptions, utilities, rent, etc.'
   },
-  { 
-    value: 'essential', 
-    name: 'Monthly Essential', 
-    icon: '🏠', 
+  {
+    value: 'essential',
+    name: 'Monthly Essential',
+    icon: '🏠',
     color: 'bg-orange-100 text-orange-800',
     description: 'Groceries, fuel, necessities'
   },
-  { 
-    value: 'one-time', 
-    name: 'One-Time Purchase', 
-    icon: '🛒', 
+  {
+    value: 'one-time',
+    name: 'One-Time Purchase',
+    icon: '🛒',
     color: 'bg-green-100 text-green-800',
     description: 'Regular shopping, entertainment, etc.'
   },
-  { 
-    value: 'luxury', 
-    name: 'Luxury / Optional', 
-    icon: '💎', 
+  {
+    value: 'luxury',
+    name: 'Luxury / Optional',
+    icon: '💎',
     color: 'bg-purple-100 text-purple-800',
     description: 'Non-essential, luxury items, treats'
   },
-  { 
-    value: 'emergency', 
-    name: 'Emergency Expense', 
-    icon: '🚨', 
+  {
+    value: 'emergency',
+    name: 'Emergency Expense',
+    icon: '🚨',
     color: 'bg-red-100 text-red-800',
     description: 'Unexpected medical, repairs, etc.'
   }
@@ -109,16 +109,16 @@ export default function ExpensesPage() {
   const dispatch = useAppDispatch()
   const expenses = useAppSelector((state: RootState) => state.expenses?.expenses || [])
   // Remove unused totalSpent variable
-  
+
   // Load friends and bills from Redux
   const friends = useAppSelector((state: RootState) => state.splits?.friends || [])
   // const bills = useAppSelector((state: RootState) => state.splits?.bills || []) // Temporarily unused
-  
+
   // Mobile Modal States
   const addModal = useMobileModal()
   const editModal = useMobileModal()
   const [editingExpense, setEditingExpense] = useState<ReduxExpense | null>(null)
-  
+
   const [shareModalExpense, setShareModalExpense] = useState<ReduxExpense | null>(null)
   const [selectedFriends, setSelectedFriends] = useState<string[]>([])
   const [isClient, setIsClient] = useState(false)
@@ -130,12 +130,12 @@ export default function ExpensesPage() {
   useEffect(() => {
     setIsClient(true)
   }, [])
-  
+
   // Filter states
   const [searchTerm, setSearchTerm] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [dateFilter, setDateFilter] = useState('all') // all, today, this-week, this-month
-  
+
   const handleAddExpense = (formData: {
     amount: string
     currency: string
@@ -159,11 +159,11 @@ export default function ExpensesPage() {
       isRecurring: formData.isRecurring || false,
       recurringPeriod: formData.isRecurring ? formData.recurringFrequency as 'daily' | 'weekly' | 'monthly' | 'yearly' : undefined,
     }
-    
+
     dispatch(addExpense(expense))
     addModal.closeModal()
   }
-  
+
   const handleEditExpense = (formData: {
     amount: string
     currency: string
@@ -192,7 +192,7 @@ export default function ExpensesPage() {
       editModal.closeModal()
     }
   }
-  
+
   const handleDeleteExpense = (id: string) => {
     dispatch(deleteExpense(id))
   }
@@ -226,16 +226,16 @@ export default function ExpensesPage() {
         isCustomAvatar: false,
         createdAt: new Date()
       }
-      
+
       // Update friends list (assuming we have access to setFriends)
       const updatedFriends = [...friends, newFriend]
       // We need to use localStorage directly since we don't have setFriends
       localStorage.setItem('friends', JSON.stringify(updatedFriends))
-      
+
       // Reset form and close
       setQuickFriendForm({ name: '', email: '' })
       setShowQuickAddFriend(false)
-      
+
       // Trigger a page refresh to reload friends data
       window.location.reload()
     }
@@ -246,44 +246,44 @@ export default function ExpensesPage() {
     dispatch(bulkImportExpenses(importedExpenses))
     setShowBulkImport(false)
   }
-  
+
   const startEdit = (expense: ReduxExpense) => {
     setEditingExpense(expense)
     editModal.openModal()
   }
-  
+
   // Removed old form functions - now using mobile modals
-  
+
   // Filter expenses
   const filteredExpenses = (expenses as ReduxExpense[]).filter((expense: ReduxExpense) => {
     // Search filter
-    if (searchTerm && !expense.description.toLowerCase().includes(searchTerm.toLowerCase()) && 
-        !expense.category.toLowerCase().includes(searchTerm.toLowerCase())) {
+    if (searchTerm && !expense.description.toLowerCase().includes(searchTerm.toLowerCase()) &&
+      !expense.category.toLowerCase().includes(searchTerm.toLowerCase())) {
       return false
     }
-    
+
     // Category filter
     if (categoryFilter !== 'all' && expense.category !== categoryFilter) {
       return false
     }
-    
+
     // Date filter
     const expenseDate = new Date(expense.date)
     const today = new Date()
-    
+
     if (dateFilter === 'today') {
       if (expenseDate.toDateString() !== today.toDateString()) return false
     } else if (dateFilter === 'this-week') {
       const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000)
       if (expenseDate < weekAgo) return false
     } else if (dateFilter === 'this-month') {
-      if (expenseDate.getMonth() !== today.getMonth() || 
-          expenseDate.getFullYear() !== today.getFullYear()) return false
+      if (expenseDate.getMonth() !== today.getMonth() ||
+        expenseDate.getFullYear() !== today.getFullYear()) return false
     }
-    
+
     return true
   })
-  
+
   // Calculate statistics
   const stats = {
     total: filteredExpenses.reduce((sum, expense) => sum + expense.amount, 0),
@@ -293,36 +293,36 @@ export default function ExpensesPage() {
     thisMonth: 0,
     thisWeek: 0
   }
-  
+
   // Calculate this month and week totals
   const today = new Date()
   const thisMonth = (expenses as ReduxExpense[]).filter((e: ReduxExpense) => {
     const date = new Date(e.date)
     return date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear()
   }).reduce((sum, e) => sum + e.amount, 0)
-  
+
   const thisWeek = (expenses as ReduxExpense[]).filter((e: ReduxExpense) => {
     const date = new Date(e.date)
     const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000)
     return date >= weekAgo
   }).reduce((sum, e) => sum + e.amount, 0)
-  
+
   stats.thisMonth = thisMonth
   stats.thisWeek = thisWeek
-  
+
   // Calculate top category
   const categoryTotals = (expenses as ReduxExpense[]).reduce((acc, expense: ReduxExpense) => {
     acc[expense.category] = (acc[expense.category] || 0) + expense.amount
     return acc
   }, {} as Record<string, number>)
-  
-  stats.topCategory = Object.entries(categoryTotals).sort(([,a], [,b]) => b - a)[0]?.[0] || 'None'
-  
+
+  stats.topCategory = Object.entries(categoryTotals).sort(([, a], [, b]) => b - a)[0]?.[0] || 'None'
+
   // Calculate average per day (last 30 days)
   const thirtyDaysAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000)
   const last30Days = (expenses as ReduxExpense[]).filter((e: ReduxExpense) => new Date(e.date) >= thirtyDaysAgo)
   stats.avgPerDay = last30Days.length > 0 ? last30Days.reduce((sum, e) => sum + e.amount, 0) / 30 : 0
-  
+
   const getCategoryInfo = (categoryName: string) => {
     return expenseCategories.find(cat => cat.name === categoryName) || expenseCategories[expenseCategories.length - 1]
   }
@@ -386,7 +386,7 @@ export default function ExpensesPage() {
               <p className="text-sm font-medium text-gray-600">Avg/Day (30d)</p>
               <p className="text-2xl font-bold text-gray-900">
                 {formatAmount(
-                  filteredExpenses.length > 0 ? 
+                  filteredExpenses.length > 0 ?
                     filteredExpenses.reduce((sum, e) => sum + convertCurrency(e.amount, e.currency, settings.currency), 0) / 30
                     : 0,
                   SUPPORTED_CURRENCIES.find(c => c.code === settings.currency) || SUPPORTED_CURRENCIES[0]
@@ -485,7 +485,7 @@ export default function ExpensesPage() {
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          
+
           {/* Category Filter */}
           <select
             value={categoryFilter}
@@ -499,7 +499,7 @@ export default function ExpensesPage() {
               </option>
             ))}
           </select>
-          
+
           {/* Date Filter */}
           <select
             value={dateFilter}
@@ -512,7 +512,7 @@ export default function ExpensesPage() {
             <option value="this-month">This Month</option>
           </select>
         </div>
-        
+
         {filteredExpenses.length !== expenses.length && (
           <div className="mt-3 text-sm text-gray-600">
             Showing {filteredExpenses.length} of {expenses.length} expenses
@@ -538,7 +538,7 @@ export default function ExpensesPage() {
             {expenses.length === 0 ? 'No expenses yet' : 'No matching expenses'}
           </h3>
           <p className="text-gray-600">
-            {expenses.length === 0 
+            {expenses.length === 0
               ? 'Add your first expense to start tracking your spending'
               : 'Try adjusting your filters or search term'
             }
@@ -548,77 +548,67 @@ export default function ExpensesPage() {
         <div className="space-y-3">
           {filteredExpenses.map((expense: ReduxExpense) => {
             const categoryInfo = getCategoryInfo(expense.category)
-            
+
             return (
               <div
                 key={expense.id}
                 className="bg-white p-4 rounded-lg shadow-sm border hover:shadow-md transition-shadow"
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    {/* Category Icon */}
-                    <div className={`p-3 rounded-full ${categoryInfo.color}`}>
-                      <span className="text-xl">{categoryInfo.icon}</span>
-                    </div>
-                    
-                    {/* Expense Details */}
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-semibold text-gray-900">{expense.description}</h3>
-                          {false && (
-                            <div className="flex items-center gap-1 px-2 py-1 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded-full text-xs">
-                              <Users className="w-3 h-3" />
-                              <span>Shared</span>
-                            </div>
-                          )}
-                        </div>
-                        <div className="text-right">
-                          <span className="text-xl font-bold text-gray-900">
-                            {formatAmount(expense.amount, SUPPORTED_CURRENCIES.find(c => c.code === expense.currency) || SUPPORTED_CURRENCIES.find(c => c.code === settings.currency) || SUPPORTED_CURRENCIES[0])}
-                          </span>
-                          {expense.currency !== settings.currency && (
-                            <div className="text-sm text-gray-500">
-                              ≈ {formatAmount(
-                                convertCurrency(expense.amount, expense.currency, settings.currency),
-                                SUPPORTED_CURRENCIES.find(c => c.code === settings.currency) || SUPPORTED_CURRENCIES[0]
-                              )}
-                            </div>
-                          )}
-                        </div>
+                <div className="flex items-start gap-3">
+                  {/* Category Icon */}
+                  <div className={`p-3 rounded-full flex-shrink-0 ${categoryInfo.color}`}>
+                    <span className="text-xl">{categoryInfo.icon}</span>
+                  </div>
+                  
+                  {/* Expense Details */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-gray-900 truncate">{expense.description}</h3>
                       </div>
-                      
-                      <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
-                        <span className={`px-2 py-1 rounded-full text-xs ${categoryInfo.color}`}>
+                      <div className="text-right flex-shrink-0">
+                        <span className="text-lg sm:text-xl font-bold text-gray-900">
+                          {formatAmount(expense.amount, SUPPORTED_CURRENCIES.find(c => c.code === expense.currency) || SUPPORTED_CURRENCIES.find(c => c.code === settings.currency) || SUPPORTED_CURRENCIES[0])}
+                        </span>
+                        {expense.currency !== settings.currency && (
+                          <div className="text-xs sm:text-sm text-gray-500">
+                            ≈ {formatAmount(
+                              convertCurrency(expense.amount, expense.currency, settings.currency),
+                              SUPPORTED_CURRENCIES.find(c => c.code === settings.currency) || SUPPORTED_CURRENCIES[0]
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>                      <div className="flex items-center gap-4 mt-1 text-sm text-gray-500 flex-wrap">
+                        <span className={`px-2 py-1 rounded-full text-xs whitespace-nowrap ${categoryInfo.color}`}>
                           {expense.category}
                         </span>
-                        
-                        <span className={`px-2 py-1 rounded-full text-xs ${expense.isRecurring ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}`}>
+
+                        <span className={`px-2 py-1 rounded-full text-xs whitespace-nowrap ${expense.isRecurring ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}`}>
                           {expense.isRecurring ? '🔄' : '💰'} {expense.isRecurring ? 'Recurring' : 'One-time'}
                           {expense.isRecurring && expense.recurringPeriod && (
                             <span className="ml-1">({expense.recurringPeriod})</span>
                           )}
                         </span>
-                        
+
                         <span className="flex items-center gap-1">
                           <Calendar size={12} />
                           {isClient ? new Date(expense.date).toLocaleDateString() : 'Recent'}
                         </span>
-                        
+
                         {expense.notes && (
                           <span className="text-gray-400" title={expense.notes}>
                             📝 Notes
                           </span>
                         )}
                       </div>
-                      
+
                       {expense.notes && (
                         <p className="mt-2 text-sm text-gray-600 bg-gray-50 p-2 rounded">
                           {expense.notes}
                         </p>
                       )}
                     </div>
-                  </div>
                   
                   {/* Actions */}
                   <div className="flex gap-2 ml-4">
@@ -672,7 +662,7 @@ export default function ExpensesPage() {
                   <X size={20} />
                 </button>
               </div>
-              
+
               <div className="mb-4 p-4 bg-gray-50 rounded-lg">
                 <h4 className="font-medium text-gray-900">{shareModalExpense.description}</h4>
                 <p className="text-sm text-gray-600">
@@ -694,7 +684,7 @@ export default function ExpensesPage() {
                     Add Friend
                   </button>
                 </div>
-                
+
                 {friends.length === 0 ? (
                   <div className="text-center py-4 text-gray-500">
                     <p>No friends added yet.</p>
