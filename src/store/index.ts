@@ -5,6 +5,7 @@ import { combineReducers } from '@reduxjs/toolkit'
 
 // Import slices
 import expensesReducer from './slices/expensesSlice'
+import incomeReducer from './slices/incomeSlice'
 import todosReducer from './slices/todosSlice'
 import goalsReducer from './slices/goalsSlice'
 import splitsReducer from './slices/splitsSlice'
@@ -14,6 +15,7 @@ import { lifesyncApi } from './api/lifesyncApi'
 
 const rootReducer = combineReducers({
   expenses: expensesReducer,
+  income: incomeReducer,
   todos: todosReducer,
   goals: goalsReducer,
   splits: splitsReducer,
@@ -25,7 +27,7 @@ const rootReducer = combineReducers({
 const persistConfig = {
   key: 'lifesync',
   storage,
-  whitelist: ['expenses', 'todos', 'goals', 'splits', 'notes', 'settings'], // Only persist these slices, not API cache
+  whitelist: ['expenses', 'income', 'todos', 'goals', 'splits', 'notes', 'settings'], // Only persist these slices, not API cache
 }
 
 const persistedReducer = persistReducer(persistConfig, rootReducer)
