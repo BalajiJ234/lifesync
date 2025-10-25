@@ -64,17 +64,35 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `
               if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.getRegistrations()
-                  .then((registrations) => {
-                    registrations.forEach((registration) => {
-                      registration.unregister().catch((error) => {
+                const cleanupServiceWorkers = async () => {
+                  try {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    await Promise.all(registrations.map(async (registration) => {
+                      try {
+                        await registration.unregister();
+                      } catch (error) {
                         console.log('SW unregister failed:', error);
-                      });
-                    });
-                  })
-                  .catch((error) => {
+                      }
+                    }));
+                  } catch (error) {
                     console.log('SW lookup failed:', error);
+                  }
+
+                  if ('caches' in window) {
+                    try {
+                      const cacheKeys = await caches.keys();
+                      await Promise.all(cacheKeys.map((key) => caches.delete(key)));
+                    } catch (error) {
+                      console.log('Cache cleanup failed:', error);
+                    }
+                  }
+                };
+
+                window.addEventListener('load', () => {
+                  cleanupServiceWorkers().catch((error) => {
+                    console.log('SW cleanup failed:', error);
                   });
+                });
               }
             `,
           }}
