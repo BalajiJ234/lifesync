@@ -40,7 +40,7 @@ const useAppData = () => {
   const incomes = useAppSelector(selectIncomes)
   const friends = useAppSelector((state) => state.splits.friends)
   const bills = useAppSelector((state) => state.splits.bills)
-  // const { settings } = useSettings()
+  const { settings } = useSettings()
   const [isClient, setIsClient] = useState(false)
 
   useEffect(() => {
