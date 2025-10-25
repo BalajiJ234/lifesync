@@ -20,6 +20,16 @@ export const metadata: Metadata = {
   title: "LifeSync - Privacy-First Personal Finance",
   description: "Track expenses, set goals, and get AI insights - all while keeping your data on YOUR device. No cloud, no tracking, 100% private.",
   manifest: "/manifest.json",
+  icons: {
+    icon: [
+      { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: '/icon-192x192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon-512x512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/icon-192x192.png', sizes: '192x192', type: 'image/png' },
+    ],
+  },
 };
 
 export const viewport: Viewport = {
