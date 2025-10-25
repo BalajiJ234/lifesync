@@ -17,13 +17,17 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "LifeSync - Personal Life Management",
-  description: "Manage your expenses, todos, notes, and split bills with friends",
+  title: "LifeSync - Privacy-First Personal Finance",
+  description: "Track expenses, set goals, and get AI insights - all while keeping your data on YOUR device. No cloud, no tracking, 100% private.",
   manifest: "/manifest.json",
 };
 
 export const viewport: Viewport = {
-  themeColor: "#3b82f6",
+  themeColor: "#10b981",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
 };
 
 export default function RootLayout({
@@ -34,13 +38,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50 min-h-screen`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50 min-h-screen touch-manipulation`}
       >
         <ReduxProvider>
           <SettingsProvider>
             <NotificationBanner />
             <MobileNavigation />
-            <main className="container mx-auto px-4 py-4 md:py-8 pb-20 md:pb-8">
+            <main className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-8 pb-20 md:pb-8 max-w-7xl">
               {children}
             </main>
           </SettingsProvider>
