@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Upload, Download, FileText, AlertCircle, CheckCircle, X } from 'lucide-react'
 
 interface BulkImportProps {
-  feature: 'expenses' | 'todos' | 'notes' | 'friends'
+  feature: 'expenses' | 'todos' | 'notes' | 'friends' | 'income'
   onImport: (data: unknown[]) => void
   onClose: () => void
 }
@@ -16,6 +16,14 @@ const templates = {
       { amount: 25.50, description: 'Lunch at restaurant', category: 'Food', date: '2025-01-10', currency: 'USD' },
       { amount: 1200, description: 'Monthly rent', category: 'Housing', date: '2025-01-01', currency: 'USD' },
       { amount: 45, description: 'Gas station', category: 'Transportation', date: '2025-01-09', currency: 'USD' }
+    ]
+  },
+  income: {
+    headers: ['source', 'amount', 'category', 'date', 'status', 'recurrence', 'notes'],
+    sample: [
+      { source: 'Monthly Salary', amount: 5000, category: 'salary', date: '2025-01-01', status: 'received', recurrence: 'monthly', notes: 'Regular paycheck' },
+      { source: 'Freelance Project', amount: 1500, category: 'freelance', date: '2025-01-15', status: 'scheduled', recurrence: 'one-time', notes: 'Web design project' },
+      { source: 'Stock Dividend', amount: 250, category: 'investment', date: '2025-01-20', status: 'scheduled', recurrence: 'quarterly', notes: 'Tech stocks portfolio' }
     ]
   },
   todos: {
@@ -136,6 +144,32 @@ export default function BulkImport({ feature, onImport, onClose }: BulkImportPro
               category: row.category || 'Other',
               date: row.date || new Date().toISOString().split('T')[0],
               currency: row.currency || 'USD',
+              createdAt: new Date()
+            })
+            break
+
+          case 'income':
+            if (!row.amount || isNaN(parseFloat(row.amount))) {
+              errors.push(`Row ${rowNum}: Invalid amount "${row.amount}"`)
+              return
+            }
+            if (!row.source?.trim()) {
+              errors.push(`Row ${rowNum}: Source is required`)
+              return
+            }
+            const validCategories = ['salary', 'freelance', 'investment', 'refund', 'rental', 'gift', 'other']
+            const validRecurrences = ['one-time', 'daily', 'weekly', 'bi-weekly', 'monthly', 'quarterly', 'yearly']
+            const validStatuses = ['received', 'scheduled']
+            
+            valid.push({
+              id: Date.now().toString() + Math.random(),
+              source: row.source.trim(),
+              amount: parseFloat(row.amount),
+              category: validCategories.includes(row.category?.toLowerCase()) ? row.category.toLowerCase() : 'other',
+              date: row.date || new Date().toISOString().split('T')[0],
+              status: validStatuses.includes(row.status?.toLowerCase()) ? row.status.toLowerCase() : 'received',
+              recurrence: validRecurrences.includes(row.recurrence?.toLowerCase()) ? row.recurrence.toLowerCase() : 'one-time',
+              notes: row.notes || '',
               createdAt: new Date()
             })
             break
