@@ -21,27 +21,20 @@ import BulkImport from '@/components/BulkImport'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { 
   addFriend, 
-  updateFriend, 
-  deleteFriend, 
+  deleteFriend,
   addSplitBill, 
   updateSplitBill, 
   deleteSplitBill,
   selectFriends,
   selectSplitBills,
-  type Friend as ReduxFriend,
-  type SplitBill as ReduxSplitBill 
+  type Friend,
+  type SplitBill
 } from '@/store/slices/splitsSlice'
 
-interface Friend {
-  id: string
-  name: string
-  email: string
-  avatar: string
-  isCustomAvatar: boolean
-  createdAt: Date
-}
+// Using Redux Friend and SplitBill interfaces - no local interfaces needed
 
-interface SplitBill {
+// Temp interface for legacy code
+interface LegacySplitBill {
   id: string
   description: string
   totalAmount: number
@@ -137,7 +130,7 @@ export default function SplitsPage() {
     notes: ''
   })
 
-  const addFriend = () => {
+  const handleAddFriend = () => {
     if (friendForm.name.trim()) {
       const friend: Friend = {
         id: Date.now().toString(),
@@ -166,7 +159,7 @@ export default function SplitsPage() {
     }
   }
 
-  const deleteFriend = (id: string) => {
+  const handleDeleteFriend = (id: string) => {
     dispatch(deleteFriend(id))
     // Remove from any bills that reference this friend
     bills.forEach(bill => {
@@ -212,11 +205,10 @@ export default function SplitsPage() {
         splitType: billForm.splitType,
         customAmounts,
         percentages: billForm.splitType === 'percentage' ? billForm.percentages : undefined,
-        date: billForm.date,
+        createdAt: new Date(billForm.date),
         status: 'pending',
         updatedAt: new Date(),
-        notes: billForm.notes.trim() || undefined,
-        createdAt: new Date()
+        notes: billForm.notes.trim() || undefined
       }
       
       dispatch(addSplitBill(bill))
@@ -725,7 +717,7 @@ export default function SplitsPage() {
                             </div>
                             
                             <div className="mt-2 text-sm text-gray-600">
-                              <p>Paid by {bill.paidBy === 'self' ? '🙋‍♂️ You' : `${paidByFriend?.avatar} ${paidByFriend?.name}`} on {isClient && bill.date ? new Date(bill.date).toLocaleDateString() : 'Recent'}</p>
+                              <p>Paid by {bill.paidBy === 'self' ? '🙋‍♂️ You' : `${paidByFriend?.avatar} ${paidByFriend?.name}`} on {isClient && bill.createdAt ? new Date(bill.createdAt).toLocaleDateString() : 'Recent'}</p>
                               <p>Split between: {bill.participants.map(id => getFriendById(id)?.name).join(', ')}</p>
                               {bill.notes && <p className="italic">&quot;{bill.notes}&quot;</p>}
                             </div>
@@ -908,7 +900,7 @@ export default function SplitsPage() {
                   
                   <div className="flex gap-3 mt-4">
                     <button
-                      onClick={addFriend}
+                      onClick={handleAddFriend}
                       disabled={!friendForm.name.trim()}
                       className="flex items-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
                     >
@@ -956,7 +948,7 @@ export default function SplitsPage() {
                         </div>
                         
                         <button
-                          onClick={() => deleteFriend(friend.id)}
+                          onClick={() => handleDeleteFriend(friend.id)}
                           className="text-gray-400 hover:text-red-600 transition-colors"
                         >
                           <Trash2 size={18} />

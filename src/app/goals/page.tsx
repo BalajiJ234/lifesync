@@ -24,8 +24,6 @@ import {
   addGoal, 
   updateGoal, 
   deleteGoal as removeGoal, 
-  addProgress,
-  updateAiAnalysis,
   type Goal as ReduxGoal 
 } from '@/store/slices/goalsSlice'
 import type { Expense } from '@/store/slices/expensesSlice'
@@ -33,33 +31,15 @@ import type { RootState } from '@/store/index'
 import { formatAmount, getCurrencyByCode } from '@/utils/currency'
 import ResponsiveModal, { useMobileModal } from '@/components/ui/MobileModal'
 
-interface Goal {
-  id: string
-  title: string
-  description: string
-  targetAmount: number
-  currentAmount: number
-  category: GoalCategory
-  deadline: string
-  priority: 'low' | 'medium' | 'high'
-  currency: string
-  createdAt: Date
-  aiSuggested: boolean
-  aiInsights?: {
-    monthlyTarget: number
-    feasibility: 'easy' | 'moderate' | 'challenging'
-    recommendation: string
-    basedOnSpending: boolean
-  }
-}
+// Using Redux Goal interface - no local interface needed
 
-type GoalCategory = 'vacation' | 'emergency' | 'home' | 'car' | 'education' | 'health' | 'investment' | 'other'
+type GoalCategory = 'emergency-fund' | 'debt-reduction' | 'travel' | 'purchase' | 'investment' | 'education' | 'health' | 'other'
 
 const goalCategories = [
-  { value: 'vacation', name: 'Vacation & Travel', icon: Plane, color: 'bg-blue-100 text-blue-800', description: 'Travel and vacation expenses' },
-  { value: 'emergency', name: 'Emergency Fund', icon: Shield, color: 'bg-red-100 text-red-800', description: '3-6 months of expenses' },
-  { value: 'home', name: 'Home & Property', icon: Home, color: 'bg-green-100 text-green-800', description: 'House down payment, furniture' },
-  { value: 'car', name: 'Vehicle', icon: Car, color: 'bg-gray-100 text-gray-800', description: 'Car purchase or maintenance' },
+  { value: 'travel', name: 'Vacation & Travel', icon: Plane, color: 'bg-blue-100 text-blue-800', description: 'Travel and vacation expenses' },
+  { value: 'emergency-fund', name: 'Emergency Fund', icon: Shield, color: 'bg-red-100 text-red-800', description: '3-6 months of expenses' },
+  { value: 'purchase', name: 'Home & Property', icon: Home, color: 'bg-green-100 text-green-800', description: 'House down payment, furniture' },
+  { value: 'purchase', name: 'Vehicle', icon: Car, color: 'bg-gray-100 text-gray-800', description: 'Car purchase or maintenance' },
   { value: 'education', name: 'Education', icon: GraduationCap, color: 'bg-purple-100 text-purple-800', description: 'Courses, degrees, certifications' },
   { value: 'health', name: 'Health & Wellness', icon: Heart, color: 'bg-pink-100 text-pink-800', description: 'Medical, fitness, wellness' },
   { value: 'investment', name: 'Investment', icon: TrendingUp, color: 'bg-yellow-100 text-yellow-800', description: 'Stocks, bonds, business' },
@@ -67,7 +47,6 @@ const goalCategories = [
 ] as const
 
 export default function GoalsPage() {
-  const { settings } = useSettings()
   const dispatch = useAppDispatch()
   const goals = useAppSelector((state: RootState) => state.goals?.goals || [])
   const expenses = useAppSelector((state: RootState) => state.expenses?.expenses || [])
@@ -76,15 +55,15 @@ export default function GoalsPage() {
   // Modal states
   const addGoalModal = useMobileModal()
   const editGoalModal = useMobileModal()
-  const [editingGoal, setEditingGoal] = useState<Goal | null>(null)
-  const [aiAnalysisModal, setAiAnalysisModal] = useState<Goal | null>(null)
+  const [editingGoal, setEditingGoal] = useState<ReduxGoal | null>(null)
+  const [aiAnalysisModal, setAiAnalysisModal] = useState<ReduxGoal | null>(null)
 
   useEffect(() => {
     setIsClient(true)
   }, [])
 
   // Calculate goal progress
-  const getGoalProgress = (goal: Goal) => {
+  const getGoalProgress = (goal: ReduxGoal) => {
     const progress = (goal.currentAmount / goal.targetAmount) * 100
     return Math.min(progress, 100)
   }
@@ -99,7 +78,7 @@ export default function GoalsPage() {
   }
 
   // AI-powered goal analysis
-  const analyzeGoalWithAI = async (goal: Goal) => {
+  const analyzeGoalWithAI = async (goal: ReduxGoal) => {
     const monthlyExpenses = expenses.reduce((total: number, expense: Expense) => {
       const expenseDate = new Date(expense.date)
       const lastMonth = new Date()
@@ -112,7 +91,7 @@ export default function GoalsPage() {
     }, 0)
 
     const averageMonthlyExpense = monthlyExpenses || 2000 // Default if no data
-    const daysRemaining = getDaysRemaining(goal.deadline)
+    const daysRemaining = getDaysRemaining(goal.targetDate || '')
     const monthsRemaining = daysRemaining / 30
     const remainingAmount = goal.targetAmount - goal.currentAmount
     const monthlyTarget = monthsRemaining > 0 ? remainingAmount / monthsRemaining : remainingAmount
@@ -135,34 +114,35 @@ export default function GoalsPage() {
     }
 
     const aiInsights = {
-      monthlyTarget,
       feasibility,
-      recommendation,
-      basedOnSpending: expenses.length > 0
+      suggestions: [recommendation],
+      monthlyRequired: monthlyTarget,
+      timeframe: `${Math.ceil(monthsRemaining)} months`,
+      confidence: expenses.length > 0 ? 0.85 : 0.6 // Higher confidence if based on actual spending
     }
 
     // Update goal with AI insights
     dispatch(updateGoal({ 
       id: goal.id, 
-      updates: { aiInsights, aiSuggested: true } 
+      updates: { aiAnalysis: aiInsights } 
     }))
-    setAiAnalysisModal({ ...goal, aiInsights })
+    setAiAnalysisModal({ ...goal, aiAnalysis: aiInsights })
   }
 
   // Handle goal operations  
-  const handleAddGoal = (goalData: Omit<Goal, 'id' | 'currentAmount' | 'createdAt' | 'aiSuggested'>) => {
-    const newGoal: Goal = {
+  const handleAddGoal = (goalData: Omit<ReduxGoal, 'id' | 'currentAmount' | 'createdAt' | 'updatedAt'>) => {
+    const newGoal: ReduxGoal = {
       id: Date.now().toString(),
       ...goalData,
       currentAmount: 0,
-      createdAt: new Date(),
-      aiSuggested: false
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     }
     dispatch(addGoal(newGoal))
     addGoalModal.closeModal()
   }
 
-  const handleEditGoal = (goalData: Partial<Goal>) => {
+  const handleEditGoal = (goalData: Partial<ReduxGoal>) => {
     if (editingGoal) {
       dispatch(updateGoal({ 
         id: editingGoal.id, 
@@ -187,7 +167,7 @@ export default function GoalsPage() {
     }
   }
 
-  const startEdit = (goal: Goal) => {
+  const startEdit = (goal: ReduxGoal) => {
     setEditingGoal(goal)
     editGoalModal.openModal()
   }
@@ -235,7 +215,7 @@ export default function GoalsPage() {
           {(goals as ReduxGoal[]).map((goal: ReduxGoal) => {
             const category = goalCategories.find(c => c.value === goal.category)
             const progress = getGoalProgress(goal)
-            const daysRemaining = getDaysRemaining(goal.deadline)
+            const daysRemaining = getDaysRemaining(goal.targetDate || '')
             const Icon = category?.icon || Target
 
             return (
@@ -299,7 +279,7 @@ export default function GoalsPage() {
                       <Calendar size={14} />
                       {daysRemaining > 0 ? `${daysRemaining} days left` : 'Overdue'}
                     </span>
-                    {goal.aiSuggested && (
+                    {goal.aiAnalysis && (
                       <span className="flex items-center gap-1 text-purple-600 text-xs">
                         <Sparkles size={12} />
                         AI Optimized
@@ -385,7 +365,7 @@ export default function GoalsPage() {
               </div>
             </div>
 
-            {aiAnalysisModal.aiInsights && (
+            {aiAnalysisModal.aiAnalysis && (
               <div className="space-y-4">
                 {/* Monthly Target */}
                 <div className="bg-blue-50 p-4 rounded-lg">
@@ -394,7 +374,7 @@ export default function GoalsPage() {
                     <span className="font-medium text-blue-900">Monthly Target</span>
                   </div>
                   <p className="text-2xl font-bold text-blue-600">
-                    {formatAmount(aiAnalysisModal.aiInsights.monthlyTarget, getCurrencyByCode(aiAnalysisModal.currency))}
+                    {formatAmount(aiAnalysisModal.aiAnalysis.monthlyRequired, getCurrencyByCode(aiAnalysisModal.currency))}
                   </p>
                   <p className="text-sm text-blue-700 mt-1">
                     Save this amount monthly to reach your goal
@@ -403,22 +383,22 @@ export default function GoalsPage() {
 
                 {/* Feasibility */}
                 <div className={`p-4 rounded-lg ${
-                  aiAnalysisModal.aiInsights.feasibility === 'easy' ? 'bg-green-50' :
-                  aiAnalysisModal.aiInsights.feasibility === 'moderate' ? 'bg-yellow-50' : 'bg-red-50'
+                  aiAnalysisModal.aiAnalysis.feasibility === 'easy' ? 'bg-green-50' :
+                  aiAnalysisModal.aiAnalysis.feasibility === 'moderate' ? 'bg-yellow-50' : 'bg-red-50'
                 }`}>
                   <div className="flex items-center space-x-2 mb-2">
                     <TrendingUp size={18} className={
-                      aiAnalysisModal.aiInsights.feasibility === 'easy' ? 'text-green-600' :
-                      aiAnalysisModal.aiInsights.feasibility === 'moderate' ? 'text-yellow-600' : 'text-red-600'
+                      aiAnalysisModal.aiAnalysis.feasibility === 'easy' ? 'text-green-600' :
+                      aiAnalysisModal.aiAnalysis.feasibility === 'moderate' ? 'text-yellow-600' : 'text-red-600'
                     } />
-                    <span className="font-medium">Feasibility: {aiAnalysisModal.aiInsights.feasibility.charAt(0).toUpperCase() + aiAnalysisModal.aiInsights.feasibility.slice(1)}</span>
+                    <span className="font-medium">Feasibility: {aiAnalysisModal.aiAnalysis.feasibility.charAt(0).toUpperCase() + aiAnalysisModal.aiAnalysis.feasibility.slice(1)}</span>
                   </div>
                   <p className="text-sm">
-                    {aiAnalysisModal.aiInsights.recommendation}
+                    {aiAnalysisModal.aiAnalysis.suggestions[0]}
                   </p>
                 </div>
 
-                {!aiAnalysisModal.aiInsights.basedOnSpending && (
+                {aiAnalysisModal.aiAnalysis.confidence < 0.7 && (
                   <div className="bg-orange-50 p-4 rounded-lg">
                     <div className="flex items-center space-x-2 mb-2">
                       <AlertCircle size={18} className="text-orange-600" />
@@ -449,8 +429,8 @@ export default function GoalsPage() {
 
 // Goal Form Component
 interface GoalFormProps {
-  initialData?: Partial<Goal>
-  onSubmit: (data: Omit<Goal, 'id' | 'currentAmount' | 'createdAt' | 'aiSuggested'>) => void
+  initialData?: Partial<ReduxGoal>
+  onSubmit: (data: Omit<ReduxGoal, 'id' | 'currentAmount' | 'createdAt' | 'updatedAt'>) => void
   onCancel: () => void
   isEditing: boolean
 }
@@ -461,10 +441,10 @@ function GoalForm({ initialData, onSubmit, onCancel, isEditing }: GoalFormProps)
     title: initialData?.title || '',
     description: initialData?.description || '',
     targetAmount: initialData?.targetAmount?.toString() || '',
-    category: initialData?.category || 'vacation',
-    deadline: initialData?.deadline || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    category: initialData?.category || 'travel',
+    deadline: initialData?.targetDate || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     priority: initialData?.priority || 'medium',
-    currency: initialData?.currency || settings.defaultCurrency.code
+    currency: initialData?.currency || settings.currency
   })
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -472,7 +452,9 @@ function GoalForm({ initialData, onSubmit, onCancel, isEditing }: GoalFormProps)
     if (formData.title && formData.targetAmount) {
       onSubmit({
         ...formData,
-        targetAmount: parseFloat(formData.targetAmount)
+        targetAmount: parseFloat(formData.targetAmount),
+        targetDate: formData.deadline, // Map deadline to targetDate for Redux interface
+        status: 'active' as const // Default status for new goals
       })
     }
   }

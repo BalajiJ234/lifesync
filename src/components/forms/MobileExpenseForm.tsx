@@ -7,10 +7,10 @@ interface ExpenseFormData {
   amount: string
   currency: string
   category: string
-  type: 'recurring' | 'essential' | 'one-time' | 'luxury' | 'emergency'
+  isRecurring?: boolean
   description: string
   date: string
-  recurringFrequency: 'weekly' | 'monthly' | 'yearly'
+  recurringFrequency: 'daily' | 'weekly' | 'monthly' | 'yearly'
   notes: string
 }
 
@@ -59,7 +59,7 @@ export default function MobileExpenseForm({
     amount: initialData?.amount || '',
     currency: initialData?.currency || 'AED',
     category: initialData?.category || 'Food & Dining',
-    type: initialData?.type || 'one-time',
+    isRecurring: initialData?.isRecurring || false,
     description: initialData?.description || '',
     date: initialData?.date || new Date().toISOString().split('T')[0],
     recurringFrequency: initialData?.recurringFrequency || 'monthly',
@@ -188,30 +188,31 @@ export default function MobileExpenseForm({
         </div>
       </div>
 
-      {/* Expense Type */}
+      {/* Recurring Expense Toggle */}
       <div>
         <label className="flex items-center space-x-2 text-sm font-medium text-gray-700 mb-3">
           <Type size={16} className="text-indigo-600" />
-          <span>Expense Type *</span>
+          <span>Expense Type</span>
         </label>
-        <select
-          value={formData.type}
-          onChange={(e) => setFormData({...formData, type: e.target.value as 'recurring' | 'essential' | 'one-time' | 'luxury' | 'emergency'})}
-          className="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 text-lg bg-gradient-to-r from-blue-50 to-purple-50"
-        >
-          {expenseTypes.map(type => (
-            <option key={type.value} value={type.value}>
-              {type.icon} {type.name}
-            </option>
-          ))}
-        </select>
+        <div className="flex items-center space-x-3">
+          <input
+            type="checkbox"
+            id="isRecurring"
+            checked={formData.isRecurring}
+            onChange={(e) => setFormData({...formData, isRecurring: e.target.checked})}
+            className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+          />
+          <label htmlFor="isRecurring" className="text-lg">
+            {formData.isRecurring ? '🔄 Recurring Expense' : '💰 One-time Expense'}
+          </label>
+        </div>
         <p className="text-sm text-gray-500 mt-2">
-          {expenseTypes.find(t => t.value === formData.type)?.description}
+          {formData.isRecurring ? 'This expense repeats regularly (subscriptions, bills, etc.)' : 'This is a one-time purchase or payment'}
         </p>
       </div>
 
       {/* Recurring Frequency */}
-      {formData.type === 'recurring' && (
+      {formData.isRecurring && (
         <div>
           <label className="flex items-center space-x-2 text-sm font-medium text-gray-700 mb-3">
             <Clock size={16} className="text-orange-600" />
@@ -219,9 +220,10 @@ export default function MobileExpenseForm({
           </label>
           <select
             value={formData.recurringFrequency}
-            onChange={(e) => setFormData({...formData, recurringFrequency: e.target.value as 'weekly' | 'monthly' | 'yearly'})}
+            onChange={(e) => setFormData({...formData, recurringFrequency: e.target.value as 'daily' | 'weekly' | 'monthly' | 'yearly'})}
             className="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 text-lg"
           >
+            <option value="daily">📅 Daily</option>
             <option value="weekly">📅 Weekly</option>
             <option value="monthly">🗓️ Monthly</option>
             <option value="yearly">📆 Yearly</option>

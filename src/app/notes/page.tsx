@@ -6,20 +6,12 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { 
   addNote as addNoteAction, 
   updateNote, 
-  deleteNote, 
-  type Note as ReduxNote 
+  deleteNote,
+  type Note
 } from '@/store/slices/notesSlice'
 import BulkImport from '@/components/BulkImport'
 
-interface Note {
-  id: string
-  title?: string
-  content: string
-  category?: string
-  color?: string
-  createdAt: Date
-  updatedAt?: Date
-}
+// Using Redux Note interface - no local interface needed
 
 const noteColors = [
   'bg-yellow-100 border-yellow-300',
@@ -42,9 +34,13 @@ export default function NotesPage() {
     if (newNote.trim()) {
       const note: Note = {
         id: Date.now().toString(),
+        title: '', // Default empty title
         content: newNote.trim(),
-        color: noteColors[Math.floor(Math.random() * noteColors.length)],
-        createdAt: new Date(),
+        color: noteColors[Math.floor(Math.random() * noteColors.length)] as 'default' | 'blue' | 'green' | 'yellow' | 'red' | 'purple' | 'pink',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        isPinned: false,
+        isEncrypted: false,
       }
       dispatch(addNoteAction(note))
       setNewNote('')
@@ -78,7 +74,7 @@ export default function NotesPage() {
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && e.ctrlKey) {
-      addNote()
+      handleAddNote()
     }
   }
 
@@ -92,7 +88,9 @@ export default function NotesPage() {
 
   const handleBulkImport = (data: unknown[]) => {
     const importedNotes = data as Note[]
-    setNotes([...importedNotes, ...notes])
+    importedNotes.forEach(note => {
+      dispatch(addNoteAction(note))
+    })
     setShowBulkImport(false)
   }
 
@@ -148,7 +146,7 @@ export default function NotesPage() {
               Total Notes: <span className="font-semibold text-gray-900">{notes.length}</span>
             </div>
             <div className="text-sm text-gray-600">
-              Latest: {notes.length > 0 ? notes[0].createdAt.toLocaleDateString() : 'None'}
+              Latest: {notes.length > 0 ? new Date(notes[0].createdAt).toLocaleDateString() : 'None'}
             </div>
           </div>
         </div>
@@ -172,7 +170,7 @@ export default function NotesPage() {
             >
               <div className="flex justify-between items-start mb-3">
                 <div className="text-xs text-gray-500">
-                  {note.createdAt.toLocaleDateString()} {note.createdAt.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                  {new Date(note.createdAt).toLocaleDateString()} {new Date(note.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                 </div>
                 <div className="flex space-x-1">
                   <button

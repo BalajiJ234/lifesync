@@ -193,11 +193,11 @@ export default function SettingsPage() {
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-left flex items-center justify-between hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <div className="flex items-center">
-                      <span className="mr-3">{settings.defaultCurrency.flag}</span>
+                      <span className="mr-3">{SUPPORTED_CURRENCIES.find(c => c.code === settings.currency)?.flag || '🌍'}</span>
                       <div>
-                        <div className="font-medium">{settings.defaultCurrency.name}</div>
+                        <div className="font-medium">{SUPPORTED_CURRENCIES.find(c => c.code === settings.currency)?.name || settings.currency}</div>
                         <div className="text-sm text-gray-500">
-                          {settings.defaultCurrency.code} ({settings.defaultCurrency.symbol})
+                          {settings.currency} ({SUPPORTED_CURRENCIES.find(c => c.code === settings.currency)?.symbol || settings.currency})
                         </div>
                       </div>
                     </div>
@@ -237,7 +237,7 @@ export default function SettingsPage() {
                                 </div>
                               </div>
                             </div>
-                            {settings.defaultCurrency.code === currency.code && (
+                            {settings.currency === currency.code && (
                               <Check size={18} className="text-blue-600" />
                             )}
                           </button>
@@ -265,11 +265,11 @@ export default function SettingsPage() {
                 {[
                   { value: 'light', label: 'Light', icon: Sun },
                   { value: 'dark', label: 'Dark', icon: Moon },
-                  { value: 'system', label: 'System', icon: Monitor }
+                  { value: 'auto', label: 'Auto', icon: Monitor }
                 ].map(({ value, label, icon: Icon }) => (
                   <button
                     key={value}
-                    onClick={() => updateTheme(value as 'light' | 'dark' | 'system')}
+                    onClick={() => updateTheme(value as 'light' | 'dark' | 'auto')}
                     className={`p-3 border rounded-lg flex flex-col items-center space-y-2 transition-colors ${
                       settings.theme === value
                         ? 'border-blue-500 bg-blue-50 text-blue-700'
@@ -299,14 +299,14 @@ export default function SettingsPage() {
                 </div>
               </div>
               <button
-                onClick={() => updateNotifications(!settings.notifications)}
+                onClick={() => updateNotifications(!settings.enableNotifications)}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                  settings.notifications ? 'bg-blue-600' : 'bg-gray-300'
+                  settings.enableNotifications ? 'bg-blue-600' : 'bg-gray-300'
                 }`}
               >
                 <span
                   className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                    settings.notifications ? 'translate-x-6' : 'translate-x-1'
+                    settings.enableNotifications ? 'translate-x-6' : 'translate-x-1'
                   }`}
                 />
               </button>
@@ -388,7 +388,7 @@ export default function SettingsPage() {
                 <div key={amount} className="text-center p-3 bg-gray-50 rounded-lg">
                   <div className="text-sm text-gray-500 mb-1">Sample Amount</div>
                   <div className="font-semibold text-gray-900">
-                    {settings.defaultCurrency.symbol}{amount.toFixed(settings.defaultCurrency.decimalPlaces)}
+                    {SUPPORTED_CURRENCIES.find(c => c.code === settings.currency)?.symbol || settings.currency}{amount.toFixed(SUPPORTED_CURRENCIES.find(c => c.code === settings.currency)?.decimalPlaces || 2)}
                   </div>
                 </div>
               ))}

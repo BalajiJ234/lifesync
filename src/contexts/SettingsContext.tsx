@@ -1,34 +1,23 @@
 'use client'
 
 import { createContext, useContext, ReactNode } from 'react'
-import { Currency, DEFAULT_CURRENCY } from '@/utils/currency'
+import { Currency } from '@/utils/currency'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { 
   updateSetting,
-  selectSettings
+  selectSettings,
+  UserSettings
 } from '@/store/slices/settingsSlice'
-
-interface UserSettings {
-  defaultCurrency: Currency
-  theme: 'light' | 'dark' | 'system'
-  notifications: boolean
-  language: string
-}
 
 interface SettingsContextType {
   settings: UserSettings
   updateCurrency: (currency: Currency) => void
-  updateTheme: (theme: 'light' | 'dark' | 'system') => void
+  updateTheme: (theme: 'light' | 'dark' | 'auto') => void
   updateNotifications: (enabled: boolean) => void
   updateLanguage: (language: string) => void
 }
 
-const defaultSettings: UserSettings = {
-  defaultCurrency: DEFAULT_CURRENCY,
-  theme: 'light',
-  notifications: true,
-  language: 'en'
-}
+// Remove unused defaultSettings - now using Redux defaults
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined)
 
@@ -37,15 +26,15 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const settings = useAppSelector(selectSettings)
 
   const updateCurrency = (currency: Currency) => {
-    dispatch(updateSetting({ key: 'defaultCurrency', value: currency }))
+    dispatch(updateSetting({ key: 'currency', value: currency.code }))
   }
 
-  const updateTheme = (theme: 'light' | 'dark' | 'system') => {
+  const updateTheme = (theme: 'light' | 'dark' | 'auto') => {
     dispatch(updateSetting({ key: 'theme', value: theme }))
   }
 
   const updateNotifications = (notifications: boolean) => {
-    dispatch(updateSetting({ key: 'notifications', value: notifications }))
+    dispatch(updateSetting({ key: 'enableNotifications', value: notifications }))
   }
 
   const updateLanguage = (language: string) => {

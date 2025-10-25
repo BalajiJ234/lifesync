@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { X, Rocket, Code, Zap, Users, GitBranch, Cloud, Database } from 'lucide-react'
+import { X, Rocket, Code, Zap, GitBranch } from 'lucide-react'
 
 interface NotificationBannerProps {
   variant?: 'info' | 'success' | 'warning' | 'learning'

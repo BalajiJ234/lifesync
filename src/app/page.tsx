@@ -25,43 +25,6 @@ interface ActivityItem {
   amount?: string
 }
 
-interface Note {
-  id: string
-  content: string
-  color: string
-  createdAt: Date
-  updatedAt?: Date
-}
-
-interface Todo {
-  id: string
-  text: string
-  completed: boolean
-  createdAt: Date
-}
-
-interface Expense {
-  id: string
-  description: string
-  amount: number
-  currency: string
-  date: string
-  createdAt: Date
-}
-
-interface Friend {
-  id: string
-  name: string
-}
-
-interface SplitBill {
-  id: string
-  totalAmount: number
-  status: 'pending' | 'settled' | 'cancelled'
-  participants: string[]
-  createdAt: Date
-}
-
 const useAppData = () => {
   // Load real data from Redux store
   const notes = useAppSelector((state) => state.notes.notes)

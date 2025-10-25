@@ -23,7 +23,7 @@ import { formatAmount, convertCurrency, SUPPORTED_CURRENCIES } from '@/utils/cur
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { 
   addExpense, 
-  updateExpense, 
+  updateExpense,
   deleteExpense, 
   bulkImportExpenses,
   type Expense as ReduxExpense
@@ -32,15 +32,9 @@ import type { RootState } from '@/store/index'
 import ResponsiveModal, { useMobileModal } from '@/components/ui/MobileModal'
 import MobileExpenseForm from '@/components/forms/MobileExpenseForm'
 
-// Import Friend interface from splits
-interface Friend {
-  id: string
-  name: string
-  email: string
-  avatar: string
-  createdAt: Date
-}
+// Friend interface now comes from Redux splits slice
 
+// SplitBill interface temporarily unused during sharing feature development
 interface SplitBill {
   id: string
   description: string
@@ -56,21 +50,7 @@ interface SplitBill {
   currency: string
 }
 
-interface Expense {
-  id: string
-  amount: number
-  description: string
-  category: string
-  type: 'recurring' | 'essential' | 'one-time' | 'luxury' | 'emergency' // New expense type
-  date: string
-  notes?: string
-  currency: string
-  createdAt: Date
-  isShared?: boolean
-  sharedWith?: string[] // Array of friend IDs
-  splitBillId?: string // Reference to the created split bill
-  recurringFrequency?: 'weekly' | 'monthly' | 'yearly' // For recurring expenses
-}
+// Using Redux Expense interface - no local interface needed
 
 const expenseTypes = [
   { 
@@ -128,18 +108,18 @@ export default function ExpensesPage() {
   const { settings } = useSettings()
   const dispatch = useAppDispatch()
   const expenses = useAppSelector((state: RootState) => state.expenses?.expenses || [])
-  const totalSpent = useAppSelector((state: RootState) => state.expenses?.totalSpent || 0)
+  // Remove unused totalSpent variable
   
   // Load friends and bills from Redux
   const friends = useAppSelector((state: RootState) => state.splits?.friends || [])
-  const bills = useAppSelector((state: RootState) => state.splits?.bills || [])
+  // const bills = useAppSelector((state: RootState) => state.splits?.bills || []) // Temporarily unused
   
   // Mobile Modal States
   const addModal = useMobileModal()
   const editModal = useMobileModal()
-  const [editingExpense, setEditingExpense] = useState<Expense | null>(null)
+  const [editingExpense, setEditingExpense] = useState<ReduxExpense | null>(null)
   
-  const [shareModalExpense, setShareModalExpense] = useState<Expense | null>(null)
+  const [shareModalExpense, setShareModalExpense] = useState<ReduxExpense | null>(null)
   const [selectedFriends, setSelectedFriends] = useState<string[]>([])
   const [isClient, setIsClient] = useState(false)
   const [showQuickAddFriend, setShowQuickAddFriend] = useState(false)
@@ -160,10 +140,10 @@ export default function ExpensesPage() {
     amount: string
     currency: string
     category: string
-    type: 'recurring' | 'essential' | 'one-time' | 'luxury' | 'emergency'
+    isRecurring?: boolean
     description: string
     date: string
-    recurringFrequency: 'weekly' | 'monthly' | 'yearly'
+    recurringFrequency: 'daily' | 'weekly' | 'monthly' | 'yearly'
     notes: string
   }) => {
     const expense: ReduxExpense = {
@@ -176,11 +156,8 @@ export default function ExpensesPage() {
       createdAt: new Date().toISOString(),
       // Map additional fields to Redux schema
       notes: formData.notes.trim() || undefined,
-      tags: [formData.type], // Store expense type as a tag
-      isRecurring: formData.type === 'recurring',
-      recurringPeriod: formData.type === 'recurring' ? 
-        (formData.recurringFrequency === 'weekly' ? 'weekly' :
-         formData.recurringFrequency === 'monthly' ? 'monthly' : 'yearly') : undefined
+      isRecurring: formData.isRecurring || false,
+      recurringPeriod: formData.isRecurring ? formData.recurringFrequency as 'daily' | 'weekly' | 'monthly' | 'yearly' : undefined,
     }
     
     dispatch(addExpense(expense))
@@ -191,28 +168,26 @@ export default function ExpensesPage() {
     amount: string
     currency: string
     category: string
-    type: 'recurring' | 'essential' | 'one-time' | 'luxury' | 'emergency'
+    isRecurring?: boolean
     description: string
     date: string
-    recurringFrequency: 'weekly' | 'monthly' | 'yearly'
+    recurringFrequency: 'daily' | 'weekly' | 'monthly' | 'yearly'
     notes: string
   }) => {
     if (editingExpense) {
-      setExpenses(expenses.map(expense => 
-        expense.id === editingExpense.id 
-          ? {
-              ...expense,
-              amount: parseFloat(formData.amount),
-              description: formData.description.trim(),
-              category: formData.category,
-              type: formData.type,
-              recurringFrequency: formData.type === 'recurring' ? formData.recurringFrequency : undefined,
-              date: formData.date,
-              notes: formData.notes.trim() || undefined,
-              currency: formData.currency
-            }
-          : expense
-      ))
+      dispatch(updateExpense({
+        id: editingExpense.id,
+        updates: {
+          amount: parseFloat(formData.amount),
+          description: formData.description.trim(),
+          category: formData.category,
+          isRecurring: formData.isRecurring || false,
+          recurringPeriod: formData.isRecurring ? formData.recurringFrequency as 'daily' | 'weekly' | 'monthly' | 'yearly' : undefined,
+          date: formData.date,
+          notes: formData.notes.trim() || undefined,
+          currency: formData.currency
+        }
+      }))
       setEditingExpense(null)
       editModal.closeModal()
     }
@@ -222,99 +197,22 @@ export default function ExpensesPage() {
     dispatch(deleteExpense(id))
   }
 
+  // Sharing functionality temporarily disabled due to interface incompatibility
   const shareExpense = (expenseId: string, selectedFriends: string[]) => {
-    const expense = expenses.find(e => e.id === expenseId)
-    if (!expense || selectedFriends.length === 0) return
-
-    // Check if expense is already shared
-    if (expense.isShared && expense.splitBillId) {
-      // Update existing split bill
-      const existingSplitBill = bills.find(b => b.id === expense.splitBillId)
-      if (existingSplitBill) {
-        // Recalculate split amounts for updated participants
-        const updatedCustomAmounts: Record<string, number> = {}
-        const perPerson = expense.amount / selectedFriends.length
-        selectedFriends.forEach(id => {
-          updatedCustomAmounts[id] = perPerson
-        })
-
-        // Update the existing split bill with new participants
-        const updatedBill: SplitBill = {
-          ...existingSplitBill,
-          participants: selectedFriends,
-          customAmounts: updatedCustomAmounts, // Recalculated amounts
-          description: `${expense.description} (Shared Expense)`, // Update description in case expense changed
-          totalAmount: expense.amount, // Update amount in case expense changed
-          currency: expense.currency,
-          notes: expense.notes
-        }
-        
-        // Update the bills array
-        setBills(bills.map(b => b.id === expense.splitBillId ? updatedBill : b))
-        
-        // Update the expense with new shared info
-        setExpenses(expenses.map(e => 
-          e.id === expenseId 
-            ? { ...e, sharedWith: selectedFriends }
-            : e
-        ))
-        return
-      }
-    }
-
-    // Calculate split amounts for equal sharing
-    const customAmounts: Record<string, number> = {}
-    const perPerson = expense.amount / selectedFriends.length
-    selectedFriends.forEach(id => {
-      customAmounts[id] = perPerson
-    })
-
-    // Create a new split bill from the expense (only if not already shared)
-    const splitBill: SplitBill = {
-      id: Date.now().toString(),
-      description: `${expense.description} (Shared Expense)`,
-      totalAmount: expense.amount,
-      currency: expense.currency,
-      paidBy: 'self', // Current user paid the expense
-      participants: selectedFriends,
-      splitType: 'equal',
-      customAmounts,
-      date: expense.date,
-      settled: false,
-      createdAt: new Date(),
-      notes: expense.notes
-    }
-
-    // Add the split bill
-    setBills([splitBill, ...bills])
-
-    // Update the expense to mark it as shared
-    setExpenses(expenses.map(e => 
-      e.id === expenseId 
-        ? { ...e, isShared: true, sharedWith: selectedFriends, splitBillId: splitBill.id }
-        : e
-    ))
+    // TODO: Implement sharing once Redux expense interface includes sharing fields
+    return
   }
 
+  // Unsharing functionality temporarily disabled
   const unshareExpense = (expenseId: string) => {
-    const expense = expenses.find(e => e.id === expenseId)
-    if (!expense || !expense.isShared || !expense.splitBillId) return
-
-    // Remove the associated split bill
-    setBills(bills.filter(b => b.id !== expense.splitBillId))
-
-    // Update the expense to mark it as unshared
-    setExpenses(expenses.map(e => 
-      e.id === expenseId 
-        ? { ...e, isShared: false, sharedWith: undefined, splitBillId: undefined }
-        : e
-    ))
+    // TODO: Implement unsharing once Redux expense interface includes sharing fields
+    return
   }
 
-  const openShareModal = (expense: Expense) => {
+  const openShareModal = (expense: ReduxExpense) => {
     setShareModalExpense(expense)
-    // Pre-populate selected friends if expense is already shared
-    setSelectedFriends(expense.isShared && expense.sharedWith ? expense.sharedWith : [])
+    // Pre-populate selected friends - sharing temporarily disabled
+    setSelectedFriends([])
   }
 
   const addQuickFriend = () => {
@@ -349,7 +247,7 @@ export default function ExpensesPage() {
     setShowBulkImport(false)
   }
   
-  const startEdit = (expense: Expense) => {
+  const startEdit = (expense: ReduxExpense) => {
     setEditingExpense(expense)
     editModal.openModal()
   }
@@ -447,8 +345,8 @@ export default function ExpensesPage() {
                 {formatAmount(
                   filteredExpenses
                     .filter(e => new Date(e.date).getMonth() === new Date().getMonth())
-                    .reduce((sum, e) => sum + convertCurrency(e.amount, e.currency, settings.defaultCurrency.code), 0),
-                  settings.defaultCurrency
+                    .reduce((sum, e) => sum + convertCurrency(e.amount, e.currency, settings.currency), 0),
+                  SUPPORTED_CURRENCIES.find(c => c.code === settings.currency) || SUPPORTED_CURRENCIES[0]
                 )}
               </p>
             </div>
@@ -471,8 +369,8 @@ export default function ExpensesPage() {
                       weekStart.setDate(weekStart.getDate() - weekStart.getDay())
                       return expenseDate >= weekStart
                     })
-                    .reduce((sum, e) => sum + convertCurrency(e.amount, e.currency, settings.defaultCurrency.code), 0),
-                  settings.defaultCurrency
+                    .reduce((sum, e) => sum + convertCurrency(e.amount, e.currency, settings.currency), 0),
+                  SUPPORTED_CURRENCIES.find(c => c.code === settings.currency) || SUPPORTED_CURRENCIES[0]
                 )}
               </p>
             </div>
@@ -489,9 +387,9 @@ export default function ExpensesPage() {
               <p className="text-2xl font-bold text-gray-900">
                 {formatAmount(
                   filteredExpenses.length > 0 ? 
-                    filteredExpenses.reduce((sum, e) => sum + convertCurrency(e.amount, e.currency, settings.defaultCurrency.code), 0) / 30
+                    filteredExpenses.reduce((sum, e) => sum + convertCurrency(e.amount, e.currency, settings.currency), 0) / 30
                     : 0,
-                  settings.defaultCurrency
+                  SUPPORTED_CURRENCIES.find(c => c.code === settings.currency) || SUPPORTED_CURRENCIES[0]
                 )}
               </p>
             </div>
@@ -560,10 +458,10 @@ export default function ExpensesPage() {
               amount: editingExpense.amount.toString(),
               currency: editingExpense.currency,
               category: editingExpense.category,
-              type: editingExpense.type,
+              isRecurring: editingExpense.isRecurring,
               description: editingExpense.description,
               date: editingExpense.date,
-              recurringFrequency: editingExpense.recurringFrequency || 'monthly',
+              recurringFrequency: (editingExpense.recurringPeriod as 'daily' | 'weekly' | 'monthly' | 'yearly') || 'monthly',
               notes: editingExpense.notes || '',
             }}
             onSubmit={handleEditExpense}
@@ -621,8 +519,8 @@ export default function ExpensesPage() {
             {filteredExpenses.length > 0 && (
               <span className="ml-2 font-medium">
                 Total: {formatAmount(
-                  filteredExpenses.reduce((sum, e) => sum + convertCurrency(e.amount, e.currency, settings.defaultCurrency.code), 0),
-                  settings.defaultCurrency
+                  filteredExpenses.reduce((sum, e) => sum + convertCurrency(e.amount, e.currency, settings.currency), 0),
+                  SUPPORTED_CURRENCIES.find(c => c.code === settings.currency) || SUPPORTED_CURRENCIES[0]
                 )}
               </span>
             )}
@@ -668,7 +566,7 @@ export default function ExpensesPage() {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <h3 className="font-semibold text-gray-900">{expense.description}</h3>
-                          {expense.isShared && (
+                          {false && (
                             <div className="flex items-center gap-1 px-2 py-1 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded-full text-xs">
                               <Users className="w-3 h-3" />
                               <span>Shared</span>
@@ -677,13 +575,13 @@ export default function ExpensesPage() {
                         </div>
                         <div className="text-right">
                           <span className="text-xl font-bold text-gray-900">
-                            {formatAmount(expense.amount, SUPPORTED_CURRENCIES.find(c => c.code === expense.currency) || settings.defaultCurrency)}
+                            {formatAmount(expense.amount, SUPPORTED_CURRENCIES.find(c => c.code === expense.currency) || SUPPORTED_CURRENCIES.find(c => c.code === settings.currency) || SUPPORTED_CURRENCIES[0])}
                           </span>
-                          {expense.currency !== settings.defaultCurrency.code && (
+                          {expense.currency !== settings.currency && (
                             <div className="text-sm text-gray-500">
                               ≈ {formatAmount(
-                                convertCurrency(expense.amount, expense.currency, settings.defaultCurrency.code),
-                                settings.defaultCurrency
+                                convertCurrency(expense.amount, expense.currency, settings.currency),
+                                SUPPORTED_CURRENCIES.find(c => c.code === settings.currency) || SUPPORTED_CURRENCIES[0]
                               )}
                             </div>
                           )}
@@ -695,10 +593,10 @@ export default function ExpensesPage() {
                           {expense.category}
                         </span>
                         
-                        <span className={`px-2 py-1 rounded-full text-xs ${expenseTypes.find(t => t.value === expense.type)?.color || 'bg-gray-100 text-gray-800'}`}>
-                          {expenseTypes.find(t => t.value === expense.type)?.icon} {expenseTypes.find(t => t.value === expense.type)?.name || expense.type}
-                          {expense.type === 'recurring' && expense.recurringFrequency && (
-                            <span className="ml-1">({expense.recurringFrequency})</span>
+                        <span className={`px-2 py-1 rounded-full text-xs ${expense.isRecurring ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}`}>
+                          {expense.isRecurring ? '🔄' : '💰'} {expense.isRecurring ? 'Recurring' : 'One-time'}
+                          {expense.isRecurring && expense.recurringPeriod && (
+                            <span className="ml-1">({expense.recurringPeriod})</span>
                           )}
                         </span>
                         
@@ -761,9 +659,9 @@ export default function ExpensesPage() {
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900">
-                    {shareModalExpense.isShared ? 'Update Shared Expense' : 'Share Expense'}
+                    Share Expense
                   </h3>
-                  {shareModalExpense.isShared && (
+                  {false && (
                     <p className="text-sm text-green-600">This expense is already shared - updating participants</p>
                   )}
                 </div>
@@ -778,7 +676,7 @@ export default function ExpensesPage() {
               <div className="mb-4 p-4 bg-gray-50 rounded-lg">
                 <h4 className="font-medium text-gray-900">{shareModalExpense.description}</h4>
                 <p className="text-sm text-gray-600">
-                  {formatAmount(shareModalExpense.amount, SUPPORTED_CURRENCIES.find(c => c.code === shareModalExpense.currency) || settings.defaultCurrency)}
+                  {formatAmount(shareModalExpense.amount, SUPPORTED_CURRENCIES.find(c => c.code === shareModalExpense.currency) || SUPPORTED_CURRENCIES.find(c => c.code === settings.currency) || SUPPORTED_CURRENCIES[0])}
                 </p>
               </div>
 
@@ -883,12 +781,14 @@ export default function ExpensesPage() {
                 >
                   Cancel
                 </button>
-                {shareModalExpense.isShared && (
+                {false && (
                   <button
                     onClick={() => {
-                      unshareExpense(shareModalExpense.id)
-                      setShareModalExpense(null)
-                      setSelectedFriends([])
+                      if (shareModalExpense) {
+                        unshareExpense(shareModalExpense.id)
+                        setShareModalExpense(null)
+                        setSelectedFriends([])
+                      }
                     }}
                     className="px-4 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors"
                   >
@@ -904,7 +804,7 @@ export default function ExpensesPage() {
                   disabled={selectedFriends.length === 0}
                   className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                  {shareModalExpense.isShared ? 'Update Share' : 'Share Expense'}
+                  Share Expense
                 </button>
               </div>
             </div>
