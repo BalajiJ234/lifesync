@@ -30,6 +30,7 @@ import {
 import { addExpense } from '@/store/slices/expensesSlice'
 import { useSettings } from '@/contexts/SettingsContext'
 import { formatAmount, getCurrencyByCode, SUPPORTED_CURRENCIES } from '@/utils/currency'
+import { createId } from '@/lib/utils'
 import ResponsiveModal, { useMobileModal } from '@/components/ui/MobileModal'
 
 const frequencyOptions: { value: RecurringFrequency; label: string }[] = [
@@ -73,7 +74,7 @@ export default function RecurringTemplatesPage() {
 
   const handleAddTemplate = (data: Partial<RecurringTemplate>) => {
     const newTemplate: RecurringTemplate = {
-      id: Date.now().toString(),
+  id: createId('template'),
       name: data.name || '',
       amount: data.amount || 0,
       currency: data.currency || settings.currency,
@@ -126,7 +127,7 @@ export default function RecurringTemplatesPage() {
     )
 
     const newExpense = {
-      id: Date.now().toString(),
+  id: createId('expense'),
       description: template.name,
       amount: template.amount,
       currency: template.currency,

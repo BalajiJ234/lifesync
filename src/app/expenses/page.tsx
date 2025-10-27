@@ -20,6 +20,7 @@ import {
 import BulkImport from '@/components/BulkImport'
 import { useSettings } from '@/contexts/SettingsContext'
 import { formatAmount, convertCurrency, SUPPORTED_CURRENCIES } from '@/utils/currency'
+import { createId } from '@/lib/utils'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import {
   addExpense,
@@ -153,7 +154,7 @@ export default function ExpensesPage() {
     templateId?: string
   }) => {
     const expense: ReduxExpense = {
-      id: Date.now().toString(),
+      id: createId('expense'),
       amount: parseFloat(formData.amount),
       description: formData.description.trim(),
       category: formData.category,
@@ -227,7 +228,7 @@ export default function ExpensesPage() {
     if (quickFriendForm.name.trim()) {
       const defaultAvatars = ['👤', '👨', '👩', '🧑', '👱', '👶', '🧓', '👴', '👵', '🤵', '👰']
       const newFriend = {
-        id: Date.now().toString(),
+    id: createId('expense'),
         name: quickFriendForm.name.trim(),
         email: quickFriendForm.email.trim(),
         avatar: defaultAvatars[friends.length % defaultAvatars.length],
@@ -559,7 +560,7 @@ export default function ExpensesPage() {
 
             return (
               <div
-                key={expense.id}
+                key={`${expense.id}-${expense.createdAt ?? ''}`}
                 className="bg-white p-4 rounded-lg shadow-sm border hover:shadow-md transition-shadow"
               >
                 <div className="flex items-start gap-3">
