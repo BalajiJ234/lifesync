@@ -253,7 +253,7 @@ export function AIInsights() {
               ) : (
                 <div className="text-center py-6 text-gray-500">
                   <p className="text-sm">No insights available yet.</p>
-                  <p className="text-xs mt-1">Add some expenses and todos to get personalized suggestions!</p>
+                  <p className="text-xs mt-1">Add some expenses and income to get personalized suggestions!</p>
                 </div>
               )}
 

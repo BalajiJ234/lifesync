@@ -5,9 +5,7 @@ import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import {
   Home,
-  StickyNote,
   DollarSign,
-  CheckSquare,
   TrendingUp,
   Target,
   Settings,
@@ -23,8 +21,6 @@ const navItems = [
   { href: '/expenses', label: 'Expenses', icon: DollarSign, hasSubmenu: true },
   { href: '/income', label: 'Income', icon: TrendingUp },
   { href: '/goals', label: 'Goals', icon: Target },
-  { href: '/notes', label: 'Notes', icon: StickyNote },
-  { href: '/todos', label: 'Todos', icon: CheckSquare },
   { href: '/settings', label: 'Settings', icon: Settings },
 ]
 

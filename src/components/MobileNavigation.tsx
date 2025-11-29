@@ -5,9 +5,8 @@ import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import {
   Home,
-  StickyNote,
   DollarSign,
-  CheckSquare,
+  TrendingUp,
   Settings,
   Target,
   ChevronDown,
@@ -22,9 +21,8 @@ const navItems = [
   { href: '/advisor', label: 'Advisor', icon: Lightbulb },
   { href: '/', label: 'Dashboard', icon: Home },
   { href: '/expenses', label: 'Expenses', icon: DollarSign, hasSubmenu: true },
+  { href: '/income', label: 'Income', icon: TrendingUp },
   { href: '/goals', label: 'Goals', icon: Target },
-  { href: '/notes', label: 'Notes', icon: StickyNote },
-  { href: '/todos', label: 'Todos', icon: CheckSquare },
   { href: '/settings', label: 'Settings', icon: Settings },
 ]
 
@@ -38,8 +36,8 @@ const bottomTabItems = [
   { href: '/advisor', label: 'Advisor', icon: Lightbulb },
   { href: '/', label: 'Home', icon: Home },
   { href: '/expenses', label: 'Expenses', icon: DollarSign },
+  { href: '/income', label: 'Income', icon: TrendingUp },
   { href: '/goals', label: 'Goals', icon: Target },
-  { href: '/settings', label: 'Settings', icon: Settings },
 ]
 
 export default function MobileNavigation() {

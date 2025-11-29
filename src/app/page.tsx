@@ -7,18 +7,24 @@ import { AIInsights } from '@/components/ai/AIIntegration'
 import { DailyBudgetWidget } from '@/components/DailyBudgetWidget'
 import { FamilyRemittanceWidget } from '@/components/FamilyRemittanceWidget'
 import { QuickInsightsWidget } from '@/components/QuickInsightsWidget'
+import { selectExpenses } from '@/store/slices/expensesSlice'
+import { selectIncomes } from '@/store/slices/incomeSlice'
+import { selectGoals } from '@/store/slices/goalsSlice'
 import { 
-  StickyNote, 
   DollarSign, 
-  CheckSquare, 
   Users,
   Plus,
   TrendingUp,
+  TrendingDown,
   Clock,
   Calendar,
   Target,
   Activity,
-  Lightbulb
+  Lightbulb,
+  PiggyBank,
+  ArrowUpRight,
+  ArrowDownRight,
+  Wallet
 } from 'lucide-react'
 
 // Data interfaces
@@ -27,13 +33,13 @@ interface ActivityItem {
   desc: string
   time: string
   amount?: string
+  isPositive?: boolean
 }
 
-const useAppData = () => {
-  // Load real data from Redux store
-  const notes = useAppSelector((state) => state.notes.notes)
-  const todos = useAppSelector((state) => state.todos.todos)
-  const expenses = useAppSelector((state) => state.expenses.expenses)
+const useFinanceData = () => {
+  const expenses = useAppSelector(selectExpenses)
+  const incomes = useAppSelector(selectIncomes)
+  const goals = useAppSelector(selectGoals)
   const friends = useAppSelector((state) => state.splits.friends)
   const bills = useAppSelector((state) => state.splits.bills)
   const [isClient, setIsClient] = useState(false)
@@ -51,41 +57,46 @@ const useAppData = () => {
     return expenseDate.getMonth() === currentMonth && expenseDate.getFullYear() === currentYear
   })
   
-  const thisMonthTotal = thisMonthExpenses.reduce((sum, expense) => sum + expense.amount, 0)
-  const activeTodos = todos.filter(todo => !todo.completed)
-  const completedTodos = todos.filter(todo => todo.completed)
+  const thisMonthIncome = incomes.filter(income => {
+    const incomeDate = new Date(income.eventDate)
+    return incomeDate.getMonth() === currentMonth && incomeDate.getFullYear() === currentYear
+  })
+  
+  const thisMonthExpenseTotal = thisMonthExpenses.reduce((sum, expense) => sum + expense.amount, 0)
+  const thisMonthIncomeTotal = thisMonthIncome.reduce((sum, income) => sum + income.amount, 0)
+  const netSavings = thisMonthIncomeTotal - thisMonthExpenseTotal
+  
   const pendingBills = bills.filter(bill => bill.status !== 'settled')
   const pendingAmount = pendingBills.reduce((sum, bill) => sum + bill.totalAmount, 0)
+  
+  const activeGoals = goals.filter(goal => goal.currentAmount < goal.targetAmount)
+  const totalGoalProgress = goals.length > 0 
+    ? goals.reduce((sum, goal) => sum + (goal.currentAmount / goal.targetAmount), 0) / goals.length * 100
+    : 0
 
   // Generate recent activity from real data
   const generateRecentActivity = (): ActivityItem[] => {
     const activities: ActivityItem[] = []
     
     // Add recent expenses
-    expenses.slice(0, 2).forEach(expense => {
+    expenses.slice(0, 3).forEach(expense => {
       activities.push({
         type: 'expense',
-        desc: `Added ${expense.description}`,
+        desc: expense.description,
         time: formatTimeAgo(expense.createdAt),
-        amount: `$${expense.amount.toFixed(2)}`
+        amount: `$${expense.amount.toFixed(2)}`,
+        isPositive: false
       })
     })
     
-    // Add recent todos
-    todos.slice(0, 2).forEach(todo => {
+    // Add recent income
+    incomes.slice(0, 2).forEach(income => {
       activities.push({
-        type: 'todo',
-        desc: todo.completed ? `Completed "${todo.text}"` : `Added "${todo.text}"`,
-        time: formatTimeAgo(todo.createdAt)
-      })
-    })
-    
-    // Add recent notes
-    notes.slice(0, 1).forEach(note => {
-      activities.push({
-        type: 'note',
-        desc: `Created note: "${note.content.slice(0, 30)}..."`,
-        time: formatTimeAgo(note.createdAt)
+        type: 'income',
+        desc: income.source,
+        time: formatTimeAgo(income.createdAt),
+        amount: `$${income.amount.toFixed(2)}`,
+        isPositive: true
       })
     })
     
@@ -93,13 +104,14 @@ const useAppData = () => {
     bills.slice(0, 1).forEach(bill => {
       activities.push({
         type: 'split',
-        desc: `Split bill: ${bill.id}`,
+        desc: `Split: ${bill.description || bill.id}`,
         time: formatTimeAgo(bill.createdAt),
-        amount: `$${bill.totalAmount.toFixed(2)}`
+        amount: `$${bill.totalAmount.toFixed(2)}`,
+        isPositive: false
       })
     })
     
-    return activities.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime()).slice(0, 5)
+    return activities.slice(0, 5)
   }
 
   const formatTimeAgo = (date: Date | string) => {
@@ -110,40 +122,43 @@ const useAppData = () => {
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
     const diffDays = Math.floor(diffHours / 24)
     
-    if (diffDays > 0) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`
-    if (diffHours > 0) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`
+    if (diffDays > 0) return `${diffDays}d ago`
+    if (diffHours > 0) return `${diffHours}h ago`
     return 'Just now'
   }
 
   return {
-    notes: isClient ? notes.length : 0,
     expenses: { 
-      thisMonth: isClient ? thisMonthTotal : 0,
+      thisMonth: isClient ? thisMonthExpenseTotal : 0,
       count: isClient ? expenses.length : 0
     },
-    todos: { 
-      active: isClient ? activeTodos.length : 0,
-      completed: isClient ? completedTodos.length : 0
+    income: {
+      thisMonth: isClient ? thisMonthIncomeTotal : 0,
+      count: isClient ? incomes.length : 0
+    },
+    netSavings: isClient ? netSavings : 0,
+    goals: {
+      active: isClient ? activeGoals.length : 0,
+      total: isClient ? goals.length : 0,
+      avgProgress: isClient ? totalGoalProgress : 0
     },
     splits: { 
       pending: isClient ? pendingAmount : 0,
       friends: isClient ? friends.length : 0
     },
-    recentActivity: isClient ? generateRecentActivity() : []
+    recentActivity: isClient ? generateRecentActivity() : [],
+    isClient
   }
 }
 
 export default function Home() {
-  const appData = useAppData()
+  const data = useFinanceData()
 
-  const getActivityIcon = (type: string) => {
-    switch (type) {
-      case 'expense': return <DollarSign size={16} className="text-green-600" />
-      case 'todo': return <CheckSquare size={16} className="text-blue-600" />
-      case 'note': return <StickyNote size={16} className="text-yellow-600" />
-      case 'split': return <Users size={16} className="text-purple-600" />
-      default: return <Activity size={16} className="text-gray-600" />
-    }
+  const getActivityIcon = (type: string, isPositive?: boolean) => {
+    if (isPositive) return <ArrowUpRight size={16} className="text-green-600" />
+    if (type === 'expense') return <ArrowDownRight size={16} className="text-red-600" />
+    if (type === 'split') return <Users size={16} className="text-purple-600" />
+    return <Activity size={16} className="text-gray-600" />
   }
 
   return (
@@ -154,7 +169,7 @@ export default function Home() {
           Welcome to LifeSync
         </h1>
         <p className="text-xl text-gray-600">
-          Your AI-powered financial advisor and personal life management hub
+          Your AI-powered personal finance advisor
         </p>
         <div className="mt-4 flex items-center justify-center space-x-4 text-sm text-gray-500">
           <div className="flex items-center space-x-1">
@@ -173,30 +188,17 @@ export default function Home() {
       <FamilyRemittanceWidget />
       <QuickInsightsWidget />
 
-      {/* Quick Stats */}
+      {/* Financial Overview */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Total Notes</p>
-              <p className="text-2xl font-bold text-gray-900">{appData.notes}</p>
-              <p className="text-xs text-gray-500 mt-1">Quick thoughts & ideas</p>
-            </div>
-            <div className="p-3 bg-yellow-100 rounded-full">
-              <StickyNote className="h-6 w-6 text-yellow-600" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">This Month</p>
-              <p className="text-2xl font-bold text-gray-900">${appData.expenses.thisMonth}</p>
-              <p className="text-xs text-gray-500 mt-1">{appData.expenses.count} expenses tracked</p>
+              <p className="text-sm font-medium text-gray-600">This Month Income</p>
+              <p className="text-2xl font-bold text-green-600">${data.income.thisMonth.toFixed(0)}</p>
+              <p className="text-xs text-gray-500 mt-1">{data.income.count} income sources</p>
             </div>
             <div className="p-3 bg-green-100 rounded-full">
-              <DollarSign className="h-6 w-6 text-green-600" />
+              <TrendingUp className="h-6 w-6 text-green-600" />
             </div>
           </div>
         </div>
@@ -204,25 +206,42 @@ export default function Home() {
         <div className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Active Todos</p>
-              <p className="text-2xl font-bold text-gray-900">{appData.todos.active}</p>
-              <p className="text-xs text-gray-500 mt-1">{appData.todos.completed} completed</p>
+              <p className="text-sm font-medium text-gray-600">This Month Expenses</p>
+              <p className="text-2xl font-bold text-red-600">${data.expenses.thisMonth.toFixed(0)}</p>
+              <p className="text-xs text-gray-500 mt-1">{data.expenses.count} transactions</p>
+            </div>
+            <div className="p-3 bg-red-100 rounded-full">
+              <TrendingDown className="h-6 w-6 text-red-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Net Savings</p>
+              <p className={`text-2xl font-bold ${data.netSavings >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                ${Math.abs(data.netSavings).toFixed(0)}
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                {data.netSavings >= 0 ? 'You\'re saving!' : 'Over budget'}
+              </p>
+            </div>
+            <div className={`p-3 rounded-full ${data.netSavings >= 0 ? 'bg-green-100' : 'bg-red-100'}`}>
+              <Wallet className={`h-6 w-6 ${data.netSavings >= 0 ? 'text-green-600' : 'text-red-600'}`} />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Goal Progress</p>
+              <p className="text-2xl font-bold text-blue-600">{data.goals.avgProgress.toFixed(0)}%</p>
+              <p className="text-xs text-gray-500 mt-1">{data.goals.active} active goals</p>
             </div>
             <div className="p-3 bg-blue-100 rounded-full">
-              <CheckSquare className="h-6 w-6 text-blue-600" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Pending Splits</p>
-              <p className="text-2xl font-bold text-gray-900">${appData.splits.pending}</p>
-              <p className="text-xs text-gray-500 mt-1">{appData.splits.friends} friends</p>
-            </div>
-            <div className="p-3 bg-purple-100 rounded-full">
-              <Users className="h-6 w-6 text-purple-600" />
+              <Target className="h-6 w-6 text-blue-600" />
             </div>
           </div>
         </div>
@@ -232,37 +251,15 @@ export default function Home() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Link 
           href="/advisor"
-          className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition-shadow group"
+          className="bg-gradient-to-r from-indigo-500 to-purple-600 p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow group text-white"
         >
           <div className="flex flex-col items-center text-center space-y-4">
-            <div className="p-3 bg-indigo-100 rounded-full group-hover:bg-indigo-200 transition-colors">
-              <Lightbulb className="h-8 w-8 text-indigo-600" />
+            <div className="p-3 bg-white/20 rounded-full group-hover:bg-white/30 transition-colors">
+              <Lightbulb className="h-8 w-8" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Financial Advisor</h3>
-              <p className="text-sm text-gray-600">Get personalized advice</p>
-            </div>
-            <div className="flex items-center text-blue-600 text-sm font-medium">
-              View Insights →
-            </div>
-          </div>
-        </Link>
-
-        <Link 
-          href="/notes"
-          className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition-shadow group"
-        >
-          <div className="flex flex-col items-center text-center space-y-4">
-            <div className="p-3 bg-yellow-100 rounded-full group-hover:bg-yellow-200 transition-colors">
-              <StickyNote className="h-8 w-8 text-yellow-600" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">Quick Notes</h3>
-              <p className="text-sm text-gray-600">Jot down thoughts and ideas</p>
-            </div>
-            <div className="flex items-center text-blue-600 text-sm font-medium">
-              <Plus className="h-4 w-4 mr-1" />
-              Add Note
+              <h3 className="text-lg font-semibold">Financial Advisor</h3>
+              <p className="text-sm text-white/80">Get AI-powered insights</p>
             </div>
           </div>
         </Link>
@@ -272,8 +269,8 @@ export default function Home() {
           className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition-shadow group"
         >
           <div className="flex flex-col items-center text-center space-y-4">
-            <div className="p-3 bg-green-100 rounded-full group-hover:bg-green-200 transition-colors">
-              <DollarSign className="h-8 w-8 text-green-600" />
+            <div className="p-3 bg-red-100 rounded-full group-hover:bg-red-200 transition-colors">
+              <DollarSign className="h-8 w-8 text-red-600" />
             </div>
             <div>
               <h3 className="text-lg font-semibold text-gray-900">Track Expenses</h3>
@@ -287,15 +284,34 @@ export default function Home() {
         </Link>
 
         <Link 
+          href="/income"
+          className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition-shadow group"
+        >
+          <div className="flex flex-col items-center text-center space-y-4">
+            <div className="p-3 bg-green-100 rounded-full group-hover:bg-green-200 transition-colors">
+              <TrendingUp className="h-8 w-8 text-green-600" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Track Income</h3>
+              <p className="text-sm text-gray-600">Log your earnings</p>
+            </div>
+            <div className="flex items-center text-blue-600 text-sm font-medium">
+              <Plus className="h-4 w-4 mr-1" />
+              Add Income
+            </div>
+          </div>
+        </Link>
+
+        <Link 
           href="/goals"
           className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition-shadow group"
         >
           <div className="flex flex-col items-center text-center space-y-4">
             <div className="p-3 bg-blue-100 rounded-full group-hover:bg-blue-200 transition-colors">
-              <Target className="h-8 w-8 text-blue-600" />
+              <PiggyBank className="h-8 w-8 text-blue-600" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Financial Goals</h3>
+              <h3 className="text-lg font-semibold text-gray-900">Savings Goals</h3>
               <p className="text-sm text-gray-600">Plan for the future</p>
             </div>
             <div className="flex items-center text-blue-600 text-sm font-medium">
@@ -313,80 +329,85 @@ export default function Home() {
       <div className="bg-white rounded-lg shadow-sm border">
         <div className="p-6 border-b">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-gray-900">Recent Activity</h2>
-            <div className="flex items-center space-x-2 text-sm text-gray-500">
-              <Activity size={16} />
-              <span>Last 7 days</span>
-            </div>
+            <h2 className="text-xl font-semibold text-gray-900">Recent Transactions</h2>
+            <Link href="/expenses" className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+              View All →
+            </Link>
           </div>
         </div>
         <div className="p-6">
-          {appData.recentActivity.length === 0 ? (
+          {data.recentActivity.length === 0 ? (
             <div className="text-center text-gray-500 py-8">
-              <TrendingUp className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-              <p>No recent activity yet. Start by adding a note, expense, or task!</p>
+              <Activity className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+              <p>No recent transactions yet.</p>
+              <p className="text-sm mt-1">Start tracking your expenses and income!</p>
             </div>
           ) : (
             <div className="space-y-4">
-              {appData.recentActivity.map((activity, index) => (
+              {data.recentActivity.map((activity, index) => (
                 <div key={index} className="flex items-center space-x-4 p-3 hover:bg-gray-50 rounded-lg transition-colors">
-                  <div className="flex-shrink-0">
-                    {getActivityIcon(activity.type)}
+                  <div className="flex-shrink-0 p-2 bg-gray-100 rounded-full">
+                    {getActivityIcon(activity.type, activity.isPositive)}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-900">{activity.desc}</p>
-                    <div className="flex items-center space-x-4 mt-1">
-                      <p className="text-xs text-gray-500">{activity.time}</p>
-                      {activity.amount && (
-                        <span className="text-xs font-medium text-green-600">{activity.amount}</span>
-                      )}
+                    <p className="text-xs text-gray-500">{activity.time}</p>
+                  </div>
+                  {activity.amount && (
+                    <div className="flex-shrink-0">
+                      <span className={`text-sm font-semibold ${activity.isPositive ? 'text-green-600' : 'text-red-600'}`}>
+                        {activity.isPositive ? '+' : '-'}{activity.amount}
+                      </span>
                     </div>
-                  </div>
-                  <div className="flex-shrink-0">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      activity.type === 'expense' ? 'bg-green-100 text-green-800' :
-                      activity.type === 'todo' ? 'bg-blue-100 text-blue-800' :
-                      activity.type === 'note' ? 'bg-yellow-100 text-yellow-800' :
-                      activity.type === 'split' ? 'bg-purple-100 text-purple-800' :
-                      'bg-gray-100 text-gray-800'
-                    }`}>
-                      {activity.type}
-                    </span>
-                  </div>
+                  )}
                 </div>
               ))}
-              
-              <div className="pt-4 border-t">
-                <Link 
-                  href="/todos" 
-                  className="text-sm text-blue-600 hover:text-blue-700 font-medium"
-                >
-                  View all activity →
-                </Link>
-              </div>
             </div>
           )}
         </div>
       </div>
 
+      {/* Pending Splits */}
+      {data.splits.pending > 0 && (
+        <div className="bg-purple-50 rounded-lg p-6 border border-purple-200">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="p-3 bg-purple-100 rounded-full">
+                <Users className="h-6 w-6 text-purple-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">Pending Bill Splits</h3>
+                <p className="text-sm text-gray-600">You have ${data.splits.pending.toFixed(2)} in unsettled splits</p>
+              </div>
+            </div>
+            <Link 
+              href="/splits"
+              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+            >
+              View Splits
+            </Link>
+          </div>
+        </div>
+      )}
+
       {/* Quick Tips */}
-      <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-6 border">
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 border">
         <div className="flex items-start space-x-4">
           <div className="flex-shrink-0">
             <div className="p-2 bg-blue-100 rounded-lg">
-              <Target className="h-6 w-6 text-blue-600" />
+              <Lightbulb className="h-6 w-6 text-blue-600" />
             </div>
           </div>
           <div className="flex-1">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Getting Started Tips</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Financial Tips</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
               <div className="space-y-2">
-                <p>📝 <strong>Notes:</strong> Use Ctrl+Enter for quick saves</p>
-                <p>💰 <strong>Expenses:</strong> Set categories for better tracking</p>
+                <p>💰 <strong>50/30/20 Rule:</strong> Needs, wants, savings</p>
+                <p>📊 <strong>Track Everything:</strong> Small expenses add up</p>
               </div>
               <div className="space-y-2">
-                <p>✅ <strong>Todos:</strong> Set priorities and due dates</p>
-                <p>👥 <strong>Splits:</strong> Add friends first, then split bills</p>
+                <p>🎯 <strong>Set Goals:</strong> Specific targets work better</p>
+                <p>🔄 <strong>Review Weekly:</strong> Stay on top of spending</p>
               </div>
             </div>
           </div>

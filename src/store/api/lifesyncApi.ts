@@ -1,9 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import type { Expense } from '../slices/expensesSlice'
-import type { Todo } from '../slices/todosSlice'
 import type { Goal } from '../slices/goalsSlice'
 import type { Split } from '../slices/splitsSlice'
-import type { Note } from '../slices/notesSlice'
 
 // Define API base URL - will be configurable
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api'
@@ -23,7 +21,7 @@ export const lifesyncApi = createApi({
       return headers
     },
   }),
-  tagTypes: ['Expense', 'Todo', 'Goal', 'Split', 'Note', 'User'],
+  tagTypes: ['Expense', 'Goal', 'Split', 'User'],
   endpoints: (builder) => ({
     // Expenses API
     getExpenses: builder.query<Expense[], void>({
@@ -52,35 +50,6 @@ export const lifesyncApi = createApi({
         method: 'DELETE',
       }),
       invalidatesTags: ['Expense'],
-    }),
-
-    // Todos API
-    getTodos: builder.query<Todo[], void>({
-      query: () => '/todos',
-      providesTags: ['Todo'],
-    }),
-    addTodo: builder.mutation<Todo, Partial<Todo>>({
-      query: (todo) => ({
-        url: '/todos',
-        method: 'POST',
-        body: todo,
-      }),
-      invalidatesTags: ['Todo'],
-    }),
-    updateTodo: builder.mutation<Todo, { id: string; updates: Partial<Todo> }>({
-      query: ({ id, updates }) => ({
-        url: `/todos/${id}`,
-        method: 'PATCH',
-        body: updates,
-      }),
-      invalidatesTags: ['Todo'],
-    }),
-    deleteTodo: builder.mutation<void, string>({
-      query: (id) => ({
-        url: `/todos/${id}`,
-        method: 'DELETE',
-      }),
-      invalidatesTags: ['Todo'],
     }),
 
     // Goals API
@@ -141,35 +110,6 @@ export const lifesyncApi = createApi({
       invalidatesTags: ['Split'],
     }),
 
-    // Notes API
-    getNotes: builder.query<Note[], void>({
-      query: () => '/notes',
-      providesTags: ['Note'],
-    }),
-    addNote: builder.mutation<Note, Partial<Note>>({
-      query: (note) => ({
-        url: '/notes',
-        method: 'POST',
-        body: note,
-      }),
-      invalidatesTags: ['Note'],
-    }),
-    updateNote: builder.mutation<Note, { id: string; updates: Partial<Note> }>({
-      query: ({ id, updates }) => ({
-        url: `/notes/${id}`,
-        method: 'PATCH',
-        body: updates,
-      }),
-      invalidatesTags: ['Note'],
-    }),
-    deleteNote: builder.mutation<void, string>({
-      query: (id) => ({
-        url: `/notes/${id}`,
-        method: 'DELETE',
-      }),
-      invalidatesTags: ['Note'],
-    }),
-
     // AI-powered endpoints
     categorizeExpense: builder.mutation<{ category: string; confidence: number }, { description: string; amount: number }>({
       query: (expense) => ({
@@ -190,17 +130,15 @@ export const lifesyncApi = createApi({
     // Sync endpoints for offline support
     syncData: builder.mutation<void, { 
       expenses?: Expense[], 
-      todos?: Todo[], 
       goals?: Goal[], 
-      splits?: Split[], 
-      notes?: Note[] 
+      splits?: Split[]
     }>({
       query: (data) => ({
         url: '/sync',
         method: 'POST',
         body: data,
       }),
-      invalidatesTags: ['Expense', 'Todo', 'Goal', 'Split', 'Note'],
+      invalidatesTags: ['Expense', 'Goal', 'Split'],
     }),
   }),
 })
@@ -213,12 +151,6 @@ export const {
   useUpdateExpenseMutation,
   useDeleteExpenseMutation,
   
-  // Todos
-  useGetTodosQuery,
-  useAddTodoMutation,
-  useUpdateTodoMutation,
-  useDeleteTodoMutation,
-  
   // Goals
   useGetGoalsQuery,
   useAddGoalMutation,
@@ -230,12 +162,6 @@ export const {
   useAddSplitMutation,
   useUpdateSplitMutation,
   useDeleteSplitMutation,
-  
-  // Notes
-  useGetNotesQuery,
-  useAddNoteMutation,
-  useUpdateNoteMutation,
-  useDeleteNoteMutation,
   
   // AI
   useCategorizeExpenseMutation,

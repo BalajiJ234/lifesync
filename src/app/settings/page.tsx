@@ -21,9 +21,7 @@ import { useSettings } from '@/contexts/SettingsContext'
 import { SUPPORTED_CURRENCIES, Currency } from '@/utils/currency'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { clearExpenses, addExpense } from '@/store/slices/expensesSlice'
-import { clearTodos, addTodo } from '@/store/slices/todosSlice'
 import { clearGoals, addGoal } from '@/store/slices/goalsSlice'
-import { clearNotes, addNote } from '@/store/slices/notesSlice'
 import { clearSplits, addFriend, addSplitBill } from '@/store/slices/splitsSlice'
 import { resetSettings } from '@/store/slices/settingsSlice'
 
@@ -33,9 +31,7 @@ export default function SettingsPage() {
 
   // Get all data from Redux store
   const expenses = useAppSelector((state) => state.expenses.expenses)
-  const todos = useAppSelector((state) => state.todos.todos)
   const goals = useAppSelector((state) => state.goals.goals)
-  const notes = useAppSelector((state) => state.notes.notes)
   const friends = useAppSelector((state) => state.splits.friends)
   const bills = useAppSelector((state) => state.splits.bills)
 
@@ -53,14 +49,12 @@ export default function SettingsPage() {
   const exportData = () => {
     const allData = {
       expenses,
-      todos,
       goals,
-      notes,
       friends,
       bills,
       settings,
       exportDate: new Date().toISOString(),
-      version: '1.0'
+      version: '2.0'
     }
 
     const dataStr = JSON.stringify(allData, null, 2)
@@ -93,9 +87,7 @@ export default function SettingsPage() {
         const storageData = parsed.data
         data = {
           expenses: storageData['lifesync-expenses-v1'] || [],
-          todos: storageData['lifesync-todos'] || [],
           goals: storageData['lifesync-goals'] || [],
-          notes: storageData['lifesync-notes'] || [],
           friends: storageData['lifesync-friends'] || [],
           bills: storageData['lifesync-bills'] || [],
           settings: storageData['lifesync-settings'] || null
@@ -114,26 +106,10 @@ export default function SettingsPage() {
         })
       }
 
-      if (data.todos?.length) {
-        console.log(`Importing ${data.todos.length} todos`)
-        data.todos.forEach((todo: unknown) => {
-          dispatch(addTodo(todo as ReturnType<typeof addTodo>['payload']))
-          importedCount++
-        })
-      }
-
       if (data.goals?.length) {
         console.log(`Importing ${data.goals.length} goals`)
         data.goals.forEach((goal: unknown) => {
           dispatch(addGoal(goal as ReturnType<typeof addGoal>['payload']))
-          importedCount++
-        })
-      }
-
-      if (data.notes?.length) {
-        console.log(`Importing ${data.notes.length} notes`)
-        data.notes.forEach((note: unknown) => {
-          dispatch(addNote(note as ReturnType<typeof addNote>['payload']))
           importedCount++
         })
       }
@@ -181,9 +157,7 @@ export default function SettingsPage() {
 
   const clearAllData = () => {
     dispatch(clearExpenses())
-    dispatch(clearTodos())
     dispatch(clearGoals())
-    dispatch(clearNotes())
     dispatch(clearSplits())
     // Reset settings to defaults but keep onboarding status
     dispatch(resetSettings())

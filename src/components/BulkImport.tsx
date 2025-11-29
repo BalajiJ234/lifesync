@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Upload, Download, FileText, AlertCircle, CheckCircle, X } from 'lucide-react'
 
 interface BulkImportProps {
-  feature: 'expenses' | 'todos' | 'notes' | 'friends' | 'income'
+  feature: 'expenses' | 'friends' | 'income'
   onImport: (data: unknown[]) => void
   onClose: () => void
 }
@@ -24,22 +24,6 @@ const templates = {
       { source: 'Monthly Salary', amount: 5000, category: 'salary', date: '2025-01-01', status: 'received', recurrence: 'monthly', notes: 'Regular paycheck' },
       { source: 'Freelance Project', amount: 1500, category: 'freelance', date: '2025-01-15', status: 'scheduled', recurrence: 'one-time', notes: 'Web design project' },
       { source: 'Stock Dividend', amount: 250, category: 'investment', date: '2025-01-20', status: 'scheduled', recurrence: 'quarterly', notes: 'Tech stocks portfolio' }
-    ]
-  },
-  todos: {
-    headers: ['text', 'priority', 'category', 'dueDate'],
-    sample: [
-      { text: 'Complete project proposal', priority: 'high', category: 'Work', dueDate: '2025-01-15' },
-      { text: 'Buy groceries', priority: 'medium', category: 'Personal', dueDate: '2025-01-12' },
-      { text: 'Schedule dentist appointment', priority: 'low', category: 'Health', dueDate: '2025-01-20' }
-    ]
-  },
-  notes: {
-    headers: ['title', 'content', 'category'],
-    sample: [
-      { title: 'Meeting Notes', content: 'Discussed project timeline and deliverables', category: 'Work' },
-      { title: 'Recipe Ideas', content: 'Try the new pasta recipe with mushrooms', category: 'Personal' },
-      { title: 'Book Recommendations', content: 'The Design of Everyday Things by Don Norman', category: 'Learning' }
     ]
   },
   friends: {
@@ -171,37 +155,6 @@ export default function BulkImport({ feature, onImport, onClose }: BulkImportPro
               recurrence: validRecurrences.includes(row.recurrence?.toLowerCase()) ? row.recurrence.toLowerCase() : 'one-time',
               notes: row.notes || '',
               createdAt: new Date()
-            })
-            break
-
-          case 'todos':
-            if (!row.text?.trim()) {
-              errors.push(`Row ${rowNum}: Task text is required`)
-              return
-            }
-            valid.push({
-              id: Date.now().toString() + Math.random(),
-              text: row.text.trim(),
-              completed: false,
-              priority: ['low', 'medium', 'high'].includes(row.priority) ? row.priority : 'medium',
-              category: row.category || 'Personal',
-              dueDate: row.dueDate || undefined,
-              createdAt: new Date()
-            })
-            break
-
-          case 'notes':
-            if (!row.title?.trim()) {
-              errors.push(`Row ${rowNum}: Title is required`)
-              return
-            }
-            valid.push({
-              id: Date.now().toString() + Math.random(),
-              title: row.title.trim(),
-              content: row.content || '',
-              category: row.category || 'General',
-              createdAt: new Date(),
-              updatedAt: new Date()
             })
             break
 
