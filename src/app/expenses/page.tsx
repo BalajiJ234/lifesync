@@ -13,13 +13,16 @@ import {
   PieChart,
   BarChart3,
   Share2,
-  Users,
   X,
   Upload
 } from 'lucide-react'
 import BulkImport from '@/components/BulkImport'
+import { RecurringSuggestionsPanel } from '@/components/RecurringSuggestionsPanel'
 import { useSettings } from '@/contexts/SettingsContext'
 import { formatAmount, convertCurrency, SUPPORTED_CURRENCIES } from '@/utils/currency'
+import { detectSpendingPatterns, detectAnomalies } from '@/utils/spendingAnalysis'
+import { Brain, AlertTriangle } from 'lucide-react'
+import Link from 'next/link'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import {
   addExpense,
@@ -34,61 +37,7 @@ import MobileExpenseForm from '@/components/forms/MobileExpenseForm'
 
 // Friend interface now comes from Redux splits slice
 
-// SplitBill interface temporarily unused during sharing feature development
-interface SplitBill {
-  id: string
-  description: string
-  totalAmount: number
-  paidBy: string // friend id
-  participants: string[] // friend ids
-  splitType: 'equal' | 'custom'
-  customAmounts?: Record<string, number>
-  date: string
-  settled: boolean
-  createdAt: Date
-  notes?: string
-  currency: string
-}
-
 // Using Redux Expense interface - no local interface needed
-
-const expenseTypes = [
-  {
-    value: 'recurring',
-    name: 'Recurring Payment',
-    icon: '🔄',
-    color: 'bg-blue-100 text-blue-800',
-    description: 'Subscriptions, utilities, rent, etc.'
-  },
-  {
-    value: 'essential',
-    name: 'Monthly Essential',
-    icon: '🏠',
-    color: 'bg-orange-100 text-orange-800',
-    description: 'Groceries, fuel, necessities'
-  },
-  {
-    value: 'one-time',
-    name: 'One-Time Purchase',
-    icon: '🛒',
-    color: 'bg-green-100 text-green-800',
-    description: 'Regular shopping, entertainment, etc.'
-  },
-  {
-    value: 'luxury',
-    name: 'Luxury / Optional',
-    icon: '💎',
-    color: 'bg-purple-100 text-purple-800',
-    description: 'Non-essential, luxury items, treats'
-  },
-  {
-    value: 'emergency',
-    name: 'Emergency Expense',
-    icon: '🚨',
-    color: 'bg-red-100 text-red-800',
-    description: 'Unexpected medical, repairs, etc.'
-  }
-]
 
 const expenseCategories = [
   { name: 'Food & Dining', icon: '🍽️', color: 'bg-orange-100 text-orange-800' },
@@ -202,17 +151,8 @@ export default function ExpensesPage() {
     dispatch(deleteExpense(id))
   }
 
-  // Sharing functionality temporarily disabled due to interface incompatibility
-  const shareExpense = (expenseId: string, selectedFriends: string[]) => {
-    // TODO: Implement sharing once Redux expense interface includes sharing fields
-    return
-  }
-
-  // Unsharing functionality temporarily disabled
-  const unshareExpense = (expenseId: string) => {
-    // TODO: Implement unsharing once Redux expense interface includes sharing fields
-    return
-  }
+  // Sharing functionality temporarily disabled; stub removed to avoid unused warnings
+  // Unsharing functionality temporarily disabled; stub removed to avoid unused warnings
 
   const openShareModal = (expense: ReduxExpense) => {
     setShareModalExpense(expense)
@@ -416,6 +356,65 @@ export default function ExpensesPage() {
           </div>
         </div>
       </div>
+
+      {/* AI Recurring Expense Detection */}
+      <RecurringSuggestionsPanel />
+
+      {/* AI Insights Preview */}
+      {expenses.length >= 10 && (() => {
+        const patterns = detectSpendingPatterns(expenses)
+        const anomalies = detectAnomalies(expenses)
+        
+        if (patterns.length === 0 && anomalies.length === 0) return null
+        
+        return (
+          <div className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg shadow-sm border border-purple-200 dark:border-purple-800 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
+                  <Brain className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Quick Insights</h3>
+              </div>
+              <Link 
+                href="/advisor"
+                className="text-sm text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-medium"
+              >
+                View All Insights →
+              </Link>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-4">
+              {patterns.length > 0 && (
+                <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
+                  <p className="text-sm font-medium text-gray-900 dark:text-white mb-1">
+                    📊 Pattern Detected
+                  </p>
+                  <p className="text-sm text-gray-700 dark:text-gray-300">
+                    {patterns[0].insight}
+                  </p>
+                </div>
+              )}
+              
+              {anomalies.length > 0 && (
+                <div className="p-3 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-700 rounded-lg">
+                  <div className="flex items-start space-x-2">
+                    <AlertTriangle className="h-5 w-5 text-orange-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-medium text-gray-900 dark:text-white mb-1">
+                        Unusual Expense
+                      </p>
+                      <p className="text-sm text-gray-700 dark:text-gray-300">
+                        {anomalies.length} unusual {anomalies.length === 1 ? 'transaction' : 'transactions'} detected
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )
+      })()}
 
       {/* Add Expense Button */}
       <div className="text-center space-y-4">
@@ -776,30 +775,17 @@ export default function ExpensesPage() {
                 >
                   Cancel
                 </button>
-                {false && (
-                  <button
-                    onClick={() => {
-                      if (shareModalExpense) {
-                        unshareExpense(shareModalExpense.id)
-                        setShareModalExpense(null)
-                        setSelectedFriends([])
-                      }
-                    }}
-                    className="px-4 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors"
-                  >
-                    Unshare
-                  </button>
-                )}
+                {/* Unshare functionality disabled */}
+                {/* Share functionality disabled */}
                 <button
                   onClick={() => {
-                    shareExpense(shareModalExpense.id, selectedFriends)
                     setShareModalExpense(null)
                     setSelectedFriends([])
                   }}
                   disabled={selectedFriends.length === 0}
                   className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                  Share Expense
+                  Done
                 </button>
               </div>
             </div>

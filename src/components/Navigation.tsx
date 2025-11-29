@@ -12,11 +12,13 @@ import {
   Target,
   Settings,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Lightbulb
 } from 'lucide-react'
 import Logo from './Logo'
 
 const navItems = [
+  { href: '/advisor', label: 'Advisor', icon: Lightbulb },
   { href: '/', label: 'Dashboard', icon: Home },
   { href: '/expenses', label: 'Expenses', icon: DollarSign, hasSubmenu: true },
   { href: '/income', label: 'Income', icon: TrendingUp },
@@ -46,7 +48,7 @@ export default function Navigation() {
           <div className="hidden md:flex space-x-8 relative">
             {navItems.map((item) => {
               const Icon = item.icon
-              const isActive = pathname === item.href || (item.hasSubmenu && (pathname === '/expenses' || pathname === '/splits'))
+              const isActive = pathname === item.href || (item.hasSubmenu && (pathname === '/expenses' || pathname === '/splits' || pathname.startsWith('/expenses/')))
 
               if (item.hasSubmenu) {
                 return (

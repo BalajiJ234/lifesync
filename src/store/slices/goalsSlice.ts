@@ -1,7 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
-export type GoalIntent = 'future-expense' | 'savings' | 'investment'
-
 export interface Goal {
   id: string
   title: string
@@ -13,8 +11,6 @@ export interface Goal {
   targetDate?: string
   createdAt: string
   updatedAt: string
-  intent?: GoalIntent
-  linkedIncomeIds?: string[]
   status: 'active' | 'paused' | 'completed' | 'cancelled'
   priority: 'low' | 'medium' | 'high'
   aiAnalysis?: {
@@ -33,7 +29,7 @@ export interface Goal {
   }[]
 }
 
-export interface GoalsState {
+interface GoalsState {
   goals: Goal[]
   loading: boolean
   error: string | null
@@ -50,12 +46,7 @@ const goalsSlice = createSlice({
   initialState,
   reducers: {
     addGoal: (state, action: PayloadAction<Goal>) => {
-      const goal: Goal = {
-        ...action.payload,
-        intent: action.payload.intent ?? 'future-expense',
-        linkedIncomeIds: action.payload.linkedIncomeIds ?? [],
-      }
-      state.goals.unshift(goal)
+      state.goals.unshift(action.payload)
     },
     updateGoal: (state, action: PayloadAction<{ id: string; updates: Partial<Goal> }>) => {
       const { id, updates } = action.payload
@@ -65,8 +56,6 @@ const goalsSlice = createSlice({
         state.goals[goalIndex] = { 
           ...state.goals[goalIndex], 
           ...updates,
-          intent: updates.intent ?? state.goals[goalIndex].intent ?? 'future-expense',
-          linkedIncomeIds: updates.linkedIncomeIds ?? state.goals[goalIndex].linkedIncomeIds ?? [],
           updatedAt: new Date().toISOString()
         }
       }

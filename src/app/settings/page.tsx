@@ -21,7 +21,6 @@ import { useSettings } from '@/contexts/SettingsContext'
 import { SUPPORTED_CURRENCIES, Currency } from '@/utils/currency'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { clearExpenses, addExpense } from '@/store/slices/expensesSlice'
-import { clearIncome, addIncome } from '@/store/slices/incomeSlice'
 import { clearTodos, addTodo } from '@/store/slices/todosSlice'
 import { clearGoals, addGoal } from '@/store/slices/goalsSlice'
 import { clearNotes, addNote } from '@/store/slices/notesSlice'
@@ -34,7 +33,6 @@ export default function SettingsPage() {
 
   // Get all data from Redux store
   const expenses = useAppSelector((state) => state.expenses.expenses)
-  const income = useAppSelector((state) => state.income?.incomes || [])
   const todos = useAppSelector((state) => state.todos.todos)
   const goals = useAppSelector((state) => state.goals.goals)
   const notes = useAppSelector((state) => state.notes.notes)
@@ -55,7 +53,6 @@ export default function SettingsPage() {
   const exportData = () => {
     const allData = {
       expenses,
-      income,
       todos,
       goals,
       notes,
@@ -113,14 +110,6 @@ export default function SettingsPage() {
         console.log(`Importing ${data.expenses.length} expenses`)
         data.expenses.forEach((expense: unknown) => {
           dispatch(addExpense(expense as ReturnType<typeof addExpense>['payload']))
-          importedCount++
-        })
-      }
-
-      if (data.income?.length) {
-        console.log(`Importing ${data.income.length} income entries`)
-        data.income.forEach((incomeEntry: unknown) => {
-          dispatch(addIncome(incomeEntry as ReturnType<typeof addIncome>['payload']))
           importedCount++
         })
       }
@@ -192,7 +181,6 @@ export default function SettingsPage() {
 
   const clearAllData = () => {
     dispatch(clearExpenses())
-    dispatch(clearIncome())
     dispatch(clearTodos())
     dispatch(clearGoals())
     dispatch(clearNotes())
@@ -346,11 +334,10 @@ export default function SettingsPage() {
                         console.log('Theme clicked:', value)
                         updateTheme(value as 'light' | 'dark' | 'auto')
                       }}
-                      className={`p-4 border-2 rounded-lg flex flex-col items-center gap-2 transition-all ${
-                        isActive
+                      className={`p-4 border-2 rounded-lg flex flex-col items-center gap-2 transition-all ${isActive
                           ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-sm'
                           : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50'
-                      }`}
+                        }`}
                     >
                       <Icon size={24} />
                       <span className="text-sm font-medium">{label}</span>
@@ -380,17 +367,15 @@ export default function SettingsPage() {
                   console.log('Notification toggle clicked:', !settings.enableNotifications)
                   updateNotifications(!settings.enableNotifications)
                 }}
-                className={`relative inline-flex h-8 w-14 flex-shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                  settings.enableNotifications ? 'bg-blue-600' : 'bg-gray-300'
-                }`}
+                className={`relative inline-flex h-8 w-14 flex-shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${settings.enableNotifications ? 'bg-blue-600' : 'bg-gray-300'
+                  }`}
                 role="switch"
                 aria-checked={settings.enableNotifications}
               >
                 <span className="sr-only">Enable notifications</span>
                 <span
-                  className={`inline-block h-6 w-6 transform rounded-full bg-white shadow-lg transition-transform ${
-                    settings.enableNotifications ? 'translate-x-7' : 'translate-x-1'
-                  }`}
+                  className={`inline-block h-6 w-6 transform rounded-full bg-white shadow-lg transition-transform ${settings.enableNotifications ? 'translate-x-7' : 'translate-x-1'
+                    }`}
                 />
               </button>
             </div>
