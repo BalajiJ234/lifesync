@@ -1,0 +1,72 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/27.0.9 Chrome/134.0.6998.205 Electron/35.4.0 Safari/537.36" version="27.0.9">
+  <diagram name="Page-1" id="lCFMUj2Kz3DhcZVfc8iy">
+    <mxGraphModel dx="1188" dy="1871" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="iGuYg9omIKnt9khu1dMh-27" value="PROXY Layer&lt;div&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;fillColor=#eeeeee;strokeColor=#36393d;" vertex="1" parent="1">
+          <mxGeometry x="130" y="-10" width="710" height="670" as="geometry" />
+        </mxCell>
+        <mxCell id="iGuYg9omIKnt9khu1dMh-11" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="iGuYg9omIKnt9khu1dMh-1" target="iGuYg9omIKnt9khu1dMh-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="iGuYg9omIKnt9khu1dMh-15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="iGuYg9omIKnt9khu1dMh-1" target="iGuYg9omIKnt9khu1dMh-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="iGuYg9omIKnt9khu1dMh-1" value="Wealth Pulse" style="whiteSpace=wrap;html=1;aspect=fixed;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="260" width="150" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="iGuYg9omIKnt9khu1dMh-13" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="iGuYg9omIKnt9khu1dMh-2" target="iGuYg9omIKnt9khu1dMh-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="iGuYg9omIKnt9khu1dMh-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="iGuYg9omIKnt9khu1dMh-2" target="iGuYg9omIKnt9khu1dMh-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="iGuYg9omIKnt9khu1dMh-2" value="Personal Notes / To-Do APP (Mini App)" style="whiteSpace=wrap;html=1;aspect=fixed;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="260" y="475" width="150" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="iGuYg9omIKnt9khu1dMh-7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="iGuYg9omIKnt9khu1dMh-3" target="iGuYg9omIKnt9khu1dMh-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="iGuYg9omIKnt9khu1dMh-16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="iGuYg9omIKnt9khu1dMh-3" target="iGuYg9omIKnt9khu1dMh-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="iGuYg9omIKnt9khu1dMh-17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="iGuYg9omIKnt9khu1dMh-3" target="iGuYg9omIKnt9khu1dMh-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="iGuYg9omIKnt9khu1dMh-24" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="iGuYg9omIKnt9khu1dMh-3">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="740" y="360" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iGuYg9omIKnt9khu1dMh-3" value="AI Microservice" style="whiteSpace=wrap;html=1;aspect=fixed;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="510" y="215" width="160" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="iGuYg9omIKnt9khu1dMh-6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="iGuYg9omIKnt9khu1dMh-4" target="iGuYg9omIKnt9khu1dMh-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="iGuYg9omIKnt9khu1dMh-10" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="iGuYg9omIKnt9khu1dMh-4" target="iGuYg9omIKnt9khu1dMh-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="iGuYg9omIKnt9khu1dMh-4" value="Personal Assistant(Interact with my both application)" style="whiteSpace=wrap;html=1;aspect=fixed;fillColor=#d0cee2;strokeColor=#56517e;" vertex="1" parent="1">
+          <mxGeometry x="260" y="220" width="150" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="iGuYg9omIKnt9khu1dMh-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="iGuYg9omIKnt9khu1dMh-5" target="iGuYg9omIKnt9khu1dMh-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="iGuYg9omIKnt9khu1dMh-5" value="Postgres SQL" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#bac8d3;strokeColor=#23445d;" vertex="1" parent="1">
+          <mxGeometry x="740" y="215" width="70" height="105" as="geometry" />
+        </mxCell>
+        <mxCell id="iGuYg9omIKnt9khu1dMh-20" value="Redis Server (Caching and Maintain Live session)" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fillColor=#b0e3e6;strokeColor=#0e8088;" vertex="1" parent="1">
+          <mxGeometry x="620" y="510" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="iGuYg9omIKnt9khu1dMh-26" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="iGuYg9omIKnt9khu1dMh-25" target="iGuYg9omIKnt9khu1dMh-20">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="iGuYg9omIKnt9khu1dMh-25" value="Maria DB / Mongo DB" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;" vertex="1" parent="1">
+          <mxGeometry x="740" y="330" width="60" height="80" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

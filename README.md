@@ -14,50 +14,56 @@
 
 **WealthPulse** is an AI-powered personal finance application that respects your privacy:
 
-| Feature | Description |
-|---------|-------------|
-| 🔒 **100% Private** | Your data NEVER leaves your device |
-| 🤖 **AI-Powered** | Smart categorization, recurring detection, and insights |
-| 📱 **Offline-First** | Works without internet (PWA) |
-| 🎯 **Goal-Focused** | Set and achieve realistic financial goals |
-| 👥 **Bill Splitting** | Manage shared expenses with friends/family |
-| 💵 **Multi-Currency** | Support for 30+ currencies |
+| Feature               | Description                                             |
+| --------------------- | ------------------------------------------------------- |
+| 🔒 **100% Private**   | Your data NEVER leaves your device                      |
+| 🤖 **AI-Powered**     | Smart categorization, recurring detection, and insights |
+| 📱 **Offline-First**  | Works without internet (PWA)                            |
+| 🎯 **Goal-Focused**   | Set and achieve realistic financial goals               |
+| 👥 **Bill Splitting** | Manage shared expenses with friends/family              |
+| 💵 **Multi-Currency** | Support for 30+ currencies                              |
 
 ---
 
 ## ✨ Live Features
 
 ### 💰 Smart Expense Tracking
+
 - AI-powered automatic categorization
 - Recurring expense detection with smart suggestions
 - Daily budget calculator based on remaining monthly budget
 - Category-based insights and analytics
 
-### 📈 Income Management  
+### 📈 Income Management
+
 - Track all income sources (salary, freelance, investments)
 - Recurring income patterns
 - Link income to financial goals
 - Monthly income trends
 
 ### 🎯 Goal Setting & Tracking
+
 - Multiple concurrent financial goals
 - AI feasibility analysis
 - Progress visualization
 - Smart recommendations
 
 ### 🔄 AI Recurring Detection
+
 - Automatic detection of recurring expenses
 - Smart pattern recognition (weekly, monthly, yearly)
 - Upcoming recurring expense alerts
 - One-click confirmation to track subscriptions
 
 ### 👥 Bill Splitting
+
 - Split expenses with friends
 - Multiple split methods (equal, percentage, custom)
 - Export/import for sharing
 - Settlement tracking
 
 ### 🤖 AI Financial Advisor
+
 - Personalized spending insights
 - Budget recommendations
 - Savings opportunities
@@ -111,28 +117,28 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## 🛠️ Tech Stack
 
-| Category | Technology |
-|----------|------------|
-| **Framework** | Next.js 15.5.4 (App Router) |
-| **UI** | React 19, Tailwind CSS 4 |
-| **State** | Redux Toolkit + Redux Persist |
-| **Language** | TypeScript 5 |
-| **Storage** | localStorage (100% client-side) |
-| **PWA** | Service Worker, Web App Manifest |
-| **AI** | Local pattern matching & algorithms |
+| Category      | Technology                          |
+| ------------- | ----------------------------------- |
+| **Framework** | Next.js 15.5.4 (App Router)         |
+| **UI**        | React 19, Tailwind CSS 4            |
+| **State**     | Redux Toolkit + Redux Persist       |
+| **Language**  | TypeScript 5                        |
+| **Storage**   | localStorage (100% client-side)     |
+| **PWA**       | Service Worker, Web App Manifest    |
+| **AI**        | Local pattern matching & algorithms |
 
 ---
 
 ## 🔒 Privacy Architecture
 
-| Feature | Implementation |
-|---------|----------------|
-| **Data Storage** | Browser localStorage only |
-| **Cloud Sync** | None (by design) |
-| **User Accounts** | None required |
-| **Analytics** | Zero tracking |
-| **External APIs** | None for core features |
-| **Data Export** | Full JSON export/import |
+| Feature           | Implementation            |
+| ----------------- | ------------------------- |
+| **Data Storage**  | Browser localStorage only |
+| **Cloud Sync**    | None (by design)          |
+| **User Accounts** | None required             |
+| **Analytics**     | Zero tracking             |
+| **External APIs** | None for core features    |
+| **Data Export**   | Full JSON export/import   |
 
 **Your financial data stays on YOUR device. Always.**
 
@@ -141,6 +147,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 ## 📋 Development Phases
 
 ### ✅ Phase 1: Foundation (Completed)
+
 - [x] Core expense tracking with AI categorization
 - [x] Income tracking with recurring patterns
 - [x] Goal setting with feasibility analysis
@@ -150,23 +157,26 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 - [x] Mobile-responsive UI
 
 ### ✅ Phase 2: AI Recurring Detection (Completed)
+
 - [x] Automatic recurring expense detection
 - [x] Smart pattern recognition algorithm
 - [x] Recurring suggestions panel
 - [x] Upcoming recurring expenses widget
 - [x] Daily budget calculator
 
-### 🚧 Phase 3: Enhanced Insights (Next)
-- [ ] **Live Exchange Rates** - Real-time currency conversion using open API (frankfurter.app)
-- [ ] **Historical Rate Reports** - Convert expenses using rate on transaction date
-- [ ] **Customizable Report Currency** - Generate reports in any currency (AED, INR, USD, etc.) with accurate conversion
-- [ ] Advanced spending analytics with charts
-- [ ] Monthly budget alerts (80%, 100% thresholds)
+### 🚧 Phase 3: Enhanced Insights (In Progress)
+
+- [x] **Live Exchange Rates** - Real-time currency conversion using open API (frankfurter.app)
+- [x] **Historical Rate Reports** - Convert expenses using rate on transaction date
+- [x] **Customizable Report Currency** - Generate reports in any currency (AED, INR, USD, etc.) with accurate conversion
+- [x] Advanced spending analytics with charts
+- [x] Monthly budget alerts (80%, 100% thresholds)
 - [ ] Spending pattern detection ("You spend more on weekends")
 - [ ] Unusual expense alerts
 - [ ] Category trend analysis
 
 ### 📋 Phase 4: Financial Planning
+
 - [ ] AI-powered goal forecasting
 - [ ] Debt payoff calculator (snowball/avalanche methods)
 - [ ] Emergency fund planner
@@ -174,12 +184,14 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 - [ ] Savings opportunity finder
 
 ### 📋 Phase 5: Advanced Privacy
+
 - [ ] Optional encrypted local backup
 - [ ] Biometric authentication (fingerprint/face)
 - [ ] Scheduled auto-exports
 - [ ] Privacy transparency dashboard
 
 ### 📋 Phase 6: Reporting
+
 - [ ] Monthly/yearly expense reports
 - [ ] PDF/Excel export
 - [ ] Tax preparation exports
@@ -190,14 +202,14 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## 🎯 Roadmap
 
-| Version | Target | Focus | Status |
-|---------|--------|-------|--------|
-| v1.0 | Nov 2025 | Core Features + AI Recurring | ✅ Complete |
-| v1.1 | Dec 2025 | Enhanced Insights & Analytics | 🚧 Next |
-| v1.2 | Jan 2026 | Financial Planning Tools | 📋 Planned |
-| v1.3 | Feb 2026 | Advanced Privacy Features | 📋 Planned |
-| v1.4 | Mar 2026 | Collaboration Enhancements | 📋 Planned |
-| v1.5 | Apr 2026 | Advanced Reporting | 📋 Planned |
+| Version | Target   | Focus                         | Status      |
+| ------- | -------- | ----------------------------- | ----------- |
+| v1.0    | Nov 2025 | Core Features + AI Recurring  | ✅ Complete |
+| v1.1    | Dec 2025 | Enhanced Insights & Analytics | 🚧 Next     |
+| v1.2    | Jan 2026 | Financial Planning Tools      | 📋 Planned  |
+| v1.3    | Feb 2026 | Advanced Privacy Features     | 📋 Planned  |
+| v1.4    | Mar 2026 | Collaboration Enhancements    | 📋 Planned  |
+| v1.5    | Apr 2026 | Advanced Reporting            | 📋 Planned  |
 
 ---
 

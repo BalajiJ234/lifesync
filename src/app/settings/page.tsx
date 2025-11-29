@@ -15,7 +15,9 @@ import {
   Upload,
   Trash2,
   Database,
-  AlertTriangle
+  AlertTriangle,
+  RefreshCw,
+  TrendingUp
 } from 'lucide-react'
 import { useSettings } from '@/contexts/SettingsContext'
 import { SUPPORTED_CURRENCIES, Currency } from '@/utils/currency'
@@ -23,7 +25,13 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { clearExpenses, addExpense } from '@/store/slices/expensesSlice'
 import { clearGoals, addGoal } from '@/store/slices/goalsSlice'
 import { clearSplits, addFriend, addSplitBill } from '@/store/slices/splitsSlice'
-import { resetSettings } from '@/store/slices/settingsSlice'
+import { 
+  resetSettings, 
+  setReportCurrency, 
+  setUseLiveExchangeRates,
+  selectReportCurrency,
+  selectUseLiveExchangeRates 
+} from '@/store/slices/settingsSlice'
 
 export default function SettingsPage() {
   const { settings, updateCurrency, updateTheme, updateNotifications } = useSettings()
@@ -34,9 +42,15 @@ export default function SettingsPage() {
   const goals = useAppSelector((state) => state.goals.goals)
   const friends = useAppSelector((state) => state.splits.friends)
   const bills = useAppSelector((state) => state.splits.bills)
+  
+  // Report currency settings from Redux
+  const reportCurrency = useAppSelector(selectReportCurrency)
+  const useLiveExchangeRates = useAppSelector(selectUseLiveExchangeRates)
 
   const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false)
+  const [showReportCurrencyDropdown, setShowReportCurrencyDropdown] = useState(false)
   const [currencySearch, setCurrencySearch] = useState('')
+  const [reportCurrencySearch, setReportCurrencySearch] = useState('')
   const [showClearConfirm, setShowClearConfirm] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -168,10 +182,25 @@ export default function SettingsPage() {
     currency.code.toLowerCase().includes(currencySearch.toLowerCase())
   )
 
+  const filteredReportCurrencies = SUPPORTED_CURRENCIES.filter(currency =>
+    currency.name.toLowerCase().includes(reportCurrencySearch.toLowerCase()) ||
+    currency.code.toLowerCase().includes(reportCurrencySearch.toLowerCase())
+  )
+
   const handleCurrencySelect = (currency: Currency) => {
     updateCurrency(currency)
     setShowCurrencyDropdown(false)
     setCurrencySearch('')
+  }
+
+  const handleReportCurrencySelect = (currency: Currency) => {
+    dispatch(setReportCurrency(currency.code))
+    setShowReportCurrencyDropdown(false)
+    setReportCurrencySearch('')
+  }
+
+  const handleLiveRatesToggle = () => {
+    dispatch(setUseLiveExchangeRates(!useLiveExchangeRates))
   }
 
   const handleFileImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -220,6 +249,9 @@ export default function SettingsPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Default Currency
                 </label>
+                <p className="text-sm text-gray-500 mb-2">
+                  Currency used for new expenses and transactions
+                </p>
                 <div className="relative">
                   <button
                     onClick={() => setShowCurrencyDropdown(!showCurrencyDropdown)}
@@ -279,6 +311,136 @@ export default function SettingsPage() {
                     </div>
                   )}
                 </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Report Currency Settings */}
+          <div className="bg-white rounded-lg shadow-sm border p-6">
+            <div className="flex items-center mb-4">
+              <TrendingUp className="mr-3 text-emerald-600" size={24} />
+              <h2 className="text-xl font-semibold text-gray-900">Report Currency</h2>
+            </div>
+            
+            <p className="text-sm text-gray-600 mb-4">
+              Configure how expenses in different currencies are converted for reports and analytics.
+            </p>
+
+            <div className="space-y-6">
+              {/* Report Currency Selector */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Display Reports In
+                </label>
+                <p className="text-sm text-gray-500 mb-2">
+                  All expenses will be converted to this currency for totals and reports
+                </p>
+                <div className="relative">
+                  <button
+                    onClick={() => setShowReportCurrencyDropdown(!showReportCurrencyDropdown)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-left flex items-center justify-between hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  >
+                    <div className="flex items-center">
+                      <span className="mr-3">{SUPPORTED_CURRENCIES.find(c => c.code === reportCurrency)?.flag || '🌍'}</span>
+                      <div>
+                        <div className="font-medium">{SUPPORTED_CURRENCIES.find(c => c.code === reportCurrency)?.name || reportCurrency}</div>
+                        <div className="text-sm text-gray-500">
+                          {reportCurrency} ({SUPPORTED_CURRENCIES.find(c => c.code === reportCurrency)?.symbol || reportCurrency})
+                        </div>
+                      </div>
+                    </div>
+                    <ChevronDown
+                      size={20}
+                      className={`text-gray-400 transition-transform ${showReportCurrencyDropdown ? 'rotate-180' : ''}`}
+                    />
+                  </button>
+
+                  {showReportCurrencyDropdown && (
+                    <div className="absolute z-10 w-full mt-2 bg-white border border-gray-300 rounded-lg shadow-lg max-h-64 overflow-hidden">
+                      <div className="p-3 border-b">
+                        <div className="relative">
+                          <Search size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                          <input
+                            type="text"
+                            placeholder="Search currencies..."
+                            value={reportCurrencySearch}
+                            onChange={(e) => setReportCurrencySearch(e.target.value)}
+                            className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                          />
+                        </div>
+                      </div>
+                      <div className="max-h-48 overflow-y-auto">
+                        {filteredReportCurrencies.map((currency) => (
+                          <button
+                            key={currency.code}
+                            onClick={() => handleReportCurrencySelect(currency)}
+                            className="w-full px-4 py-3 hover:bg-gray-50 flex items-center justify-between text-left"
+                          >
+                            <div className="flex items-center">
+                              <span className="mr-3">{currency.flag}</span>
+                              <div>
+                                <div className="font-medium">{currency.name}</div>
+                                <div className="text-sm text-gray-500">
+                                  {currency.code} ({currency.symbol})
+                                </div>
+                              </div>
+                            </div>
+                            {reportCurrency === currency.code && (
+                              <Check size={18} className="text-emerald-600" />
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Live Exchange Rates Toggle */}
+              <div className="border-t pt-4">
+                <div className="flex items-start sm:items-center justify-between gap-4">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <RefreshCw size={18} className="text-emerald-600" />
+                      <div className="font-medium text-gray-900">Live Exchange Rates</div>
+                    </div>
+                    <div className="text-sm text-gray-500 mt-1 ml-6">
+                      Use real-time exchange rates from frankfurter.app for accurate currency conversion. 
+                      Historical rates are used based on expense dates.
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleLiveRatesToggle}
+                    className={`relative inline-flex h-8 w-14 flex-shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 ${useLiveExchangeRates ? 'bg-emerald-600' : 'bg-gray-300'
+                      }`}
+                    role="switch"
+                    aria-checked={useLiveExchangeRates}
+                  >
+                    <span className="sr-only">Enable live exchange rates</span>
+                    <span
+                      className={`inline-block h-6 w-6 transform rounded-full bg-white shadow-lg transition-transform ${useLiveExchangeRates ? 'translate-x-7' : 'translate-x-1'
+                        }`}
+                    />
+                  </button>
+                </div>
+                
+                {useLiveExchangeRates && (
+                  <div className="mt-3 ml-6 p-3 bg-emerald-50 rounded-lg">
+                    <p className="text-sm text-emerald-700">
+                      <strong>✓ Live rates enabled</strong> - Exchange rates are fetched from frankfurter.app 
+                      and cached for 1 hour. Historical rates are cached permanently for accurate reporting.
+                    </p>
+                  </div>
+                )}
+                
+                {!useLiveExchangeRates && (
+                  <div className="mt-3 ml-6 p-3 bg-gray-100 rounded-lg">
+                    <p className="text-sm text-gray-600">
+                      <strong>Static rates</strong> - Using fixed exchange rates. Enable live rates for 
+                      more accurate currency conversion in your reports.
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
