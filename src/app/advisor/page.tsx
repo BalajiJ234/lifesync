@@ -9,6 +9,7 @@ import { selectSettings } from '@/store/slices/settingsSlice'
 import { getCurrencyByCode, formatAmount } from '@/utils/currency'
 import { DailyBudgetWidget } from '@/components/DailyBudgetWidget'
 import { AIAdvancedInsights } from '@/components/ai/AIAdvancedInsights'
+import { UpcomingRecurringWidget } from '@/components/UpcomingRecurringWidget'
 
 export default function AdvisorPage() {
   const dispatch = useAppDispatch()
@@ -128,6 +129,9 @@ export default function AdvisorPage() {
       <h1 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">💰 Financial Advisor</h1>
       
       <DailyBudgetWidget />
+      
+      {/* Upcoming Fixed Expenses */}
+      <UpcomingRecurringWidget />
       
       {/* Monthly Summary */}
       <div className="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg shadow-lg p-6 mb-6">

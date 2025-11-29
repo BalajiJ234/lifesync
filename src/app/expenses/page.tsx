@@ -17,6 +17,7 @@ import {
   Upload
 } from 'lucide-react'
 import BulkImport from '@/components/BulkImport'
+import { RecurringSuggestionsPanel } from '@/components/RecurringSuggestionsPanel'
 import { useSettings } from '@/contexts/SettingsContext'
 import { formatAmount, convertCurrency, SUPPORTED_CURRENCIES } from '@/utils/currency'
 import { detectSpendingPatterns, detectAnomalies } from '@/utils/spendingAnalysis'
@@ -355,6 +356,9 @@ export default function ExpensesPage() {
           </div>
         </div>
       </div>
+
+      {/* AI Recurring Expense Detection */}
+      <RecurringSuggestionsPanel />
 
       {/* AI Insights Preview */}
       {expenses.length >= 10 && (() => {

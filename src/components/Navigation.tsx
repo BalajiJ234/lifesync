@@ -30,7 +30,6 @@ const navItems = [
 
 const expenseSubmenuItems = [
   { href: '/expenses', label: 'My Expenses' },
-  { href: '/expenses/templates', label: 'Recurring Templates' },
   { href: '/splits', label: 'Bill Splitting' },
 ]
 
