@@ -157,6 +157,9 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 - [x] Daily budget calculator
 
 ### 🚧 Phase 3: Enhanced Insights (Next)
+- [ ] **Live Exchange Rates** - Real-time currency conversion using open API (frankfurter.app)
+- [ ] **Historical Rate Reports** - Convert expenses using rate on transaction date
+- [ ] **Customizable Report Currency** - Generate reports in any currency (AED, INR, USD, etc.) with accurate conversion
 - [ ] Advanced spending analytics with charts
 - [ ] Monthly budget alerts (80%, 100% thresholds)
 - [ ] Spending pattern detection ("You spend more on weekends")

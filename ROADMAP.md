@@ -32,16 +32,21 @@ Build the most privacy-first AI-powered personal finance app - 100% local, zero 
 - [x] Bulk import/export (expenses and income)
 - [x] Mobile-responsive UI
 - [x] Income tracking data model and state management
+- [x] AI recurring expense detection
+- [x] Recurring suggestions panel
+- [x] Daily budget calculator
 
 ### Features In Progress 🚧
-- [ ] Income tracking UI (data model complete, UI pending)
+- [ ] Live exchange rates (frankfurter.app API)
+- [ ] Historical rate-based currency conversion
+- [ ] Multi-currency reports (convert based on expense date)
 
 ### User Stories (To Create in GitHub)
-1. **Monthly budget limit alerts** - Set budgets, get warnings at 80%, alerts at 100%
-2. **Custom expense categories** - Create, edit, delete custom categories
-3. **Advanced spending analytics** - Charts, trends, month-over-month comparisons
-4. **Receipt photo attachment** - Store receipts in IndexedDB
-5. **Recurring expense templates** - Auto-detect recurring payments, subscription management
+1. **Live Exchange Rates** - Fetch real-time rates, cache for offline use
+2. **Historical Rate Reports** - Convert AED/INR expenses using rate on transaction date
+3. **Monthly budget limit alerts** - Set budgets, get warnings at 80%, alerts at 100%
+4. **Custom expense categories** - Create, edit, delete custom categories
+5. **Advanced spending analytics** - Charts, trends, month-over-month comparisons
 
 ---
 
