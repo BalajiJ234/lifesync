@@ -1,9 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Calendar, DollarSign, Tag, Type, Clock, FileText, Sparkles, Repeat } from 'lucide-react'
-import { useAppSelector } from '@/store/hooks'
-import { selectTemplates } from '@/store/slices/recurringTemplatesSlice'
+import { Calendar, DollarSign, Tag, Type, Clock, FileText, Sparkles } from 'lucide-react'
 
 interface ExpenseFormData {
   amount: string
@@ -14,7 +12,6 @@ interface ExpenseFormData {
   date: string
   recurringFrequency: 'daily' | 'weekly' | 'monthly' | 'yearly'
   notes: string
-  templateId?: string // Track if expense was created from a template
 }
 
 interface MobileExpenseFormProps {
@@ -58,8 +55,6 @@ export default function MobileExpenseForm({
   onCancel, 
   isEditing = false 
 }: MobileExpenseFormProps) {
-  const templates = useAppSelector(selectTemplates).filter(t => t.isActive)
-  
   const [formData, setFormData] = useState<ExpenseFormData>({
     amount: initialData?.amount || '',
     currency: initialData?.currency || 'AED',
@@ -69,29 +64,9 @@ export default function MobileExpenseForm({
     date: initialData?.date || new Date().toISOString().split('T')[0],
     recurringFrequency: initialData?.recurringFrequency || 'monthly',
     notes: initialData?.notes || '',
-    templateId: initialData?.templateId,
   })
 
   const [aiLoading, setAiLoading] = useState(false)
-  const [showTemplateDropdown, setShowTemplateDropdown] = useState(false)
-
-  const handleTemplateSelect = (templateId: string) => {
-    const template = templates.find(t => t.id === templateId)
-    if (template) {
-      setFormData({
-        amount: template.amount.toString(),
-        currency: template.currency,
-        category: template.category,
-        description: template.name,
-        date: new Date().toISOString().split('T')[0],
-        notes: template.notes || '',
-        isRecurring: false,
-        recurringFrequency: 'monthly',
-        templateId: template.id, // Track which template was used
-      })
-      setShowTemplateDropdown(false)
-    }
-  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -127,53 +102,6 @@ export default function MobileExpenseForm({
   return (
     <div className="h-full flex flex-col">
       <form id="expense-form" onSubmit={handleSubmit} className="flex-1 p-4 md:p-6 space-y-4 md:space-y-6 overflow-y-auto">
-        
-        {/* Quick Fill from Template */}
-        {!isEditing && templates.length > 0 && (
-          <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-xl p-4">
-            <div className="flex items-center justify-between mb-3">
-              <label className="flex items-center space-x-2 text-sm font-medium text-purple-900">
-                <Repeat size={16} className="text-purple-600" />
-                <span>Quick Fill from Template</span>
-              </label>
-              <button
-                type="button"
-                onClick={() => setShowTemplateDropdown(!showTemplateDropdown)}
-                className="text-xs text-purple-600 hover:text-purple-800 font-medium"
-              >
-                {showTemplateDropdown ? 'Hide' : 'Show'}
-              </button>
-            </div>
-            
-            {showTemplateDropdown && (
-              <div className="space-y-2 max-h-48 overflow-y-auto">
-                {templates.map(template => (
-                  <button
-                    key={template.id}
-                    type="button"
-                    onClick={() => handleTemplateSelect(template.id)}
-                    className="w-full text-left p-3 bg-white border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <div className="font-medium text-gray-900">{template.name}</div>
-                        <div className="text-xs text-gray-500 mt-1">
-                          {template.category} • {template.frequency}
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="font-semibold text-purple-700">
-                          {template.currency} {template.amount.toFixed(2)}
-                        </div>
-                      </div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
         {/* Amount & Currency Row */}
         <div className="space-y-4">
         <div className="grid grid-cols-2 gap-4">

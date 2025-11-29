@@ -120,3 +120,9 @@ export function getExchangeRate(fromCurrency: string, toCurrency: string): numbe
   
   return toRate / fromRate
 }
+
+// Helper function to format currency with proper symbol placement
+export function formatCurrency(amount: number, currencyCode: string): string {
+  const currency = getCurrencyByCode(currencyCode)
+  return formatAmount(amount, currency)
+}

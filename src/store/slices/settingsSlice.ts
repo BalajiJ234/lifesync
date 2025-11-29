@@ -34,6 +34,16 @@ export interface UserSettings {
   monthlyBudget: number
   budgetAlerts: boolean
   
+  // Financial Advisor
+  savingsRate: number // 0.20 = 20%
+  emergencyFundMonths: number // 3-6 months
+  
+  // Family Remittance
+  familyRemittanceEnabled: boolean
+  familyRemittanceAmount: number
+  familyRemittanceDay: number // day of month
+  familyRemittanceCurrency: string
+  
   // Export/Import
   defaultExportFormat: 'csv' | 'xlsx' | 'pdf' | 'json'
   includeReceipts: boolean
@@ -82,6 +92,16 @@ const defaultSettings: UserSettings = {
   customCategories: [],
   monthlyBudget: 0,
   budgetAlerts: true,
+  
+  // Financial Advisor
+  savingsRate: 0.20, // 20% default
+  emergencyFundMonths: 6, // 6 months default
+  
+  // Family Remittance
+  familyRemittanceEnabled: false,
+  familyRemittanceAmount: 0,
+  familyRemittanceDay: 1, // 1st of month
+  familyRemittanceCurrency: 'AED',
   
   // Export/Import
   defaultExportFormat: 'csv',

@@ -4,10 +4,9 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useAppSelector } from '@/store/hooks'
 import { AIInsights } from '@/components/ai/AIIntegration'
-import { selectIncomes } from '@/store/slices/incomeSlice'
-import { selectTemplates, getUpcomingTemplates } from '@/store/slices/recurringTemplatesSlice'
-import { formatAmount, getCurrencyByCode } from '@/utils/currency'
-import { useSettings } from '@/contexts/SettingsContext'
+import { DailyBudgetWidget } from '@/components/DailyBudgetWidget'
+import { FamilyRemittanceWidget } from '@/components/FamilyRemittanceWidget'
+import { QuickInsightsWidget } from '@/components/QuickInsightsWidget'
 import { 
   StickyNote, 
   DollarSign, 
@@ -19,9 +18,7 @@ import {
   Calendar,
   Target,
   Activity,
-  ArrowDownCircle,
-  ArrowUpCircle,
-  Repeat 
+  Lightbulb
 } from 'lucide-react'
 
 // Data interfaces
@@ -37,10 +34,8 @@ const useAppData = () => {
   const notes = useAppSelector((state) => state.notes.notes)
   const todos = useAppSelector((state) => state.todos.todos)
   const expenses = useAppSelector((state) => state.expenses.expenses)
-  const incomes = useAppSelector(selectIncomes)
   const friends = useAppSelector((state) => state.splits.friends)
   const bills = useAppSelector((state) => state.splits.bills)
-  const { settings } = useSettings()
   const [isClient, setIsClient] = useState(false)
 
   useEffect(() => {
@@ -56,20 +51,11 @@ const useAppData = () => {
     return expenseDate.getMonth() === currentMonth && expenseDate.getFullYear() === currentYear
   })
   
-  const thisMonthIncomes = incomes.filter(income => {
-    const incomeDate = new Date(income.eventDate)
-    return incomeDate.getMonth() === currentMonth && incomeDate.getFullYear() === currentYear && income.status === 'received'
-  })
-  
-  // Round to 2 decimal places to fix floating point precision
-  const thisMonthExpenseTotal = Math.round(thisMonthExpenses.reduce((sum, expense) => sum + expense.amount, 0) * 100) / 100
-  const thisMonthIncomeTotal = Math.round(thisMonthIncomes.reduce((sum, income) => sum + income.amount, 0) * 100) / 100
-  const netCashflow = Math.round((thisMonthIncomeTotal - thisMonthExpenseTotal) * 100) / 100
-  
+  const thisMonthTotal = thisMonthExpenses.reduce((sum, expense) => sum + expense.amount, 0)
   const activeTodos = todos.filter(todo => !todo.completed)
   const completedTodos = todos.filter(todo => todo.completed)
   const pendingBills = bills.filter(bill => bill.status !== 'settled')
-  const pendingAmount = Math.round(pendingBills.reduce((sum, bill) => sum + bill.totalAmount, 0) * 100) / 100
+  const pendingAmount = pendingBills.reduce((sum, bill) => sum + bill.totalAmount, 0)
 
   // Generate recent activity from real data
   const generateRecentActivity = (): ActivityItem[] => {
@@ -132,14 +118,9 @@ const useAppData = () => {
   return {
     notes: isClient ? notes.length : 0,
     expenses: { 
-      thisMonth: isClient ? thisMonthExpenseTotal : 0,
+      thisMonth: isClient ? thisMonthTotal : 0,
       count: isClient ? expenses.length : 0
     },
-    income: {
-      thisMonth: isClient ? thisMonthIncomeTotal : 0,
-      count: isClient ? incomes.length : 0
-    },
-    netCashflow: isClient ? netCashflow : 0,
     todos: { 
       active: isClient ? activeTodos.length : 0,
       completed: isClient ? completedTodos.length : 0
@@ -148,7 +129,6 @@ const useAppData = () => {
       pending: isClient ? pendingAmount : 0,
       friends: isClient ? friends.length : 0
     },
-    currency: isClient ? getCurrencyByCode(settings.currency) : getCurrencyByCode('USD'),
     recentActivity: isClient ? generateRecentActivity() : []
   }
 }
@@ -174,7 +154,7 @@ export default function Home() {
           Welcome to LifeSync
         </h1>
         <p className="text-xl text-gray-600">
-          Your personal life management hub - expenses, todos, notes, and more
+          Your AI-powered financial advisor and personal life management hub
         </p>
         <div className="mt-4 flex items-center justify-center space-x-4 text-sm text-gray-500">
           <div className="flex items-center space-x-1">
@@ -187,6 +167,11 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* Financial Advisor Widgets */}
+      <DailyBudgetWidget />
+      <FamilyRemittanceWidget />
+      <QuickInsightsWidget />
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -206,44 +191,12 @@ export default function Home() {
         <div className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Expenses</p>
-              <p className="text-2xl font-bold text-red-600">{formatAmount(appData.expenses.thisMonth, appData.currency)}</p>
-              <p className="text-xs text-gray-500 mt-1">{appData.expenses.count} tracked this month</p>
-            </div>
-            <div className="p-3 bg-red-100 rounded-full">
-              <ArrowDownCircle className="h-6 w-6 text-red-600" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Income</p>
-              <p className="text-2xl font-bold text-green-600">{formatAmount(appData.income.thisMonth, appData.currency)}</p>
-              <p className="text-xs text-gray-500 mt-1">{appData.income.count} received this month</p>
+              <p className="text-sm font-medium text-gray-600">This Month</p>
+              <p className="text-2xl font-bold text-gray-900">${appData.expenses.thisMonth}</p>
+              <p className="text-xs text-gray-500 mt-1">{appData.expenses.count} expenses tracked</p>
             </div>
             <div className="p-3 bg-green-100 rounded-full">
-              <ArrowUpCircle className="h-6 w-6 text-green-600" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Net Cashflow</p>
-              <p className={`text-2xl font-bold ${
-                appData.netCashflow >= 0 ? 'text-green-600' : 'text-red-600'
-              }`}>{formatAmount(appData.netCashflow, appData.currency)}</p>
-              <p className="text-xs text-gray-500 mt-1">This month</p>
-            </div>
-            <div className={`p-3 rounded-full ${
-              appData.netCashflow >= 0 ? 'bg-green-100' : 'bg-red-100'
-            }`}>
-              <TrendingUp className={`h-6 w-6 ${
-                appData.netCashflow >= 0 ? 'text-green-600' : 'text-red-600'
-              }`} />
+              <DollarSign className="h-6 w-6 text-green-600" />
             </div>
           </div>
         </div>
@@ -265,7 +218,7 @@ export default function Home() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Pending Splits</p>
-              <p className="text-2xl font-bold text-gray-900">{formatAmount(appData.splits.pending, appData.currency)}</p>
+              <p className="text-2xl font-bold text-gray-900">${appData.splits.pending}</p>
               <p className="text-xs text-gray-500 mt-1">{appData.splits.friends} friends</p>
             </div>
             <div className="p-3 bg-purple-100 rounded-full">
@@ -276,41 +229,21 @@ export default function Home() {
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Link 
-          href="/income"
+          href="/advisor"
           className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition-shadow group"
         >
           <div className="flex flex-col items-center text-center space-y-4">
-            <div className="p-3 bg-green-100 rounded-full group-hover:bg-green-200 transition-colors">
-              <TrendingUp className="h-8 w-8 text-green-600" />
+            <div className="p-3 bg-indigo-100 rounded-full group-hover:bg-indigo-200 transition-colors">
+              <Lightbulb className="h-8 w-8 text-indigo-600" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Track Income</h3>
-              <p className="text-sm text-gray-600">Record earnings & inflows</p>
+              <h3 className="text-lg font-semibold text-gray-900">Financial Advisor</h3>
+              <p className="text-sm text-gray-600">Get personalized advice</p>
             </div>
             <div className="flex items-center text-blue-600 text-sm font-medium">
-              <Plus className="h-4 w-4 mr-1" />
-              Add Income
-            </div>
-          </div>
-        </Link>
-
-        <Link 
-          href="/expenses"
-          className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition-shadow group"
-        >
-          <div className="flex flex-col items-center text-center space-y-4">
-            <div className="p-3 bg-red-100 rounded-full group-hover:bg-red-200 transition-colors">
-              <DollarSign className="h-8 w-8 text-red-600" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">Track Expenses</h3>
-              <p className="text-sm text-gray-600">Monitor your spending</p>
-            </div>
-            <div className="flex items-center text-blue-600 text-sm font-medium">
-              <Plus className="h-4 w-4 mr-1" />
-              Add Expense
+              View Insights →
             </div>
           </div>
         </Link>
@@ -335,46 +268,43 @@ export default function Home() {
         </Link>
 
         <Link 
-          href="/todos"
+          href="/expenses"
           className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition-shadow group"
         >
           <div className="flex flex-col items-center text-center space-y-4">
-            <div className="p-3 bg-blue-100 rounded-full group-hover:bg-blue-200 transition-colors">
-              <CheckSquare className="h-8 w-8 text-blue-600" />
+            <div className="p-3 bg-green-100 rounded-full group-hover:bg-green-200 transition-colors">
+              <DollarSign className="h-8 w-8 text-green-600" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Manage Tasks</h3>
-              <p className="text-sm text-gray-600">Stay organized and productive</p>
+              <h3 className="text-lg font-semibold text-gray-900">Track Expenses</h3>
+              <p className="text-sm text-gray-600">Monitor your spending</p>
             </div>
             <div className="flex items-center text-blue-600 text-sm font-medium">
               <Plus className="h-4 w-4 mr-1" />
-              Add Task
+              Add Expense
             </div>
           </div>
         </Link>
 
         <Link 
-          href="/splits"
+          href="/goals"
           className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition-shadow group"
         >
           <div className="flex flex-col items-center text-center space-y-4">
-            <div className="p-3 bg-purple-100 rounded-full group-hover:bg-purple-200 transition-colors">
-              <Users className="h-8 w-8 text-purple-600" />
+            <div className="p-3 bg-blue-100 rounded-full group-hover:bg-blue-200 transition-colors">
+              <Target className="h-8 w-8 text-blue-600" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Split Bills</h3>
-              <p className="text-sm text-gray-600">Share expenses with friends</p>
+              <h3 className="text-lg font-semibold text-gray-900">Financial Goals</h3>
+              <p className="text-sm text-gray-600">Plan for the future</p>
             </div>
             <div className="flex items-center text-blue-600 text-sm font-medium">
               <Plus className="h-4 w-4 mr-1" />
-              Split Bill
+              Add Goal
             </div>
           </div>
         </Link>
       </div>
-
-      {/* Upcoming Recurring Expenses */}
-      <UpcomingRecurringWidget />
 
       {/* AI Insights */}
       <AIInsights />
@@ -460,78 +390,6 @@ export default function Home() {
               </div>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
-  )
-}// Upcoming Recurring Expenses Widget
-function UpcomingRecurringWidget() {
-  const templates = useAppSelector(selectTemplates)
-  // const { settings } = useSettings()
-  const [isClient, setIsClient] = useState(false)
-
-  useEffect(() => {
-    setIsClient(true)
-  }, [])
-
-  if (!isClient) return null
-
-  const upcoming = getUpcomingTemplates(templates, 7) // Next 7 days
-  
-  if (upcoming.length === 0) return null
-
-  return (
-    <div className="bg-white rounded-lg shadow-sm border">
-      <div className="p-6 border-b flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <Repeat className="h-5 w-5 text-blue-600" />
-          <h2 className="text-xl font-semibold text-gray-900">Upcoming Recurring Bills</h2>
-        </div>
-        <Link
-          href="/expenses/templates"
-          className="text-sm text-blue-600 hover:text-blue-700 font-medium"
-        >
-          View all 
-        </Link>
-      </div>
-      <div className="p-6">
-        <div className="space-y-3">
-          {upcoming.map((item) => {
-            const currency = getCurrencyByCode(item.currency)
-            const daysUntil = Math.ceil(
-              (new Date(item.dueDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
-            )
-            return (
-              <div
-                key={item.id}
-                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                <div className="flex items-center space-x-3">
-                  <div className={`p-2 rounded-full ${item.isOverdue ? 'bg-red-100' : 'bg-blue-100'}`}>
-                    <Repeat className={`h-4 w-4 ${item.isOverdue ? 'text-red-600' : 'text-blue-600'}`} />
-                  </div>
-                  <div>
-                    <div className="font-medium text-gray-900">{item.name}</div>
-                    <div className="text-sm text-gray-500">
-                      {item.isOverdue ? (
-                        <span className="text-red-600 font-medium">Overdue</span>
-                      ) : daysUntil === 0 ? (
-                        'Due today'
-                      ) : (
-                        `Due in ${daysUntil} day${daysUntil !== 1 ? 's' : ''}`
-                      )}  {item.category}
-                    </div>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="font-semibold text-gray-900">
-                    {formatAmount(item.amount, currency)}
-                  </div>
-                  <div className="text-xs text-gray-500 capitalize">{item.frequency}</div>
-                </div>
-              </div>
-            )
-          })}
         </div>
       </div>
     </div>

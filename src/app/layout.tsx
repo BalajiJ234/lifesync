@@ -64,34 +64,14 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `
               if ('serviceWorker' in navigator) {
-                const cleanupServiceWorkers = async () => {
-                  try {
-                    const registrations = await navigator.serviceWorker.getRegistrations();
-                    await Promise.all(registrations.map(async (registration) => {
-                      try {
-                        await registration.unregister();
-                      } catch (error) {
-                        console.log('SW unregister failed:', error);
-                      }
-                    }));
-                  } catch (error) {
-                    console.log('SW lookup failed:', error);
-                  }
-
-                  if ('caches' in window) {
-                    try {
-                      const cacheKeys = await caches.keys();
-                      await Promise.all(cacheKeys.map((key) => caches.delete(key)));
-                    } catch (error) {
-                      console.log('Cache cleanup failed:', error);
-                    }
-                  }
-                };
-
-                window.addEventListener('load', () => {
-                  cleanupServiceWorkers().catch((error) => {
-                    console.log('SW cleanup failed:', error);
-                  });
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js')
+                    .then(function(registration) {
+                      console.log('SW registered: ', registration);
+                    })
+                    .catch(function(registrationError) {
+                      console.log('SW registration failed: ', registrationError);
+                    });
                 });
               }
             `,

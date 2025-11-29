@@ -11,7 +11,6 @@ export interface Expense {
   createdAt: string
   isRecurring?: boolean
   recurringPeriod?: 'daily' | 'weekly' | 'monthly' | 'yearly'
-  templateId?: string // ID of recurring template if created from template
   tags?: string[]
   notes?: string
   location?: string

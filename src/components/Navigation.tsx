@@ -12,11 +12,13 @@ import {
   Target,
   Settings,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Lightbulb
 } from 'lucide-react'
 import Logo from './Logo'
 
 const navItems = [
+  { href: '/advisor', label: 'Advisor', icon: Lightbulb },
   { href: '/', label: 'Dashboard', icon: Home },
   { href: '/expenses', label: 'Expenses', icon: DollarSign, hasSubmenu: true },
   { href: '/income', label: 'Income', icon: TrendingUp },

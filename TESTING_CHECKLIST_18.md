@@ -1,18 +1,21 @@
 # Recurring Expense Templates Testing Checklist (#18)
 
 ## Feature Overview
+
 Branch: `feature/18-recurring-expense-templates`
 Commits: 5ec0e8c, 8db4878
 
 ## ✅ Completed Implementation
 
 ### Redux Store
+
 - [x] `recurringTemplatesSlice.ts` with full CRUD actions
 - [x] Added to `store/index.ts` rootReducer
 - [x] Added to persist whitelist
 - [x] Helper functions: `calculateNextDueDate()`, `getUpcomingTemplates()`, `getMissedTemplates()`
 
 ### UI Components
+
 - [x] `/expenses/templates` - Full templates management page
 - [x] Create/Edit template modal with frequency selection
 - [x] Upcoming templates view (30 days)
@@ -22,16 +25,19 @@ Commits: 5ec0e8c, 8db4878
 - [x] Template cards with pause/play, edit, delete
 
 ### Navigation
+
 - [x] Added "Recurring Templates" to Expenses submenu
 - [x] Updated active state detection for `/expenses/` paths
 
 ### Dashboard Widget
+
 - [x] `UpcomingRecurringWidget` shows next 7 days
 - [x] Overdue status display (red text)
 - [x] Days until due counter
 - [x] Links to templates page
 
 ### Data Persistence
+
 - [x] Export: `recurringTemplates` included in JSON export
 - [x] Import: Parse and load templates from backup
 - [x] Clear: Remove all templates from store
@@ -42,9 +48,11 @@ Commits: 5ec0e8c, 8db4878
 ## 🧪 Manual Testing Guide
 
 ### Test 1: Create Recurring Templates
+
 **Navigate to:** Expenses → Recurring Templates
 
 1. **Monthly Rent Template**
+
    - Click "Create Template"
    - Name: "Monthly Rent"
    - Amount: 1200
@@ -57,6 +65,7 @@ Commits: 5ec0e8c, 8db4878
    - Click Save
 
 2. **Weekly Groceries Template**
+
    - Click "Create Template"
    - Name: "Grocery Shopping"
    - Amount: 150
@@ -81,15 +90,18 @@ Commits: 5ec0e8c, 8db4878
    - Click Save
 
 **Expected Results:**
+
 - [ ] All 3 templates appear in "All Templates" tab
 - [ ] Next due dates calculated correctly
 - [ ] Frequency badges display properly
 - [ ] Template cards show amount, category, notes
 
 ### Test 2: Upcoming Templates View
+
 **Check dashboard and templates page**
 
 **Dashboard Widget (Next 7 Days):**
+
 - [ ] "Upcoming Recurring" widget visible on homepage
 - [ ] Shows only templates due within 7 days
 - [ ] Overdue items show in red
@@ -97,15 +109,18 @@ Commits: 5ec0e8c, 8db4878
 - [ ] Clicking template links to `/expenses/templates`
 
 **Templates Page (Next 30 Days):**
+
 - [ ] "Upcoming Expenses" section shows next 30 days
 - [ ] Grouped by template with due dates
 - [ ] "Create Expense" button visible for each
 - [ ] Amounts and categories display correctly
 
 ### Test 3: One-Click Expense Creation
+
 **Navigate to:** Expenses → Recurring Templates → Upcoming Expenses
 
 1. Click "Create Expense" on Weekly Groceries template
+
    - **Expected:**
      - [ ] Redirects to `/expenses` page
      - [ ] Expense form auto-fills with template data (amount, category, notes)
@@ -119,9 +134,11 @@ Commits: 5ec0e8c, 8db4878
      - [ ] Template's `nextDue` recalculates
 
 ### Test 4: Missed Payment Detection
+
 **Manually test grace period logic**
 
 1. Create a test template with past due date:
+
    - Name: "Overdue Bill"
    - Amount: 100
    - Frequency: Monthly
@@ -136,9 +153,11 @@ Commits: 5ec0e8c, 8db4878
      - [ ] Can still create expense from missed template
 
 ### Test 5: Pause/Resume Templates
+
 **Test active/paused states**
 
 1. Click "Pause" on Monthly Rent template
+
    - **Expected:**
      - [ ] Button changes to "Resume"
      - [ ] Template moves to "Paused" tab
@@ -152,6 +171,7 @@ Commits: 5ec0e8c, 8db4878
      - [ ] Appears in upcoming view again
 
 ### Test 6: Edit Templates
+
 1. Click "Edit" on Grocery Shopping template
 2. Change amount from 150 to 175
 3. Change day of week to Saturday (6)
@@ -162,6 +182,7 @@ Commits: 5ec0e8c, 8db4878
      - [ ] Next due date recalculates for Saturday
 
 ### Test 7: Delete Templates
+
 1. Click "Delete" on Quarterly Insurance template
 2. Confirm deletion
    - **Expected:**
@@ -171,9 +192,11 @@ Commits: 5ec0e8c, 8db4878
      - [ ] No longer in dashboard widget
 
 ### Test 8: Export/Import/Clear Data
+
 **Navigate to:** Settings
 
 1. **Export Test:**
+
    - Click "Export All Data"
    - Save JSON file
    - Open file in text editor
@@ -182,6 +205,7 @@ Commits: 5ec0e8c, 8db4878
      - [ ] All template fields intact (id, name, amount, frequency, nextDue, etc.)
 
 2. **Clear Test:**
+
    - Click "Clear All Data" → Confirm
    - **Expected:**
      - [ ] All templates removed
@@ -198,31 +222,38 @@ Commits: 5ec0e8c, 8db4878
      - [ ] Dashboard widget returns
 
 ### Test 9: Frequency Calculations
+
 **Verify date logic for each frequency type**
 
 Create templates with specific dates and verify nextDue:
 
 **Weekly:**
+
 - Start Date: Dec 15, 2024 (Sunday)
 - Expected Next: Next Sunday after today
 
 **Biweekly:**
+
 - Start Date: Dec 1, 2024
 - Expected Next: Dec 15, Dec 29, Jan 12...
 
 **Monthly:**
+
 - Day of Month: 15
 - Expected Next: 15th of current/next month
 
 **Quarterly:**
+
 - Start Date: Jan 1, 2025
 - Expected Next: Jan 1, Apr 1, Jul 1, Oct 1...
 
 **Yearly:**
+
 - Start Date: Dec 25, 2024
 - Expected Next: Dec 25, 2025
 
 ### Test 10: Multi-Currency Support
+
 **Test with different currencies**
 
 1. Create template in INR
@@ -239,19 +270,23 @@ Create templates with specific dates and verify nextDue:
 ## 🐛 Known Issues / Edge Cases to Test
 
 ### Edge Case 1: Day of Month > Month Length
+
 - Create monthly template for day 31
 - Check behavior in February (28/29 days)
 - **Expected:** Should handle gracefully (use last day of month)
 
 ### Edge Case 2: Leap Year (2024)
+
 - Monthly template on Feb 29, 2024
 - **Expected:** Next occurrence Feb 28, 2025 (non-leap year)
 
 ### Edge Case 3: Multiple Templates Same Day
+
 - Create 3 templates all due on same date
 - **Expected:** All appear in upcoming view, sorted properly
 
 ### Edge Case 4: Very Old Start Dates
+
 - Template from 5 years ago, never generated
 - **Expected:** nextDue calculated from today, not accumulating past due dates
 
@@ -275,6 +310,7 @@ Create templates with specific dates and verify nextDue:
 ## 🚀 Ready for PR?
 
 **Pre-PR Checklist:**
+
 - [x] All core features implemented
 - [x] Export/import/clear functionality complete
 - [x] No TypeScript errors
@@ -284,6 +320,7 @@ Create templates with specific dates and verify nextDue:
 - [ ] Multi-currency salary tracking documented (separate story)
 
 **Next Steps:**
+
 1. Complete manual testing
 2. Fix any bugs found
 3. Add template dropdown to expense form (quick enhancement)
@@ -295,11 +332,13 @@ Create templates with specific dates and verify nextDue:
 ## 📝 Notes
 
 **Performance:**
+
 - All data in localStorage (< 5MB typical)
 - Date calculations O(n) where n = number of templates
 - No network calls, instant UI updates
 
 **Future Enhancements (Separate PRs):**
+
 - [ ] Template categories/tags for organization
 - [ ] Bulk template creation (import CSV)
 - [ ] Template sharing (export individual template)
