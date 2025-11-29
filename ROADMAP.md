@@ -1,7 +1,7 @@
-# 🚀 LifeSync Roadmap - Privacy-First Evolution
+# 🚀 WealthPulse Roadmap - AI-Powered Personal Finance
 
 ## Vision
-Build the world's most privacy-first personal finance app - 100% local, zero tracking, AI-powered.
+Build the most privacy-first AI-powered personal finance app - 100% local, zero tracking, intelligent insights.
 
 ---
 
@@ -10,19 +10,20 @@ Build the world's most privacy-first personal finance app - 100% local, zero tra
 ### What's Working
 - ✅ localStorage-based persistence
 - ✅ AI expense categorization (local)
+- ✅ AI recurring expense detection
 - ✅ Goal tracking with feasibility analysis and intent classification
-- ✅ Income tracking data model (backend ready)
+- ✅ Income tracking with recurring patterns
 - ✅ Bill splitting with export/import
 - ✅ PWA offline support
 - ✅ Mobile-responsive UI
-- ✅ Complete data export/import (including income)
+- ✅ Complete data export/import
 
 ---
 
 ## EPIC 1: Core Financial Management 🎯
 **Goal:** Robust expense tracking and categorization
 **Timeline**: v1.0.0 - November 2025
-**GitHub Milestone**: Create at https://github.com/BalajiJ234/lifesync/milestones
+**GitHub Milestone**: Create at https://github.com/BalajiJ234/wealthpulse/milestones
 
 ### Features Completed ✅
 - [x] Expense tracking with categories
@@ -47,7 +48,7 @@ Build the world's most privacy-first personal finance app - 100% local, zero tra
 ## EPIC 2: Enhanced Privacy & PWA 🔒
 **Goal:** Best-in-class privacy and offline experience
 **Timeline**: v1.1.0 - December 2025
-**GitHub Milestone**: Create at https://github.com/BalajiJ234/lifesync/milestones
+**GitHub Milestone**: Create at https://github.com/BalajiJ234/wealthpulse/milestones
 
 ### Features Completed ✅
 - [x] 100% localStorage (no database)
@@ -67,7 +68,7 @@ Build the world's most privacy-first personal finance app - 100% local, zero tra
 ## EPIC 3: Goals & Financial Planning 💰
 **Goal:** Help users achieve financial goals
 **Timeline**: v1.2.0 - January 2026
-**GitHub Milestone**: Create at https://github.com/BalajiJ234/lifesync/milestones
+**GitHub Milestone**: Create at https://github.com/BalajiJ234/wealthpulse/milestones
 
 ### Features Completed ✅
 - [x] Basic goal tracking
@@ -88,7 +89,7 @@ Build the world's most privacy-first personal finance app - 100% local, zero tra
 ## EPIC 4: Smart Insights & AI 🤖
 **Goal:** Provide intelligent financial insights
 **Timeline**: v1.3.0 - February 2026
-**GitHub Milestone**: Create at https://github.com/BalajiJ234/lifesync/milestones
+**GitHub Milestone**: Create at https://github.com/BalajiJ234/wealthpulse/milestones
 
 ### Features Completed ✅
 - [x] Basic AI categorization
@@ -105,7 +106,7 @@ Build the world's most privacy-first personal finance app - 100% local, zero tra
 ## EPIC 5: Collaboration & Sharing 👥
 **Goal:** Enable shared finances with privacy
 **Timeline**: v1.4.0 - March 2026
-**GitHub Milestone**: Create at https://github.com/BalajiJ234/lifesync/milestones
+**GitHub Milestone**: Create at https://github.com/BalajiJ234/wealthpulse/milestones
 
 ### Features Completed ✅
 - [x] Bill splitting basics
@@ -124,7 +125,7 @@ Build the world's most privacy-first personal finance app - 100% local, zero tra
 ## EPIC 6: Advanced Reporting �
 **Goal:** Comprehensive financial reports
 **Timeline**: v1.5.0 - April 2026
-**GitHub Milestone**: Create at https://github.com/BalajiJ234/lifesync/milestones
+**GitHub Milestone**: Create at https://github.com/BalajiJ234/wealthpulse/milestones
 
 ### Features (All To Create)
 - [ ] Monthly/yearly expense reports
@@ -162,12 +163,12 @@ Build the world's most privacy-first personal finance app - 100% local, zero tra
 ## How to Use This Roadmap
 
 ### 1. Create GitHub Milestones
-Go to: https://github.com/BalajiJ234/lifesync/milestones
+Go to: https://github.com/BalajiJ234/wealthpulse/milestones
 
 Create one milestone for each EPIC above (copy title and timeline).
 
 ### 2. Create User Stories as Issues
-Go to: https://github.com/BalajiJ234/lifesync/issues/new/choose
+Go to: https://github.com/BalajiJ234/wealthpulse/issues/new/choose
 
 Use "User Story" template for each story listed above.
 
@@ -181,7 +182,7 @@ Mark features as complete when done.
 
 ## Labels to Create in GitHub
 
-Go to: https://github.com/BalajiJ234/lifesync/labels
+Go to: https://github.com/BalajiJ234/wealthpulse/labels
 
 ### Priority Labels
 - `priority: critical` (red) - Blocking issues

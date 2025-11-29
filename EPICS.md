@@ -1,6 +1,6 @@
-# LifeSync - Product EPICs
+# WealthPulse - Product EPICs
 
-This file defines the major EPICs (big features) for LifeSync. Each EPIC contains multiple user stories.
+This file defines the major EPICs (big features) for WealthPulse. Each EPIC contains multiple user stories.
 
 ---
 
