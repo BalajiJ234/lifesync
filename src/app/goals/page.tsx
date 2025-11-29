@@ -60,7 +60,7 @@ export default function GoalsPage() {
 
   useEffect(() => {
     setIsClient(true)
-    document.title = 'Goals - LifeSync'
+    document.title = 'Goals - WealthPulse'
   }, [])
 
   // Calculate goal progress

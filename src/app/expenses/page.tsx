@@ -61,7 +61,7 @@ export default function ExpensesPage() {
 
   // Set page title
   useEffect(() => {
-    document.title = 'Expenses - LifeSync'
+    document.title = 'Expenses - WealthPulse'
   }, [])
 
   // Load friends and bills from Redux

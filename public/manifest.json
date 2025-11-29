@@ -1,6 +1,6 @@
 {
-  "name": "LifeSync - Privacy-First Personal Finance",
-  "short_name": "LifeSync",
+  "name": "WealthPulse - AI-Powered Personal Finance",
+  "short_name": "WealthPulse",
   "description": "Track expenses, set goals, and get AI insights - all while keeping your data on YOUR device. No cloud, no tracking, 100% private.",
   "start_url": "/",
   "display": "standalone",
@@ -52,7 +52,7 @@
   "related_applications": [],
   "prefer_related_applications": false,
   "scope": "/",
-  "id": "lifesync-pwa",
+  "id": "wealthpulse-pwa",
   "display_override": [
     "window-controls-overlay",
     "standalone"

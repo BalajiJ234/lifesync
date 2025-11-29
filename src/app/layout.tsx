@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "LifeSync - Privacy-First Personal Finance",
+  title: "WealthPulse - AI-Powered Personal Finance",
   description: "Track expenses, set goals, and get AI insights - all while keeping your data on YOUR device. No cloud, no tracking, 100% private.",
   manifest: "/manifest.json",
   icons: {

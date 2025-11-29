@@ -156,7 +156,7 @@ export default function NotificationBanner({
           <div className="flex items-center space-x-3">
             {/* Privacy Docs button */}
             <button
-              onClick={() => window.open('https://github.com/BalajiJ234/lifesync#-privacy-first-personal-finance', '_blank')}
+              onClick={() => window.open('https://github.com/BalajiJ234/wealthpulse#-privacy-first-personal-finance', '_blank')}
               className={`hidden sm:inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${variant === 'learning'
                   ? 'bg-white/20 text-white border border-white/30 hover:bg-white/30'
                   : 'bg-blue-100 text-blue-800 hover:bg-blue-200'
@@ -168,7 +168,7 @@ export default function NotificationBanner({
 
             {/* GitHub link */}
             <button
-              onClick={() => window.open('https://github.com/BalajiJ234/lifesync', '_blank')}
+              onClick={() => window.open('https://github.com/BalajiJ234/wealthpulse', '_blank')}
               className={`hidden sm:inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${variant === 'learning'
                   ? 'bg-white/20 text-white border border-white/30 hover:bg-white/30'
                   : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
@@ -196,7 +196,7 @@ export default function NotificationBanner({
         <div className="sm:hidden pb-3">
           <div className="flex space-x-2">
             <button
-              onClick={() => window.open('https://github.com/BalajiJ234/lifesync#-privacy-first-personal-finance', '_blank')}
+              onClick={() => window.open('https://github.com/BalajiJ234/wealthpulse#-privacy-first-personal-finance', '_blank')}
               className={`flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium rounded-md transition-colors ${variant === 'learning'
                   ? 'bg-white/20 text-white border border-white/30'
                   : 'bg-blue-100 text-blue-800'
@@ -206,7 +206,7 @@ export default function NotificationBanner({
               Learn More
             </button>
             <button
-              onClick={() => window.open('https://github.com/BalajiJ234/lifesync', '_blank')}
+              onClick={() => window.open('https://github.com/BalajiJ234/wealthpulse', '_blank')}
               className={`flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium rounded-md transition-colors ${variant === 'learning'
                   ? 'bg-white/20 text-white border border-white/30'
                   : 'bg-gray-100 text-gray-800'

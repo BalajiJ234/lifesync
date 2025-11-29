@@ -76,7 +76,7 @@ export default function SplitsPage() {
   // Client-side only rendering to prevent hydration errors
   useEffect(() => {
     setIsClient(true)
-    document.title = 'Bill Splitting - LifeSync'
+    document.title = 'Bill Splitting - WealthPulse'
   }, [])
 
   // Friend form

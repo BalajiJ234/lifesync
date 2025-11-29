@@ -68,7 +68,7 @@ export default function IncomePage() {
 
   useEffect(() => {
     setIsClient(true)
-    document.title = 'Income - LifeSync'
+    document.title = 'Income - WealthPulse'
   }, [])
 
   const handleAddIncome = (incomeData: Partial<Income>) => {

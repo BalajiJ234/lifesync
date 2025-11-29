@@ -1,15 +1,15 @@
-# 🚀 LifeSync - Privacy-First Personal Finance
+# 💰 WealthPulse - AI-Powered Personal Finance
 
-> **Your private, AI-powered spending companion** - Track expenses, set goals, and make smarter financial decisions while keeping YOUR data on YOUR device!
+> **Your private, AI-powered finance companion** - Track expenses, manage income, set goals, and make smarter financial decisions while keeping YOUR data on YOUR device!
 
 [![Next.js](https://img.shields.io/badge/Next.js-15.5.4-black)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19.1.0-blue)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
-[![Privacy](https://img.shields.io/badge/Privacy-First-green)](https://github.com/BalajiJ234/lifesync)
+[![Privacy](https://img.shields.io/badge/Privacy-First-green)](https://github.com/BalajiJ234/wealthpulse)
 
 ## 🎯 What is This?
 
-**LifeSync** is your personal finance companion that respects your privacy:
+**WealthPulse** is your AI-powered personal finance companion that respects your privacy:
 - 🔒 **100% Privacy** - Your data NEVER leaves your device
 - 🤖 **Local AI Insights** - Smart categorization and forecasting
 - 📱 **Offline-First** - Works without internet (PWA)
@@ -81,8 +81,8 @@
 
 1. **Clone** (copy) this code to your computer:
    ```bash
-   git clone https://github.com/BalajiJ234/lifesync.git
-   cd lifesync
+   git clone https://github.com/BalajiJ234/wealthpulse.git
+   cd wealthpulse
    ```
 
 2. **Install** the required packages:
@@ -102,11 +102,11 @@ That's it! 🎉
 ## 📂 What's Inside?
 
 ```
-lifesync/
-├── src/app/                 # Different pages (dashboard, notes, etc.)
+wealthpulse/
+├── src/app/                 # Different pages (dashboard, expenses, income, goals, etc.)
 ├── src/components/          # Reusable UI pieces  
-├── src/api/                 # AI features live here
-├── public/                  # Images and files
+├── src/store/               # Redux state management
+├── public/                  # PWA assets and icons
 └── package.json             # Dependencies list
 ```
 **Simple structure, easy to understand!** 📚

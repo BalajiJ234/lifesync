@@ -42,7 +42,7 @@ export default function SettingsPage() {
 
   // Set page title
   useEffect(() => {
-    document.title = 'Settings - LifeSync'
+    document.title = 'Settings - WealthPulse'
   }, [])
 
   // Redux-based data management functions

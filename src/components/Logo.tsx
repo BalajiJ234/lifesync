@@ -160,7 +160,7 @@ export default function Logo({ size = 'md', showText = true, animated = true }: 
             />
             {showText && (
                 <span className={`${config.text} font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent`}>
-                    LifeSync
+                    WealthPulse
                 </span>
             )}
         </Link>
