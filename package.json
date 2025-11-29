@@ -1,7 +1,7 @@
 {
-  "name": "lifesync",
+  "name": "wealthpulse",
   "version": "1.0.0",
-  "description": "Privacy-first personal finance tracker with local AI insights. Your data stays on YOUR device - no cloud, no tracking, no login required.",
+  "description": "AI-powered personal finance tracker with privacy-first architecture. Your data stays on YOUR device - no cloud, no tracking, no login required.",
   "author": "Balaji J",
   "private": true,
   "keywords": [
