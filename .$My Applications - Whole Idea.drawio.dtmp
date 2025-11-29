@@ -5,7 +5,7 @@
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="iGuYg9omIKnt9khu1dMh-27" value="PROXY Layer&lt;div&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;fillColor=#eeeeee;strokeColor=#36393d;" vertex="1" parent="1">
-          <mxGeometry x="130" y="-10" width="710" height="670" as="geometry" />
+          <mxGeometry x="10" y="-60" width="830" height="720" as="geometry" />
         </mxCell>
         <mxCell id="iGuYg9omIKnt9khu1dMh-11" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="iGuYg9omIKnt9khu1dMh-1" target="iGuYg9omIKnt9khu1dMh-4">
           <mxGeometry relative="1" as="geometry" />
@@ -14,7 +14,7 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="iGuYg9omIKnt9khu1dMh-1" value="Wealth Pulse" style="whiteSpace=wrap;html=1;aspect=fixed;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
-          <mxGeometry x="260" width="150" height="150" as="geometry" />
+          <mxGeometry x="100" width="150" height="150" as="geometry" />
         </mxCell>
         <mxCell id="iGuYg9omIKnt9khu1dMh-13" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="iGuYg9omIKnt9khu1dMh-2" target="iGuYg9omIKnt9khu1dMh-4">
           <mxGeometry relative="1" as="geometry" />
@@ -22,8 +22,8 @@
         <mxCell id="iGuYg9omIKnt9khu1dMh-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="iGuYg9omIKnt9khu1dMh-2" target="iGuYg9omIKnt9khu1dMh-3">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="iGuYg9omIKnt9khu1dMh-2" value="Personal Notes / To-Do APP (Mini App)" style="whiteSpace=wrap;html=1;aspect=fixed;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
-          <mxGeometry x="260" y="475" width="150" height="150" as="geometry" />
+        <mxCell id="iGuYg9omIKnt9khu1dMh-2" value="&lt;b&gt;Personal Notes / To-Do APP (Mini App)&lt;/b&gt;" style="whiteSpace=wrap;html=1;aspect=fixed;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="100" y="475" width="150" height="150" as="geometry" />
         </mxCell>
         <mxCell id="iGuYg9omIKnt9khu1dMh-7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="iGuYg9omIKnt9khu1dMh-3" target="iGuYg9omIKnt9khu1dMh-4">
           <mxGeometry relative="1" as="geometry" />
@@ -40,7 +40,7 @@
           </mxGeometry>
         </mxCell>
         <mxCell id="iGuYg9omIKnt9khu1dMh-3" value="&lt;b&gt;AI Microservices&lt;/b&gt;" style="whiteSpace=wrap;html=1;aspect=fixed;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
-          <mxGeometry x="510" y="215" width="160" height="160" as="geometry" />
+          <mxGeometry x="400" y="215" width="160" height="160" as="geometry" />
         </mxCell>
         <mxCell id="iGuYg9omIKnt9khu1dMh-6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="iGuYg9omIKnt9khu1dMh-4" target="iGuYg9omIKnt9khu1dMh-3">
           <mxGeometry relative="1" as="geometry" />
@@ -49,7 +49,7 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="iGuYg9omIKnt9khu1dMh-4" value="&lt;b&gt;Personal Assistant(Interact with my both application)&lt;/b&gt;" style="whiteSpace=wrap;html=1;aspect=fixed;fillColor=#d0cee2;strokeColor=#56517e;" vertex="1" parent="1">
-          <mxGeometry x="260" y="220" width="150" height="150" as="geometry" />
+          <mxGeometry x="100" y="220" width="150" height="150" as="geometry" />
         </mxCell>
         <mxCell id="iGuYg9omIKnt9khu1dMh-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="iGuYg9omIKnt9khu1dMh-5" target="iGuYg9omIKnt9khu1dMh-3">
           <mxGeometry relative="1" as="geometry" />
@@ -65,6 +65,9 @@
         </mxCell>
         <mxCell id="iGuYg9omIKnt9khu1dMh-25" value="Maria DB / Mongo DB" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;" vertex="1" parent="1">
           <mxGeometry x="740" y="330" width="60" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="iGuYg9omIKnt9khu1dMh-28" value="Need learn about below concepts:&lt;br&gt;&lt;ol&gt;&lt;li&gt;Proxy&lt;/li&gt;&lt;li&gt;Reverse Proxy&lt;/li&gt;&lt;li&gt;Load Balancer&lt;/li&gt;&lt;li&gt;API Gateway&lt;/li&gt;&lt;li&gt;Kubernetes AKI&lt;/li&gt;&lt;li&gt;Azure DevOps&lt;/li&gt;&lt;/ol&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="620" width="180" height="170" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
