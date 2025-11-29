@@ -51,22 +51,26 @@ wealthpulse/
 ## 🔧 Development Workflow
 
 ### 1. Create a Feature Branch
+
 ```bash
 git checkout -b feature/your-feature-name
 ```
 
 ### 2. Make Your Changes
+
 - Write code following TypeScript best practices
 - Ensure no TypeScript errors (`npm run build`)
 - Test on mobile and desktop
 
 ### 3. Commit Your Changes
+
 ```bash
 git add .
 git commit -m "feat: add your feature description"
 ```
 
 **Commit message format:**
+
 - `feat:` - New feature
 - `fix:` - Bug fix
 - `docs:` - Documentation changes
@@ -74,6 +78,7 @@ git commit -m "feat: add your feature description"
 - `refactor:` - Code restructuring
 
 ### 4. Push and Create PR
+
 ```bash
 git push origin feature/your-feature-name
 ```
@@ -85,36 +90,42 @@ Then create a Pull Request on GitHub.
 ## 🎯 Feature EPICs
 
 ### EPIC 1: Core Financial Management 🎯
+
 - Monthly budget limits with alerts
 - Custom expense categories
 - Advanced spending analytics
 - Receipt photo attachment
 
 ### EPIC 2: Enhanced Privacy & PWA 🔒
+
 - Optional encrypted cloud backup
 - Biometric authentication
 - Scheduled auto-exports
 - Privacy transparency dashboard
 
 ### EPIC 3: Goals & Financial Planning 💰
+
 - AI-powered goal forecasting
 - Multiple concurrent goals
 - Debt payoff calculator
 - Emergency fund planner
 
 ### EPIC 4: Smart Insights & AI 🤖
+
 - Spending pattern detection
 - Unusual expense alerts
 - Predictive monthly budgets
 - Cashflow forecasting
 
 ### EPIC 5: Collaboration & Sharing 👥
+
 - Household shared budget
 - Family member permissions
 - Group trip expense manager
 - Settlement payment tracking
 
 ### EPIC 6: Advanced Reporting 📊
+
 - Monthly/yearly expense reports
 - PDF/Excel export
 - Tax preparation exports
@@ -125,22 +136,25 @@ Then create a Pull Request on GitHub.
 ## 🏷️ GitHub Labels
 
 ### Priority Labels
-| Label | Color | Description |
-|-------|-------|-------------|
-| `priority: critical` | Red | Blocking issues |
-| `priority: high` | Orange | Important |
-| `priority: medium` | Yellow | Should have |
-| `priority: low` | Green | Nice to have |
+
+| Label                | Color  | Description     |
+| -------------------- | ------ | --------------- |
+| `priority: critical` | Red    | Blocking issues |
+| `priority: high`     | Orange | Important       |
+| `priority: medium`   | Yellow | Should have     |
+| `priority: low`      | Green  | Nice to have    |
 
 ### Type Labels
-| Label | Description |
-|-------|-------------|
-| `user-story` | User stories |
-| `bug` | Bug fixes |
+
+| Label         | Description  |
+| ------------- | ------------ |
+| `user-story`  | User stories |
+| `bug`         | Bug fixes    |
 | `enhancement` | Improvements |
-| `feature` | New features |
+| `feature`     | New features |
 
 ### EPIC Labels
+
 - `epic: core-financial`
 - `epic: privacy-pwa`
 - `epic: goals-planning`
@@ -153,6 +167,7 @@ Then create a Pull Request on GitHub.
 ## ✅ Contribution Guidelines
 
 ### What We Welcome
+
 - ✅ Privacy enhancements
 - ✅ Local AI improvements
 - ✅ Better UX/UI
@@ -162,6 +177,7 @@ Then create a Pull Request on GitHub.
 - ✅ Bug fixes
 
 ### What We DON'T Accept
+
 - ❌ Backend databases (privacy philosophy)
 - ❌ User authentication systems
 - ❌ Cloud sync without E2E encryption
