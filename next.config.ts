@@ -8,11 +8,11 @@ const withPWA = require("next-pwa")({
 });
 
 const nextConfig: NextConfig = {
-  // Base path for path-based routing (lifesync.app/wealth-pulse)
-  basePath: process.env.NEXT_PUBLIC_BASE_PATH || "",
+  // Base path for path-based routing (balaji-dev.in/life-sync/wealth)
+  basePath: "/life-sync/wealth",
 
   // Asset prefix for CDN/subpath deployment
-  assetPrefix: process.env.NEXT_PUBLIC_BASE_PATH || "",
+  assetPrefix: "/life-sync/wealth",
 };
 
 export default withPWA(nextConfig);
