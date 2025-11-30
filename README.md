@@ -10,6 +10,15 @@
 
 ---
 
+## 🌐 Live URLs
+
+| Environment | URL |
+|-------------|-----|
+| **Production** | https://balaji-dev.in/life-sync/wealth |
+| **Direct Vercel** | https://wealth-pulse-ai.vercel.app/life-sync/wealth |
+
+---
+
 ## 🎯 What is WealthPulse?
 
 **WealthPulse** is an AI-powered personal finance application that respects your privacy:
@@ -126,6 +135,22 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 | **Storage**   | localStorage (100% client-side)     |
 | **PWA**       | Service Worker, Web App Manifest    |
 | **AI**        | Local pattern matching & algorithms |
+| **Hosting**   | Vercel                              |
+| **Routing**   | Cloudflare Workers (path-based)     |
+
+---
+
+## ⚙️ Path-Based Routing Configuration
+
+This app uses `basePath` for path-based routing under the main domain:
+
+```typescript
+// next.config.ts
+const nextConfig: NextConfig = {
+  basePath: "/life-sync/wealth",
+  assetPrefix: "/life-sync/wealth",
+};
+```
 
 ---
 
@@ -238,6 +263,17 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 ## 📄 License
 
 MIT License - Free to use, modify, and distribute.
+
+---
+
+## 🌐 Part of Life-Sync 2.0 Ecosystem
+
+| App | URL | Status |
+|-----|-----|--------|
+| 🚀 **Gateway** | https://balaji-dev.in/life-sync | ✅ Live |
+| 💰 **Wealth Pulse** | https://balaji-dev.in/life-sync/wealth | ✅ Live |
+| 📝 **Life Notes** | https://balaji-dev.in/life-sync/notes | ✅ Live |
+| 🤖 **Personal Assistant** | Coming Month 4 | 🔮 Planned |
 
 ---
 
