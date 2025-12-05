@@ -12,9 +12,9 @@
 
 ## 🌐 Live URLs
 
-| Environment | URL |
-|-------------|-----|
-| **Production** | https://balaji-dev.in/life-sync/wealth |
+| Environment       | URL                                                 |
+| ----------------- | --------------------------------------------------- |
+| **Production**    | https://balaji-dev.in/life-sync/wealth              |
 | **Direct Vercel** | https://wealth-pulse-ai.vercel.app/life-sync/wealth |
 
 ---
@@ -268,12 +268,12 @@ MIT License - Free to use, modify, and distribute.
 
 ## 🌐 Part of Life-Sync 2.0 Ecosystem
 
-| App | URL | Status |
-|-----|-----|--------|
-| 🚀 **Gateway** | https://balaji-dev.in/life-sync | ✅ Live |
-| 💰 **Wealth Pulse** | https://balaji-dev.in/life-sync/wealth | ✅ Live |
-| 📝 **Life Notes** | https://balaji-dev.in/life-sync/notes | ✅ Live |
-| 🤖 **Personal Assistant** | Coming Month 4 | 🔮 Planned |
+| App                       | URL                                    | Status     |
+| ------------------------- | -------------------------------------- | ---------- |
+| 🚀 **Gateway**            | https://balaji-dev.in/life-sync        | ✅ Live    |
+| 💰 **Wealth Pulse**       | https://balaji-dev.in/life-sync/wealth | ✅ Live    |
+| 📝 **Life Notes**         | https://balaji-dev.in/life-sync/notes  | ✅ Live    |
+| 🤖 **Personal Assistant** | Coming Month 4                         | 🔮 Planned |
 
 ---
 
