@@ -16,6 +16,12 @@ import {
   X,
   Upload,
   RefreshCw,
+  ChevronUp,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  LayoutGrid,
+  Table,
 } from "lucide-react";
 import BulkImport from "@/components/BulkImport";
 import { RecurringSuggestionsPanel } from "@/components/RecurringSuggestionsPanel";
@@ -161,6 +167,17 @@ export default function ExpensesPage() {
     email: "",
   });
   const [showBulkImport, setShowBulkImport] = useState(false);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  
+  // Sorting state
+  const [sortField, setSortField] = useState<'date' | 'amount' | 'category' | 'description'>('date');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+  
+  // View mode state
+  const [viewMode, setViewMode] = useState<'cards' | 'table'>('table');
 
   // Client-side only rendering
   useEffect(() => {
@@ -344,6 +361,45 @@ export default function ExpensesPage() {
       return true;
     }
   );
+
+  // Sort expenses
+  const sortedExpenses = [...filteredExpenses].sort((a, b) => {
+    let comparison = 0;
+    switch (sortField) {
+      case 'date':
+        comparison = new Date(a.date).getTime() - new Date(b.date).getTime();
+        break;
+      case 'amount':
+        comparison = a.amount - b.amount;
+        break;
+      case 'category':
+        comparison = a.category.localeCompare(b.category);
+        break;
+      case 'description':
+        comparison = a.description.localeCompare(b.description);
+        break;
+    }
+    return sortDirection === 'asc' ? comparison : -comparison;
+  });
+
+  // Pagination
+  const totalPages = Math.ceil(sortedExpenses.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedExpenses = sortedExpenses.slice(startIndex, startIndex + itemsPerPage);
+
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, categoryFilter, dateFilter, sortField, sortDirection]);
+
+  const handleSort = (field: typeof sortField) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('desc');
+    }
+  };
 
   // Calculate statistics using converted amounts
   const stats = {
@@ -659,16 +715,34 @@ export default function ExpensesPage() {
             <option value='this-week'>This Week</option>
             <option value='this-month'>This Month</option>
           </select>
+
+          {/* View Mode Toggle */}
+          <div className='flex items-center gap-1 bg-gray-100 rounded-lg p-1'>
+            <button
+              onClick={() => setViewMode('table')}
+              className={`p-2 rounded ${viewMode === 'table' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'}`}
+              title='Table View'
+            >
+              <Table size={18} />
+            </button>
+            <button
+              onClick={() => setViewMode('cards')}
+              className={`p-2 rounded ${viewMode === 'cards' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'}`}
+              title='Card View'
+            >
+              <LayoutGrid size={18} />
+            </button>
+          </div>
         </div>
 
-        {filteredExpenses.length !== expenses.length && (
-          <div className='mt-3 text-sm text-gray-600'>
-            Showing {filteredExpenses.length} of {expenses.length} expenses
-            {filteredExpenses.length > 0 && (
+        <div className='flex flex-wrap items-center justify-between mt-3 gap-2'>
+          <div className='text-sm text-gray-600'>
+            Showing {paginatedExpenses.length} of {sortedExpenses.length} expenses
+            {sortedExpenses.length > 0 && (
               <span className='ml-2 font-medium'>
                 Total:{" "}
                 {formatAmount(
-                  filteredExpenses.reduce(
+                  sortedExpenses.reduce(
                     (sum, e) => sum + getConvertedAmount(e),
                     0
                   ),
@@ -677,11 +751,29 @@ export default function ExpensesPage() {
               </span>
             )}
           </div>
-        )}
+          
+          {/* Items per page selector */}
+          <div className='flex items-center gap-2'>
+            <span className='text-sm text-gray-600'>Show:</span>
+            <select
+              value={itemsPerPage}
+              onChange={(e) => {
+                setItemsPerPage(Number(e.target.value));
+                setCurrentPage(1);
+              }}
+              className='p-1 border border-gray-300 rounded text-sm'
+            >
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+            </select>
+          </div>
+        </div>
       </div>
 
       {/* Expenses List */}
-      {filteredExpenses.length === 0 ? (
+      {sortedExpenses.length === 0 ? (
         <div className='text-center py-12'>
           <div className='w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4'>
             <Receipt className='h-8 w-8 text-gray-400' />
@@ -695,9 +787,226 @@ export default function ExpensesPage() {
               : "Try adjusting your filters or search term"}
           </p>
         </div>
+      ) : viewMode === 'table' ? (
+        /* Table View */
+        <div className='bg-white rounded-lg shadow-sm border overflow-hidden'>
+          <div className='overflow-x-auto'>
+            <table className='min-w-full divide-y divide-gray-200'>
+              <thead className='bg-gray-50'>
+                <tr>
+                  <th 
+                    className='px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100'
+                    onClick={() => handleSort('date')}
+                  >
+                    <div className='flex items-center gap-1'>
+                      Date
+                      {sortField === 'date' && (
+                        sortDirection === 'desc' ? <ChevronDown size={14} /> : <ChevronUp size={14} />
+                      )}
+                    </div>
+                  </th>
+                  <th 
+                    className='px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100'
+                    onClick={() => handleSort('description')}
+                  >
+                    <div className='flex items-center gap-1'>
+                      Description
+                      {sortField === 'description' && (
+                        sortDirection === 'desc' ? <ChevronDown size={14} /> : <ChevronUp size={14} />
+                      )}
+                    </div>
+                  </th>
+                  <th 
+                    className='px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100'
+                    onClick={() => handleSort('category')}
+                  >
+                    <div className='flex items-center gap-1'>
+                      Category
+                      {sortField === 'category' && (
+                        sortDirection === 'desc' ? <ChevronDown size={14} /> : <ChevronUp size={14} />
+                      )}
+                    </div>
+                  </th>
+                  <th className='px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                    Type
+                  </th>
+                  <th 
+                    className='px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100'
+                    onClick={() => handleSort('amount')}
+                  >
+                    <div className='flex items-center justify-end gap-1'>
+                      Amount
+                      {sortField === 'amount' && (
+                        sortDirection === 'desc' ? <ChevronDown size={14} /> : <ChevronUp size={14} />
+                      )}
+                    </div>
+                  </th>
+                  <th className='px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className='bg-white divide-y divide-gray-200'>
+                {paginatedExpenses.map((expense: ReduxExpense) => {
+                  const categoryInfo = getCategoryInfo(expense.category);
+                  return (
+                    <tr key={expense.id} className='hover:bg-gray-50'>
+                      <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-900'>
+                        {isClient ? new Date(expense.date).toLocaleDateString() : "Loading..."}
+                      </td>
+                      <td className='px-4 py-3'>
+                        <div className='flex items-center gap-2'>
+                          <span className='text-lg'>{categoryInfo.icon}</span>
+                          <div>
+                            <div className='text-sm font-medium text-gray-900 truncate max-w-[200px]'>
+                              {expense.description}
+                            </div>
+                            {expense.notes && (
+                              <div className='text-xs text-gray-500 truncate max-w-[200px]' title={expense.notes}>
+                                {expense.notes}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                      <td className='px-4 py-3 whitespace-nowrap'>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${categoryInfo.color}`}>
+                          {expense.category}
+                        </span>
+                      </td>
+                      <td className='px-4 py-3 whitespace-nowrap'>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          expense.isRecurring ? "bg-blue-100 text-blue-800" : "bg-gray-100 text-gray-800"
+                        }`}>
+                          {expense.isRecurring ? "🔄 Recurring" : "💰 One-time"}
+                        </span>
+                      </td>
+                      <td className='px-4 py-3 whitespace-nowrap text-right'>
+                        <div className='text-sm font-bold text-gray-900'>
+                          {formatAmount(
+                            expense.amount,
+                            SUPPORTED_CURRENCIES.find((c) => c.code === expense.currency) ||
+                              SUPPORTED_CURRENCIES.find((c) => c.code === settings.currency) ||
+                              SUPPORTED_CURRENCIES[0]
+                          )}
+                        </div>
+                        {expense.currency !== reportCurrency && (
+                          <div className='text-xs text-gray-500'>
+                            ≈ {formatAmount(getConvertedAmount(expense), displayCurrency)}
+                          </div>
+                        )}
+                      </td>
+                      <td className='px-4 py-3 whitespace-nowrap text-center'>
+                        <div className='flex items-center justify-center gap-1'>
+                          <button
+                            onClick={() => openShareModal(expense)}
+                            className='p-1 text-gray-400 hover:text-green-600 transition-colors'
+                            title='Share'
+                          >
+                            <Share2 size={16} />
+                          </button>
+                          <button
+                            onClick={() => startEdit(expense)}
+                            className='p-1 text-gray-400 hover:text-blue-600 transition-colors'
+                            title='Edit'
+                          >
+                            <Edit3 size={16} />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteExpense(expense.id)}
+                            className='p-1 text-gray-400 hover:text-red-600 transition-colors'
+                            title='Delete'
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className='px-4 py-3 border-t border-gray-200 flex items-center justify-between'>
+              <div className='text-sm text-gray-600'>
+                Page {currentPage} of {totalPages}
+              </div>
+              <div className='flex items-center gap-2'>
+                <button
+                  onClick={() => setCurrentPage(1)}
+                  disabled={currentPage === 1}
+                  className='p-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed'
+                  title='First Page'
+                >
+                  <ChevronLeft size={18} />
+                  <ChevronLeft size={18} className='-ml-3' />
+                </button>
+                <button
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className='p-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed'
+                  title='Previous Page'
+                >
+                  <ChevronLeft size={18} />
+                </button>
+                
+                {/* Page numbers */}
+                <div className='flex items-center gap-1'>
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let pageNum;
+                    if (totalPages <= 5) {
+                      pageNum = i + 1;
+                    } else if (currentPage <= 3) {
+                      pageNum = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNum = totalPages - 4 + i;
+                    } else {
+                      pageNum = currentPage - 2 + i;
+                    }
+                    return (
+                      <button
+                        key={pageNum}
+                        onClick={() => setCurrentPage(pageNum)}
+                        className={`w-8 h-8 rounded text-sm ${
+                          currentPage === pageNum
+                            ? 'bg-blue-600 text-white'
+                            : 'hover:bg-gray-100'
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  })}
+                </div>
+                
+                <button
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className='p-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed'
+                  title='Next Page'
+                >
+                  <ChevronRight size={18} />
+                </button>
+                <button
+                  onClick={() => setCurrentPage(totalPages)}
+                  disabled={currentPage === totalPages}
+                  className='p-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed'
+                  title='Last Page'
+                >
+                  <ChevronRight size={18} />
+                  <ChevronRight size={18} className='-ml-3' />
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       ) : (
+        /* Card View */
         <div className='space-y-3'>
-          {filteredExpenses.map((expense: ReduxExpense) => {
+          {paginatedExpenses.map((expense: ReduxExpense) => {
             const categoryInfo = getCategoryInfo(expense.category);
 
             return (
@@ -809,6 +1118,31 @@ export default function ExpensesPage() {
               </div>
             );
           })}
+          
+          {/* Card View Pagination */}
+          {totalPages > 1 && (
+            <div className='bg-white p-4 rounded-lg shadow-sm border flex items-center justify-between'>
+              <div className='text-sm text-gray-600'>
+                Page {currentPage} of {totalPages}
+              </div>
+              <div className='flex items-center gap-2'>
+                <button
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className='px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed'
+                >
+                  Previous
+                </button>
+                <button
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className='px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed'
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 

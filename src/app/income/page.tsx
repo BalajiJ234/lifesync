@@ -170,6 +170,9 @@ export default function IncomePage() {
               <p className="text-2xl md:text-3xl font-bold mt-1">
                 {formatAmount(totalReceived, getCurrencyByCode(settings.currency))}
               </p>
+              <p className="text-green-200 text-xs mt-1">
+                Currency: {settings.currency}
+              </p>
             </div>
             <DollarSign size={32} className="text-green-100" />
           </div>
@@ -181,6 +184,9 @@ export default function IncomePage() {
               <p className="text-blue-100 text-sm">Total Scheduled</p>
               <p className="text-2xl md:text-3xl font-bold mt-1">
                 {formatAmount(totalScheduled, getCurrencyByCode(settings.currency))}
+              </p>
+              <p className="text-blue-200 text-xs mt-1">
+                Currency: {settings.currency}
               </p>
             </div>
             <Clock size={40} className="text-blue-200" />
@@ -249,9 +255,10 @@ export default function IncomePage() {
                       )}
                     </div>
                     <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
-                      <span className="flex items-center gap-1">
+                      <span className="flex items-center gap-1 font-semibold text-green-700">
                         <DollarSign size={16} />
                         {formatAmount(income.amount, getCurrencyByCode(income.currency))}
+                        <span className="text-xs text-gray-500 font-normal">({income.currency})</span>
                       </span>
                       <span className="flex items-center gap-1">
                         <Calendar size={16} />

@@ -27,19 +27,17 @@ export default function BudgetDashboard() {
   // Get currency from settings
   const baseCurrency = settings?.currency || 'USD'
 
-  // Calculate total monthly income from income entries
+  // Calculate total monthly income from income entries for the SELECTED month
   const totalMonthlyIncome = useMemo(() => {
-    const currentDate = new Date()
-    const currentMonth = currentDate.getMonth()
-    const currentYear = currentDate.getFullYear()
+    const [selectedYear, selectedMonthNum] = selectedMonth.split('-').map(Number)
     
     return incomeEntries
       .filter(income => {
         const incomeDate = new Date(income.eventDate)
-        return incomeDate.getMonth() === currentMonth && incomeDate.getFullYear() === currentYear
+        return incomeDate.getMonth() === selectedMonthNum - 1 && incomeDate.getFullYear() === selectedYear
       })
       .reduce((sum, income) => sum + income.amount, 0)
-  }, [incomeEntries])
+  }, [incomeEntries, selectedMonth])
 
   // Find plan for selected month from allPlans
   const activePlan = useMemo(() => {
