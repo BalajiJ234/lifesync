@@ -13,6 +13,37 @@ const nextConfig: NextConfig = {
 
   // Asset prefix for CDN/subpath deployment
   assetPrefix: "/life-sync/wealth",
+
+  // Redirects for old routes after navigation restructuring
+  async redirects() {
+    return [
+      {
+        source: '/expenses',
+        destination: '/transactions',
+        permanent: true,
+      },
+      {
+        source: '/income',
+        destination: '/transactions',
+        permanent: true,
+      },
+      {
+        source: '/budget',
+        destination: '/planning',
+        permanent: true,
+      },
+      {
+        source: '/goals',
+        destination: '/planning',
+        permanent: true,
+      },
+      {
+        source: '/advisor',
+        destination: '/',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default withPWA(nextConfig);
