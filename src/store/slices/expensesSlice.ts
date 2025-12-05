@@ -8,12 +8,13 @@ export interface Expense {
   subcategory?: string
   date: string
   currency: string
-  createdAt: string
+  createdAt?: string
   isRecurring?: boolean
   recurringPeriod?: 'daily' | 'weekly' | 'monthly' | 'yearly'
   tags?: string[]
   notes?: string
   location?: string
+  source?: 'manual' | 'budget' | 'import' // Track where expense came from
 }
 
 interface ExpensesState {

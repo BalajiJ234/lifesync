@@ -12,12 +12,14 @@ import {
   ChevronDown,
   ChevronUp,
   Lightbulb,
+  Calculator,
 } from "lucide-react";
 import Logo from "./Logo";
 
 const navItems = [
   { href: "/advisor", label: "Advisor", icon: Lightbulb },
   { href: "/", label: "Dashboard", icon: Home },
+  { href: "/budget", label: "Budget", icon: Calculator },
   { href: "/expenses", label: "Expenses", icon: DollarSign, hasSubmenu: true },
   { href: "/income", label: "Income", icon: TrendingUp },
   { href: "/goals", label: "Goals", icon: Target },

@@ -1,5 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+/**
+ * LOCAL AI SUGGESTIONS (Rule-based fallback)
+ * 
+ * TODO: Replace with Personal Assistant API call when fully integrated
+ * This provides offline-capable financial suggestions using pattern analysis.
+ * Once personal-assistant-api is connected, this should proxy to:
+ * GET /api/assistant/insights
+ */
+
 // AI-powered insights and suggestions endpoint
 export async function GET(request: NextRequest) {
   try {

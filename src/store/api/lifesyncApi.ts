@@ -2,9 +2,51 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import type { Expense } from '../slices/expensesSlice'
 import type { Goal } from '../slices/goalsSlice'
 import type { Split } from '../slices/splitsSlice'
+import type { 
+  MonthlyBudgetPlan, 
+  BudgetInsight, 
+  IncomeSource, 
+  Debt, 
+  BudgetGoal,
+  BudgetRuleSet 
+} from '../slices/budgetSlice'
 
 // Define API base URL - will be configurable
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api'
+
+// Budget API types
+interface CreateBudgetPlanRequest {
+  userId: string
+  month: string
+  baseCurrency: string
+  homeCountry: string
+  incomes: IncomeSource[]
+  debts: Debt[]
+  goals: BudgetGoal[]
+  rules: BudgetRuleSet
+}
+
+interface LogTransactionRequest {
+  userId: string
+  month: string
+  baseCurrency: string
+  bucket: 'NEEDS' | 'WANTS' | 'SAVINGS' | 'DEBT'
+  category: string
+  amount: number
+  currency: string
+  description?: string
+}
+
+interface TransactionResponse {
+  updatedPlan: MonthlyBudgetPlan
+  insights: BudgetInsight[]
+}
+
+interface FxRatesResponse {
+  base: string
+  rates: Record<string, number>
+  timestamp: string
+}
 
 // Define API endpoints and data structures
 export const lifesyncApi = createApi({
@@ -21,7 +63,7 @@ export const lifesyncApi = createApi({
       return headers
     },
   }),
-  tagTypes: ['Expense', 'Goal', 'Split', 'User'],
+  tagTypes: ['Expense', 'Goal', 'Split', 'User', 'Budget', 'FxRates'],
   endpoints: (builder) => ({
     // Expenses API
     getExpenses: builder.query<Expense[], void>({
@@ -140,6 +182,46 @@ export const lifesyncApi = createApi({
       }),
       invalidatesTags: ['Expense', 'Goal', 'Split'],
     }),
+
+    // ==================== Budget Engine API ====================
+    
+    // Create or regenerate a budget plan
+    createBudgetPlan: builder.mutation<MonthlyBudgetPlan, CreateBudgetPlanRequest>({
+      query: (data) => ({
+        url: '/wealth/budget/plan',
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: ['Budget'],
+    }),
+
+    // Get budget plan for a specific month
+    getBudgetPlan: builder.query<MonthlyBudgetPlan, { userId: string; month: string }>({
+      query: ({ userId, month }) => `/wealth/budget/${month}?userId=${userId}`,
+      providesTags: (result, error, { month }) => [{ type: 'Budget', id: month }],
+    }),
+
+    // Log a transaction against a budget plan
+    logTransaction: builder.mutation<TransactionResponse, LogTransactionRequest>({
+      query: (data) => ({
+        url: '/wealth/budget/transactions',
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: (result, error, { month }) => [{ type: 'Budget', id: month }],
+    }),
+
+    // Get insights for a specific month
+    getBudgetInsights: builder.query<BudgetInsight[], { userId: string; month: string }>({
+      query: ({ userId, month }) => `/wealth/budget/insights/${month}?userId=${userId}`,
+      providesTags: ['Budget'],
+    }),
+
+    // Get current FX rates
+    getFxRates: builder.query<FxRatesResponse, { base: string }>({
+      query: ({ base }) => `/wealth/budget/fx-rates?base=${base}`,
+      providesTags: ['FxRates'],
+    }),
   }),
 })
 
@@ -169,4 +251,11 @@ export const {
   
   // Sync
   useSyncDataMutation,
+
+  // Budget Engine
+  useCreateBudgetPlanMutation,
+  useGetBudgetPlanQuery,
+  useLogTransactionMutation,
+  useGetBudgetInsightsQuery,
+  useGetFxRatesQuery,
 } = lifesyncApi

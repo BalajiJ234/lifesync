@@ -1,5 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+/**
+ * LOCAL AI CATEGORIZATION (Rule-based fallback)
+ * 
+ * TODO: Replace with Personal Assistant API call when fully integrated
+ * This provides offline-capable expense categorization using pattern matching.
+ * Once personal-assistant-api is connected, this should proxy to:
+ * POST /api/assistant/categorize
+ */
+
 // Type definitions
 interface CategoryResult {
   category: string

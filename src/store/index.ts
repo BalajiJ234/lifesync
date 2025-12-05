@@ -20,6 +20,7 @@ import settingsReducer from "./slices/settingsSlice";
 import incomeReducer from "./slices/incomeSlice";
 import advisorReducer from "./slices/advisorSlice";
 import recurringPatternsReducer from "./slices/recurringPatternsSlice";
+import budgetReducer from "./slices/budgetSlice";
 import { lifesyncApi } from "./api/lifesyncApi";
 
 const rootReducer = combineReducers({
@@ -30,6 +31,7 @@ const rootReducer = combineReducers({
   income: incomeReducer,
   advisor: advisorReducer,
   recurringPatterns: recurringPatternsReducer,
+  budget: budgetReducer,
   [lifesyncApi.reducerPath]: lifesyncApi.reducer,
 });
 
@@ -44,6 +46,7 @@ const persistConfig = {
     "income",
     "advisor",
     "recurringPatterns",
+    "budget",
   ], // Only persist these slices, not API cache
 };
 

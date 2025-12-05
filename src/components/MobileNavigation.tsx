@@ -14,12 +14,14 @@ import {
   Menu,
   X,
   Lightbulb,
+  Calculator,
 } from "lucide-react";
 import Logo from "./Logo";
 
 const navItems = [
   { href: "/advisor", label: "Advisor", icon: Lightbulb },
   { href: "/", label: "Dashboard", icon: Home },
+  { href: "/budget", label: "Budget", icon: Calculator },
   { href: "/expenses", label: "Expenses", icon: DollarSign, hasSubmenu: true },
   { href: "/income", label: "Income", icon: TrendingUp },
   { href: "/goals", label: "Goals", icon: Target },
@@ -35,8 +37,8 @@ const expenseSubmenuItems = [
 const bottomTabItems = [
   { href: "/advisor", label: "Advisor", icon: Lightbulb },
   { href: "/", label: "Home", icon: Home },
+  { href: "/budget", label: "Budget", icon: Calculator },
   { href: "/expenses", label: "Expenses", icon: DollarSign },
-  { href: "/income", label: "Income", icon: TrendingUp },
   { href: "/goals", label: "Goals", icon: Target },
 ];
 

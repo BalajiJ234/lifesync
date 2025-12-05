@@ -107,7 +107,7 @@ const useFinanceData = () => {
       activities.push({
         type: "expense",
         desc: expense.description,
-        time: formatTimeAgo(expense.createdAt),
+        time: formatTimeAgo(expense.createdAt || expense.date),
         amount: `$${expense.amount.toFixed(2)}`,
         isPositive: false,
       });
