@@ -324,21 +324,21 @@ export default function Home() {
       {/* Quick Actions */}
       <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6'>
         <Link
-          href='/advisor'
+          href='/planning'
           className='bg-gradient-to-r from-indigo-500 to-purple-600 p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow group text-white'>
           <div className='flex flex-col items-center text-center space-y-4'>
             <div className='p-3 bg-white/20 rounded-full group-hover:bg-white/30 transition-colors'>
-              <Lightbulb className='h-8 w-8' />
+              <PiggyBank className='h-8 w-8' />
             </div>
             <div>
-              <h3 className='text-lg font-semibold'>Financial Advisor</h3>
-              <p className='text-sm text-white/80'>Get AI-powered insights</p>
+              <h3 className='text-lg font-semibold'>Budget & Goals</h3>
+              <p className='text-sm text-white/80'>Plan your finances</p>
             </div>
           </div>
         </Link>
 
         <Link
-          href='/expenses'
+          href='/transactions'
           className='bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition-shadow group'>
           <div className='flex flex-col items-center text-center space-y-4'>
             <div className='p-3 bg-red-100 rounded-full group-hover:bg-red-200 transition-colors'>
@@ -346,53 +346,52 @@ export default function Home() {
             </div>
             <div>
               <h3 className='text-lg font-semibold text-gray-900'>
-                Track Expenses
+                Transactions
               </h3>
-              <p className='text-sm text-gray-600'>Monitor your spending</p>
+              <p className='text-sm text-gray-600'>Track income & expenses</p>
             </div>
             <div className='flex items-center text-blue-600 text-sm font-medium'>
               <Plus className='h-4 w-4 mr-1' />
-              Add Expense
+              Add Entry
             </div>
           </div>
         </Link>
 
         <Link
-          href='/income'
+          href='/splits'
           className='bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition-shadow group'>
           <div className='flex flex-col items-center text-center space-y-4'>
-            <div className='p-3 bg-green-100 rounded-full group-hover:bg-green-200 transition-colors'>
-              <TrendingUp className='h-8 w-8 text-green-600' />
+            <div className='p-3 bg-purple-100 rounded-full group-hover:bg-purple-200 transition-colors'>
+              <Users className='h-8 w-8 text-purple-600' />
             </div>
             <div>
               <h3 className='text-lg font-semibold text-gray-900'>
-                Track Income
+                Bill Splits
               </h3>
-              <p className='text-sm text-gray-600'>Log your earnings</p>
+              <p className='text-sm text-gray-600'>Split with friends</p>
             </div>
             <div className='flex items-center text-blue-600 text-sm font-medium'>
               <Plus className='h-4 w-4 mr-1' />
-              Add Income
+              Add Split
             </div>
           </div>
         </Link>
 
         <Link
-          href='/goals'
+          href='/settings'
           className='bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition-shadow group'>
           <div className='flex flex-col items-center text-center space-y-4'>
-            <div className='p-3 bg-blue-100 rounded-full group-hover:bg-blue-200 transition-colors'>
-              <PiggyBank className='h-8 w-8 text-blue-600' />
+            <div className='p-3 bg-gray-100 rounded-full group-hover:bg-gray-200 transition-colors'>
+              <Lightbulb className='h-8 w-8 text-gray-600' />
             </div>
             <div>
               <h3 className='text-lg font-semibold text-gray-900'>
-                Savings Goals
+                Settings
               </h3>
-              <p className='text-sm text-gray-600'>Plan for the future</p>
+              <p className='text-sm text-gray-600'>Configure preferences</p>
             </div>
             <div className='flex items-center text-blue-600 text-sm font-medium'>
-              <Plus className='h-4 w-4 mr-1' />
-              Add Goal
+              Customize
             </div>
           </div>
         </Link>
@@ -409,7 +408,7 @@ export default function Home() {
               Recent Transactions
             </h2>
             <Link
-              href='/expenses'
+              href='/transactions'
               className='text-sm text-blue-600 hover:text-blue-700 font-medium'>
               View All →
             </Link>

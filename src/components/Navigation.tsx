@@ -2,96 +2,40 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
 import {
   Home,
   DollarSign,
-  TrendingUp,
-  Target,
+  PiggyBank,
+  Users,
   Settings,
-  ChevronDown,
-  ChevronUp,
-  Lightbulb,
-  Calculator,
 } from "lucide-react";
 import Logo from "./Logo";
 
+// Simplified navigation - 5 items only
 const navItems = [
-  { href: "/advisor", label: "Advisor", icon: Lightbulb },
   { href: "/", label: "Dashboard", icon: Home },
-  { href: "/budget", label: "Budget", icon: Calculator },
-  { href: "/expenses", label: "Expenses", icon: DollarSign, hasSubmenu: true },
-  { href: "/income", label: "Income", icon: TrendingUp },
-  { href: "/goals", label: "Goals", icon: Target },
+  { href: "/transactions", label: "Transactions", icon: DollarSign },
+  { href: "/planning", label: "Budget & Goals", icon: PiggyBank },
+  { href: "/splits", label: "Splits", icon: Users },
   { href: "/settings", label: "Settings", icon: Settings },
-];
-
-const expenseSubmenuItems = [
-  { href: "/expenses", label: "My Expenses" },
-  { href: "/splits", label: "Bill Splitting" },
 ];
 
 export default function Navigation() {
   const pathname = usePathname();
-  const [showExpenseSubmenu, setShowExpenseSubmenu] = useState(false);
 
   return (
-    <nav className='bg-white shadow-sm border-b'>
+    <nav className='bg-white dark:bg-gray-900 shadow-sm border-b dark:border-gray-800'>
       <div className='container mx-auto px-4'>
         <div className='flex items-center justify-between h-16'>
           {/* Logo */}
           <Logo size='md' showText={true} animated={true} />
 
-          {/* Navigation Links */}
-          <div className='hidden md:flex space-x-8 relative'>
+          {/* Navigation Links - Desktop */}
+          <div className='hidden md:flex space-x-6'>
             {navItems.map((item) => {
               const Icon = item.icon;
-              const isActive =
-                pathname === item.href ||
-                (item.hasSubmenu &&
-                  (pathname === "/expenses" ||
-                    pathname === "/splits" ||
-                    pathname.startsWith("/expenses/")));
-
-              if (item.hasSubmenu) {
-                return (
-                  <div key={item.href} className='relative'>
-                    <button
-                      onClick={() => setShowExpenseSubmenu(!showExpenseSubmenu)}
-                      className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                        isActive
-                          ? "text-blue-600 bg-blue-50"
-                          : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
-                      }`}>
-                      <Icon size={20} />
-                      <span>{item.label}</span>
-                      {showExpenseSubmenu ? (
-                        <ChevronUp size={16} />
-                      ) : (
-                        <ChevronDown size={16} />
-                      )}
-                    </button>
-
-                    {showExpenseSubmenu && (
-                      <div className='absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50'>
-                        {expenseSubmenuItems.map((subItem) => (
-                          <Link
-                            key={subItem.href}
-                            href={subItem.href}
-                            className={`block px-4 py-2 text-sm hover:bg-gray-50 first:rounded-t-md last:rounded-b-md ${
-                              pathname === subItem.href
-                                ? "text-blue-600 bg-blue-50"
-                                : "text-gray-600 hover:text-blue-600"
-                            }`}
-                            onClick={() => setShowExpenseSubmenu(false)}>
-                            {subItem.label}
-                          </Link>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                );
-              }
+              const isActive = pathname === item.href || 
+                (item.href !== '/' && pathname.startsWith(item.href));
 
               return (
                 <Link
@@ -99,8 +43,8 @@ export default function Navigation() {
                   href={item.href}
                   className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                     isActive
-                      ? "text-blue-600 bg-blue-50"
-                      : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
+                      ? "text-blue-600 bg-blue-50 dark:bg-blue-900/20"
+                      : "text-gray-600 dark:text-gray-300 hover:text-blue-600 hover:bg-gray-50 dark:hover:bg-gray-800"
                   }`}>
                   <Icon size={20} />
                   <span>{item.label}</span>
@@ -111,7 +55,7 @@ export default function Navigation() {
 
           {/* Mobile menu button */}
           <div className='md:hidden'>
-            <button className='text-gray-600 hover:text-blue-600'>
+            <button className='text-gray-600 dark:text-gray-300 hover:text-blue-600'>
               <svg
                 className='h-6 w-6'
                 fill='none'
@@ -126,73 +70,6 @@ export default function Navigation() {
               </svg>
             </button>
           </div>
-        </div>
-
-        {/* Mobile menu */}
-        <div className='md:hidden border-t pt-4 pb-3 space-y-2'>
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive =
-              pathname === item.href ||
-              (item.hasSubmenu &&
-                (pathname === "/expenses" || pathname === "/splits"));
-
-            if (item.hasSubmenu) {
-              return (
-                <div key={item.href} className='space-y-2'>
-                  <button
-                    onClick={() => setShowExpenseSubmenu(!showExpenseSubmenu)}
-                    className={`w-full flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                      isActive
-                        ? "text-blue-600 bg-blue-50"
-                        : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
-                    }`}>
-                    <div className='flex items-center space-x-2'>
-                      <Icon size={20} />
-                      <span>{item.label}</span>
-                    </div>
-                    {showExpenseSubmenu ? (
-                      <ChevronUp size={16} />
-                    ) : (
-                      <ChevronDown size={16} />
-                    )}
-                  </button>
-
-                  {showExpenseSubmenu && (
-                    <div className='ml-4 space-y-1'>
-                      {expenseSubmenuItems.map((subItem) => (
-                        <Link
-                          key={subItem.href}
-                          href={subItem.href}
-                          className={`block px-3 py-2 rounded-md text-sm transition-colors ${
-                            pathname === subItem.href
-                              ? "text-blue-600 bg-blue-50"
-                              : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
-                          }`}
-                          onClick={() => setShowExpenseSubmenu(false)}>
-                          {subItem.label}
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              );
-            }
-
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  isActive
-                    ? "text-blue-600 bg-blue-50"
-                    : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
-                }`}>
-                <Icon size={20} />
-                <span>{item.label}</span>
-              </Link>
-            );
-          })}
         </div>
       </div>
     </nav>
