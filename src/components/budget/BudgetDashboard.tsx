@@ -38,6 +38,10 @@ export default function BudgetDashboard() {
     { skip: !selectedMonth }
   )
 
+  // Check if error is a 404 (no plan exists) - this is not a real error
+  const is404Error = error && 'status' in error && error.status === 404
+  const hasRealError = error && !is404Error
+
   // Create budget plan mutation
   const [createPlan, { isLoading: isCreating }] = useCreateBudgetPlanMutation()
 
@@ -204,8 +208,8 @@ export default function BudgetDashboard() {
         </div>
       </div>
 
-      {/* Error State */}
-      {error && (
+      {/* Error State - only show for real errors, not 404 */}
+      {hasRealError && (
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
           <div className="flex items-center">
             <svg className="w-5 h-5 text-red-600 dark:text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
@@ -217,7 +221,7 @@ export default function BudgetDashboard() {
       )}
 
       {/* No Plan State */}
-      {!activePlan && !error && (
+      {!activePlan && !hasRealError && (
         <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-8 text-center">
           <svg className="mx-auto h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
