@@ -3,53 +3,48 @@
 import { useState, useMemo } from 'react'
 import { useAppSelector, useAppDispatch } from '@/store/hooks'
 import { 
-  useGetBudgetPlanQuery, 
-  useCreateBudgetPlanMutation,
-  useLogTransactionMutation 
-} from '@/store/api/lifesyncApi'
-import { 
-  setCurrentPlan, 
   setSelectedMonth,
-  updatePlanFromTransaction,
+  createLocalBudgetPlan,
+  logLocalTransaction,
   BucketType
 } from '@/store/slices/budgetSlice'
 import { addExpense } from '@/store/slices/expensesSlice'
+import { selectIncomes } from '@/store/slices/incomeSlice'
 import BudgetBucketCard from './BudgetBucketCard'
 import TransactionForm from './TransactionForm'
 import BudgetInsightsPanel from './BudgetInsightsPanel'
 
-const USER_ID = 'default-user' // Temporary until auth is implemented
-
 export default function BudgetDashboard() {
   const dispatch = useAppDispatch()
-  const { selectedMonth, currentPlan, rules, incomes, debts, budgetGoals, insights, loading } = useAppSelector((state) => state.budget)
+  const { selectedMonth, currentPlan, allPlans, rules, insights, loading } = useAppSelector((state) => state.budget)
   const { settings } = useAppSelector((state) => state.settings)
+  const incomeEntries = useAppSelector(selectIncomes)
   
   const [showTransactionForm, setShowTransactionForm] = useState(false)
   const [selectedBucket, setSelectedBucket] = useState<BucketType>('NEEDS')
+  const [isCreating, setIsCreating] = useState(false)
 
   // Get currency from settings
   const baseCurrency = settings?.currency || 'USD'
-  const homeCountry = 'US' // Default, can be added to settings later
 
-  // Fetch budget plan for selected month
-  const { data: fetchedPlan, isLoading: isFetching, error } = useGetBudgetPlanQuery(
-    { userId: USER_ID, month: selectedMonth },
-    { skip: !selectedMonth }
-  )
+  // Calculate total monthly income from income entries
+  const totalMonthlyIncome = useMemo(() => {
+    const currentDate = new Date()
+    const currentMonth = currentDate.getMonth()
+    const currentYear = currentDate.getFullYear()
+    
+    return incomeEntries
+      .filter(income => {
+        const incomeDate = new Date(income.eventDate)
+        return incomeDate.getMonth() === currentMonth && incomeDate.getFullYear() === currentYear
+      })
+      .reduce((sum, income) => sum + income.amount, 0)
+  }, [incomeEntries])
 
-  // Check if error is a 404 (no plan exists) - this is not a real error
-  const is404Error = error && 'status' in error && error.status === 404
-  const hasRealError = error && !is404Error
-
-  // Create budget plan mutation
-  const [createPlan, { isLoading: isCreating }] = useCreateBudgetPlanMutation()
-
-  // Log transaction mutation
-  const [logTransaction, { isLoading: isLogging }] = useLogTransactionMutation()
-
-  // Use fetched plan or current plan from state
-  const activePlan = fetchedPlan || currentPlan
+  // Find plan for selected month from allPlans
+  const activePlan = useMemo(() => {
+    return allPlans.find(p => p.month === selectedMonth) || currentPlan
+  }, [allPlans, selectedMonth, currentPlan])
 
   // Calculate month navigation
   const { prevMonth, nextMonth, displayMonth } = useMemo(() => {
@@ -66,64 +61,47 @@ export default function BudgetDashboard() {
     }
   }, [selectedMonth])
 
-  const handleCreatePlan = async () => {
-    try {
-      const result = await createPlan({
-        userId: USER_ID,
-        month: selectedMonth,
-        baseCurrency,
-        homeCountry,
-        incomes,
-        debts,
-        goals: budgetGoals,
-        rules,
-      }).unwrap()
-      
-      dispatch(setCurrentPlan(result))
-    } catch (err) {
-      console.error('Failed to create budget plan:', err)
-    }
+  const handleCreatePlan = () => {
+    setIsCreating(true)
+    
+    // Use total monthly income, or a default if no income entries
+    const incomeToUse = totalMonthlyIncome > 0 ? totalMonthlyIncome : 5000
+    
+    dispatch(createLocalBudgetPlan({
+      month: selectedMonth,
+      baseCurrency,
+      totalIncome: incomeToUse,
+    }))
+    
+    setIsCreating(false)
   }
 
-  const handleLogTransaction = async (transaction: {
+  const handleLogTransaction = (transaction: {
     bucket: BucketType
     category: string
     amount: number
     currency: string
     description?: string
   }) => {
-    try {
-      const result = await logTransaction({
-        userId: USER_ID,
-        month: selectedMonth,
-        baseCurrency,
-        ...transaction,
-      }).unwrap()
-      
-      dispatch(updatePlanFromTransaction({
-        plan: result.updatedPlan,
-        insights: result.insights,
-      }))
+    // Log to budget
+    dispatch(logLocalTransaction(transaction))
 
-      // Sync with Expenses slice (only for NEEDS and WANTS - actual spending)
-      if (transaction.bucket === 'NEEDS' || transaction.bucket === 'WANTS') {
-        const newExpense = {
-          id: `budget-${Date.now()}`,
-          amount: transaction.amount,
-          description: transaction.description || transaction.category,
-          category: transaction.category,
-          date: new Date().toISOString(),
-          currency: transaction.currency,
-          isRecurring: false,
-          source: 'budget' as const,
-        }
-        dispatch(addExpense(newExpense))
+    // Sync with Expenses slice (only for NEEDS and WANTS - actual spending)
+    if (transaction.bucket === 'NEEDS' || transaction.bucket === 'WANTS') {
+      const newExpense = {
+        id: `budget-${Date.now()}`,
+        amount: transaction.amount,
+        description: transaction.description || transaction.category,
+        category: transaction.category,
+        date: new Date().toISOString(),
+        currency: transaction.currency,
+        isRecurring: false,
+        source: 'budget' as const,
       }
-
-      setShowTransactionForm(false)
-    } catch (err) {
-      console.error('Failed to log transaction:', err)
+      dispatch(addExpense(newExpense))
     }
+
+    setShowTransactionForm(false)
   }
 
   const handleMonthChange = (month: string) => {
@@ -135,7 +113,7 @@ export default function BudgetDashboard() {
     setShowTransactionForm(true)
   }
 
-  if (isFetching || loading) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
@@ -208,28 +186,25 @@ export default function BudgetDashboard() {
         </div>
       </div>
 
-      {/* Error State - only show for real errors, not 404 */}
-      {hasRealError && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-          <div className="flex items-center">
-            <svg className="w-5 h-5 text-red-600 dark:text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-            </svg>
-            <p className="text-red-700 dark:text-red-300">Failed to load budget plan. Please try again.</p>
-          </div>
-        </div>
-      )}
-
       {/* No Plan State */}
-      {!activePlan && !hasRealError && (
+      {!activePlan && (
         <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-8 text-center">
           <svg className="mx-auto h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
           </svg>
-          <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-white">No Budget Plan</h3>
+          <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-white">No Budget Plan for {displayMonth}</h3>
           <p className="mt-2 text-gray-500 dark:text-gray-400">
-            Create a budget plan to start tracking your spending with the 50/30/20 rule.
+            Create a budget plan to start tracking your spending with the {rules.buckets.needs}/{rules.buckets.wants}/{rules.buckets.savings}/{rules.buckets.debt} rule.
           </p>
+          {totalMonthlyIncome > 0 ? (
+            <p className="mt-2 text-sm text-green-600 dark:text-green-400">
+              Based on your income entries: {baseCurrency} {totalMonthlyIncome.toLocaleString()}
+            </p>
+          ) : (
+            <p className="mt-2 text-sm text-amber-600 dark:text-amber-400">
+              No income entries found. Add income first or we&apos;ll use a default of {baseCurrency} 5,000.
+            </p>
+          )}
           <button
             onClick={handleCreatePlan}
             disabled={isCreating}
@@ -287,7 +262,7 @@ export default function BudgetDashboard() {
           plan={activePlan}
           onSubmit={handleLogTransaction}
           onClose={() => setShowTransactionForm(false)}
-          isLoading={isLogging}
+          isLoading={false}
         />
       )}
     </div>

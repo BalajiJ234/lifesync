@@ -198,6 +198,154 @@ const budgetSlice = createSlice({
         state.allPlans[existingIndex] = action.payload
       }
     },
+
+    // Create a new budget plan locally
+    createLocalBudgetPlan: (state, action: PayloadAction<{
+      month: string
+      baseCurrency: string
+      totalIncome: number
+    }>) => {
+      const { month, baseCurrency, totalIncome } = action.payload
+      const { rules } = state
+      
+      // Calculate bucket amounts based on rules
+      const needsAmount = (totalIncome * rules.buckets.needs) / 100
+      const wantsAmount = (totalIncome * rules.buckets.wants) / 100
+      const savingsAmount = (totalIncome * rules.buckets.savings) / 100
+      const debtAmount = (totalIncome * rules.buckets.debt) / 100
+
+      const createMoney = (amount: number): Money => ({
+        amount,
+        currency: baseCurrency,
+        baseAmount: amount,
+        fxRate: 1,
+        fxTimestamp: new Date().toISOString(),
+      })
+
+      const createBucket = (type: BucketType, planned: number): BudgetBucket => ({
+        type,
+        planned: createMoney(planned),
+        spent: createMoney(0),
+        remaining: createMoney(planned),
+        status: 'UNDER' as BucketStatus,
+        categories: {},
+      })
+
+      const newPlan: MonthlyBudgetPlan = {
+        id: `plan-${month}-${Date.now()}`,
+        userId: 'local-user',
+        month,
+        baseCurrency,
+        totalIncome: createMoney(totalIncome),
+        buckets: {
+          NEEDS: createBucket('NEEDS', needsAmount),
+          WANTS: createBucket('WANTS', wantsAmount),
+          SAVINGS: createBucket('SAVINGS', savingsAmount),
+          DEBT: createBucket('DEBT', debtAmount),
+        },
+        debtsSnapshot: state.debts.map(debt => ({
+          debtId: debt.id,
+          name: debt.name,
+          outstandingPrincipal: createMoney(debt.outstandingPrincipal),
+          allocatedPayment: createMoney(debt.minMonthlyPayment),
+          isMinimumPayment: true,
+        })),
+        goalsSnapshot: state.budgetGoals.map(goal => ({
+          goalId: goal.id,
+          name: goal.name,
+          targetAmount: createMoney(goal.targetAmount),
+          currentAmount: createMoney(goal.currentAmount),
+          monthlyContribution: createMoney(0),
+          progressPercent: goal.targetAmount > 0 ? (goal.currentAmount / goal.targetAmount) * 100 : 0,
+        })),
+        insights: [{
+          id: `insight-${Date.now()}`,
+          type: 'success',
+          message: `Budget plan created for ${month} with ${rules.strategyType} strategy (${rules.buckets.needs}/${rules.buckets.wants}/${rules.buckets.savings}/${rules.buckets.debt})`,
+          createdAt: new Date().toISOString(),
+        }],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }
+
+      state.currentPlan = newPlan
+      state.insights = newPlan.insights
+      
+      // Add to allPlans, replace if same month exists
+      const existingIndex = state.allPlans.findIndex(p => p.month === month)
+      if (existingIndex === -1) {
+        state.allPlans.push(newPlan)
+      } else {
+        state.allPlans[existingIndex] = newPlan
+      }
+    },
+
+    // Log a transaction to a bucket (local)
+    logLocalTransaction: (state, action: PayloadAction<{
+      bucket: BucketType
+      category: string
+      amount: number
+      currency: string
+      description?: string
+    }>) => {
+      if (!state.currentPlan) return
+      
+      const { bucket, category, amount } = action.payload
+      const plan = state.currentPlan
+      const bucketData = plan.buckets[bucket]
+      
+      // Update spent
+      bucketData.spent.amount += amount
+      bucketData.spent.baseAmount += amount
+      
+      // Update remaining
+      bucketData.remaining.amount = bucketData.planned.amount - bucketData.spent.amount
+      bucketData.remaining.baseAmount = bucketData.planned.baseAmount - bucketData.spent.baseAmount
+      
+      // Update status
+      const percentUsed = (bucketData.spent.amount / bucketData.planned.amount) * 100
+      if (percentUsed >= 100) {
+        bucketData.status = 'OVER'
+      } else if (percentUsed >= 80) {
+        bucketData.status = 'NEAR_LIMIT'
+      } else {
+        bucketData.status = 'UNDER'
+      }
+      
+      // Update category
+      if (!bucketData.categories[category]) {
+        bucketData.categories[category] = {
+          name: category,
+          planned: 0,
+          spent: 0,
+          remaining: 0,
+          status: 'UNDER',
+        }
+      }
+      bucketData.categories[category].spent += amount
+      
+      // Add insight if over budget
+      if (bucketData.status === 'OVER') {
+        state.insights.push({
+          id: `insight-${Date.now()}`,
+          type: 'alert',
+          message: `${bucket} bucket is over budget by ${Math.abs(bucketData.remaining.amount).toFixed(2)} ${bucketData.remaining.currency}`,
+          bucket,
+          createdAt: new Date().toISOString(),
+        })
+      } else if (bucketData.status === 'NEAR_LIMIT') {
+        state.insights.push({
+          id: `insight-${Date.now()}`,
+          type: 'warning',
+          message: `${bucket} bucket is at ${percentUsed.toFixed(0)}% - approaching limit`,
+          bucket,
+          createdAt: new Date().toISOString(),
+        })
+      }
+      
+      plan.updatedAt = new Date().toISOString()
+    },
+
     updatePlanFromTransaction: (state, action: PayloadAction<{ plan: MonthlyBudgetPlan; insights: BudgetInsight[] }>) => {
       state.currentPlan = action.payload.plan
       state.insights = [...state.insights, ...action.payload.insights]
@@ -288,6 +436,8 @@ const budgetSlice = createSlice({
 
 export const {
   setCurrentPlan,
+  createLocalBudgetPlan,
+  logLocalTransaction,
   updatePlanFromTransaction,
   setSelectedMonth,
   addIncome,
