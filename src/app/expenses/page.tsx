@@ -938,19 +938,18 @@ export default function ExpensesPage() {
                 <button
                   onClick={() => setCurrentPage(1)}
                   disabled={currentPage === 1}
-                  className='p-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed'
+                  className='px-2 py-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed text-sm'
                   title='First Page'
                 >
-                  <ChevronLeft size={18} />
-                  <ChevronLeft size={18} className='-ml-3' />
+                  «
                 </button>
                 <button
                   onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
-                  className='p-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed'
+                  className='px-2 py-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed text-sm'
                   title='Previous Page'
                 >
-                  <ChevronLeft size={18} />
+                  ‹
                 </button>
                 
                 {/* Page numbers */}
@@ -985,19 +984,18 @@ export default function ExpensesPage() {
                 <button
                   onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}
-                  className='p-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed'
+                  className='px-2 py-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed text-sm'
                   title='Next Page'
                 >
-                  <ChevronRight size={18} />
+                  ›
                 </button>
                 <button
                   onClick={() => setCurrentPage(totalPages)}
                   disabled={currentPage === totalPages}
-                  className='p-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed'
+                  className='px-2 py-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed text-sm'
                   title='Last Page'
                 >
-                  <ChevronRight size={18} />
-                  <ChevronRight size={18} className='-ml-3' />
+                  »
                 </button>
               </div>
             </div>
