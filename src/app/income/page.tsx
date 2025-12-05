@@ -10,10 +10,8 @@ import {
   DollarSign,
   Tag,
   Repeat,
-  CheckCircle,
   Clock,
   Filter,
-  Download,
   Upload
 } from 'lucide-react'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
@@ -29,7 +27,7 @@ import {
   type IncomeRecurrence
 } from '@/store/slices/incomeSlice'
 import { useSettings } from '@/contexts/SettingsContext'
-import { formatAmount, getCurrencyByCode } from '@/utils/currency'
+import { formatAmount, getCurrencyByCode, SUPPORTED_CURRENCIES } from '@/utils/currency'
 import ResponsiveModal, { useMobileModal } from '@/components/ui/MobileModal'
 import BulkImport from '@/components/BulkImport'
 
@@ -406,6 +404,25 @@ function IncomeForm({
         </div>
 
         <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Currency <span className="text-red-500">*</span>
+          </label>
+          <select
+            value={formData.currency}
+            onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+          >
+            {SUPPORTED_CURRENCIES.map((curr) => (
+              <option key={curr.code} value={curr.code}>
+                {curr.symbol} {curr.code} - {curr.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
           <select
             value={formData.category}
@@ -417,6 +434,18 @@ function IncomeForm({
                 {cat.label}
               </option>
             ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+          <select
+            value={formData.status}
+            onChange={(e) => setFormData({ ...formData, status: e.target.value as 'received' | 'scheduled' })}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+          >
+            <option value="received">Received</option>
+            <option value="scheduled">Scheduled</option>
           </select>
         </div>
       </div>
@@ -433,31 +462,19 @@ function IncomeForm({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Recurrence</label>
           <select
-            value={formData.status}
-            onChange={(e) => setFormData({ ...formData, status: e.target.value as 'received' | 'scheduled' })}
+            value={formData.recurrence}
+            onChange={(e) => setFormData({ ...formData, recurrence: e.target.value as IncomeRecurrence })}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
           >
-            <option value="received">Received</option>
-            <option value="scheduled">Scheduled</option>
+            {recurrenceOptions.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
           </select>
         </div>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Recurrence</label>
-        <select
-          value={formData.recurrence}
-          onChange={(e) => setFormData({ ...formData, recurrence: e.target.value as IncomeRecurrence })}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-        >
-          {recurrenceOptions.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
       </div>
 
       <div>
