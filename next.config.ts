@@ -18,28 +18,28 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
-        source: '/expenses',
-        destination: '/transactions',
+        source: "/expenses",
+        destination: "/transactions",
         permanent: true,
       },
       {
-        source: '/income',
-        destination: '/transactions',
+        source: "/income",
+        destination: "/transactions",
         permanent: true,
       },
       {
-        source: '/budget',
-        destination: '/planning',
+        source: "/budget",
+        destination: "/planning",
         permanent: true,
       },
       {
-        source: '/goals',
-        destination: '/planning',
+        source: "/goals",
+        destination: "/planning",
         permanent: true,
       },
       {
-        source: '/advisor',
-        destination: '/',
+        source: "/advisor",
+        destination: "/",
         permanent: true,
       },
     ];

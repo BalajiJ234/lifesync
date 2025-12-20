@@ -60,8 +60,9 @@ export default function MobileNavigation() {
             <div className='hidden md:flex space-x-6'>
               {navItems.map((item) => {
                 const Icon = item.icon;
-                const isActive = pathname === item.href || 
-                  (item.href !== '/' && pathname.startsWith(item.href));
+                const isActive =
+                  pathname === item.href ||
+                  (item.href !== "/" && pathname.startsWith(item.href));
 
                 return (
                   <Link
@@ -103,7 +104,9 @@ export default function MobileNavigation() {
             <div className='fixed top-0 right-0 h-full w-80 bg-white dark:bg-gray-900 shadow-xl z-50 md:hidden transform transition-transform duration-300 ease-in-out'>
               <div className='p-6'>
                 <div className='flex justify-between items-center mb-8'>
-                  <h2 className='text-xl font-bold text-gray-900 dark:text-white'>Menu</h2>
+                  <h2 className='text-xl font-bold text-gray-900 dark:text-white'>
+                    Menu
+                  </h2>
                   <button
                     onClick={() => setShowMobileMenu(false)}
                     className='text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'>
@@ -114,8 +117,9 @@ export default function MobileNavigation() {
                 <div className='space-y-2'>
                   {navItems.map((item) => {
                     const Icon = item.icon;
-                    const isActive = pathname === item.href || 
-                      (item.href !== '/' && pathname.startsWith(item.href));
+                    const isActive =
+                      pathname === item.href ||
+                      (item.href !== "/" && pathname.startsWith(item.href));
 
                     return (
                       <Link
@@ -145,15 +149,18 @@ export default function MobileNavigation() {
           <div className='flex items-center justify-around py-2'>
             {bottomTabItems.map((item) => {
               const Icon = item.icon;
-              const isActive = pathname === item.href || 
-                (item.href !== '/' && pathname.startsWith(item.href));
+              const isActive =
+                pathname === item.href ||
+                (item.href !== "/" && pathname.startsWith(item.href));
 
               return (
                 <Link
                   key={item.href}
                   href={item.href}
                   className={`flex flex-col items-center py-2 px-3 min-w-0 flex-1 text-center transition-colors ${
-                    isActive ? "text-blue-600" : "text-gray-400 dark:text-gray-500"
+                    isActive
+                      ? "text-blue-600"
+                      : "text-gray-400 dark:text-gray-500"
                   }`}>
                   <Icon size={20} className='mb-1' />
                   <span className='text-xs font-medium truncate'>

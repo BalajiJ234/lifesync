@@ -227,11 +227,11 @@ export default function Home() {
       <FamilyRemittanceWidget />
 
       {/* Exchange Rates & Insights */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
+      <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
+        <div className='lg:col-span-2'>
           <QuickInsightsWidget />
         </div>
-        <div className="lg:col-span-1">
+        <div className='lg:col-span-1'>
           <ExchangeRateWidget compact />
         </div>
       </div>
@@ -385,9 +385,7 @@ export default function Home() {
               <Lightbulb className='h-8 w-8 text-gray-600' />
             </div>
             <div>
-              <h3 className='text-lg font-semibold text-gray-900'>
-                Settings
-              </h3>
+              <h3 className='text-lg font-semibold text-gray-900'>Settings</h3>
               <p className='text-sm text-gray-600'>Configure preferences</p>
             </div>
             <div className='flex items-center text-blue-600 text-sm font-medium'>

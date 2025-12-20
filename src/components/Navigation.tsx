@@ -2,13 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  Home,
-  DollarSign,
-  PiggyBank,
-  Users,
-  Settings,
-} from "lucide-react";
+import { Home, DollarSign, PiggyBank, Users, Settings } from "lucide-react";
 import Logo from "./Logo";
 
 // Simplified navigation - 5 items only
@@ -34,8 +28,9 @@ export default function Navigation() {
           <div className='hidden md:flex space-x-6'>
             {navItems.map((item) => {
               const Icon = item.icon;
-              const isActive = pathname === item.href || 
-                (item.href !== '/' && pathname.startsWith(item.href));
+              const isActive =
+                pathname === item.href ||
+                (item.href !== "/" && pathname.startsWith(item.href));
 
               return (
                 <Link
